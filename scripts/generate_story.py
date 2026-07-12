@@ -40,10 +40,10 @@ hikayeler yazmak. Kurallar:
 
 JSON formati:
 {
-  "title": "Youtube icin merak uyandiran kisa baslik (max 60 karakter)",
+  "title": "Youtube icin merak uyandiran vurucu kisa baslik (max 60 karakter)",
   "story": "Hikayenin tam metni (seslendirme icin)",
   "captions": ["Ekranda gorunecek kisa altyazi parcasi 1", "parca 2", "parca 3", "..."],
-  "hashtags": ["#gizem", "#korku", "diger 3-4 alakali hashtag"]
+  "hashtags": ["#gizem", "#korku", "diger 5-7 alakali hashtag"]
 }
 
 captions alani, story metnini ekranda 4-8 kelimelik kisa parcalar halinde gostermek icin
@@ -53,7 +53,7 @@ bolunmus halidir - toplam story ile ayni anlami tasimali, kelime kelime kopya ol
 def generate_story():
     theme = random.choice(THEMES)
     model = genai.GenerativeModel(
-        "gemini-2.5-flash"
+        "gemini-2.5-flash",
         system_instruction=SYSTEM_PROMPT,
     )
     prompt = f"Tema: {theme}\n\nBu temaya uygun yeni ve ozgun bir hikaye uret."
