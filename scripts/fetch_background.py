@@ -19,6 +19,7 @@ if not PEXELS_API_KEY:
 
 HEADERS = {"Authorization": PEXELS_API_KEY}
 
+# ALT panel: dikkat cekici, hipnotik hareketli arkaplanlar (oyun-tarzi izlenim)
 BOTTOM_SEARCH_TERMS = [
     "parkour running",
     "abstract liquid motion",
@@ -30,6 +31,7 @@ BOTTOM_SEARCH_TERMS = [
     "city night drive",
 ]
 
+# UST panel icin, hikaye temasina gore uygun arama terimleri
 THEME_TO_TOP_SEARCH = {
     "terk edilmis bir evde yasanan aciklanamayan olay": ["abandoned house interior", "old dark hallway"],
     "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi": ["foggy small town night", "empty street fog"],
@@ -43,6 +45,8 @@ THEME_TO_TOP_SEARCH = {
     "psikolojik olarak aciklanamayan dejavu deneyimi": ["abstract dark clouds", "mirror reflection dark"],
 }
 
+# Ucretsiz, dogrudan indirilebilir (API key gerektirmeyen) ambiyans/gerilim muzikleri
+# Pixabay'in acik CDN linkleri - telifsiz, ticari kullanima uygun
 MUSIC_URLS = [
     "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8e70c5fdc.mp3",
     "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3",
@@ -78,6 +82,7 @@ def fetch_bottom_background(output_path: str = "output/background.mp4"):
     term = random.choice(BOTTOM_SEARCH_TERMS)
     ok = _download_pexels_video(term, output_path)
     if not ok:
+        # Yedek terim dene
         ok = _download_pexels_video("abstract motion", output_path)
     print(f"Alt panel arkaplani indirildi ({term}): {output_path}")
 
