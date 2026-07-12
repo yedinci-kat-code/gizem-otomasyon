@@ -13,7 +13,7 @@ permissions:
 jobs:
   create-and-upload-video:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Repo'yu indir
@@ -38,7 +38,7 @@ jobs:
       - name: 2) Seslendirme uret
         run: python scripts/generate_voice.py
 
-      - name: 3) Arkaplan video cek
+      - name: 3) Arkaplan videolari ve muzik cek
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: python scripts/fetch_background.py
