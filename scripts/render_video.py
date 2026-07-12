@@ -29,6 +29,11 @@ def get_audio_duration(path: str) -> float:
 
 
 def split_into_sentence_chunks(story_text: str, max_chars_per_line=32):
+    """
+    Metni CUMLE sinirlarina gore boler (nokta/soru/unlem isaretinden sonra
+    yeni grup baslar). Her cumle, ekrana sigmiyorsa kelime bazinda
+    alt satirlara bolunur (\\n ile), boylece drawtext otomatik cok satirli gosterir.
+    """
     import re
     raw_sentences = re.split(r'(?<=[.!?])\s+', story_text.strip())
     raw_sentences = [s.strip() for s in raw_sentences if s.strip()]
@@ -55,10 +60,15 @@ def split_into_sentence_chunks(story_text: str, max_chars_per_line=32):
 
 
 def build_caption_groups_from_words(word_timings, story_text: str):
+    """
+    Kelime zamanlamasi varsa, cumle sinirlarina gore gruplar olusturur
+    ve her cumlenin baslangic/bitis zamanini kelime zamanlamasindan hesaplar.
+    """
     sentence_chunks = split_into_sentence_chunks(story_text)
     total_words = sum(len(c.replace("\n", " ").split()) for c in sentence_chunks)
 
     if len(word_timings) < total_words * 0.5:
+        # Kelime sayisi cok tutmuyorsa (TTS metni degistirmis olabilir), guvenli mod
         return None
 
     groups = []
@@ -80,6 +90,7 @@ def build_caption_groups_from_text(story_text: str, duration: float):
     chunks = split_into_sentence_chunks(story_text)
     if not chunks:
         return []
+    # Cumle uzunluguna gore agirlikli sure dagit (kisa cumle az, uzun cumle cok sure alsin)
     weights = [max(len(c.replace("\n", " ")), 5) for c in chunks]
     total_weight = sum(weights)
     groups = []
@@ -139,6 +150,7 @@ def render(story_path="output/story.json",
     has_top_bg = os.path.exists(top_background_path)
     has_music = os.path.exists(music_path)
 
+    # --- 1) UST PANEL: video varsa uzerine altyazi, yoksa duz renk ---
     if has_top_bg:
         top_cmd = [
             "ffmpeg", "-y",
@@ -165,6 +177,7 @@ def render(story_path="output/story.json",
         ]
     subprocess.run(top_cmd, check=True)
 
+    # --- 2) ALT PANEL: arkaplan videosunu ayri, standart bir formata cevir ---
     bottom_cmd = [
         "ffmpeg", "-y",
         "-stream_loop", "-1", "-i", background_path,
@@ -179,6 +192,7 @@ def render(story_path="output/story.json",
     ]
     subprocess.run(bottom_cmd, check=True)
 
+    # --- 3) SES: seslendirme + (varsa) dusuk sesli arkaplan muzigi karistir ---
     if has_music:
         audio_cmd = [
             "ffmpeg", "-y",
@@ -195,6 +209,7 @@ def render(story_path="output/story.json",
     else:
         final_audio_path = voice_path
 
+    # --- 4) Ust + alt paneli dikey birlestir (vstack), sesi ekle ---
     final_cmd = [
         "ffmpeg", "-y",
         "-i", "output/top_panel.mp4",
@@ -226,3 +241,45 @@ def generate_thumbnail(story_path="output/story.json", output_path="output/thumb
 
     draw1 = (
         f"drawtext=fontfile={FONT_PATH}:text='{line1}':"
+        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
+        f"x=(w-text_w)/2:y=(h/2)-110"
+    )
+    draw2 = (
+        f"drawtext=fontfile={FONT_PATH}:text='{line2}':"
+        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
+        f"x=(w-text_w)/2:y=(h/2)+10"
+        if line2 else "null"
+    )
+
+    top_bg = "output/top_background.mp4"
+    if os.path.exists(top_bg):
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", top_bg,
+            "-vf",
+            (
+                f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+                f"crop={WIDTH}:{HEIGHT},eq=brightness=-0.2,"
+                f"{draw1},{draw2}" if line2 else
+                f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+                f"crop={WIDTH}:{HEIGHT},eq=brightness=-0.2,{draw1}"
+            ),
+            "-frames:v", "1",
+            output_path,
+        ]
+    else:
+        cmd = [
+            "ffmpeg", "-y",
+            "-f", "lavfi",
+            "-i", f"color=c=0x120a1a:s={WIDTH}x{HEIGHT}:d=1",
+            "-vf", f"{draw1},{draw2}" if line2 else draw1,
+            "-frames:v", "1",
+            output_path,
+        ]
+    subprocess.run(cmd, check=True)
+    print(f"Kapak (thumbnail) uretildi: {output_path}")
+
+
+if __name__ == "__main__":
+    render()
+    generate_thumbnail()
