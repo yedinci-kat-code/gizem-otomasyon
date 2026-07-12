@@ -4,31 +4,47 @@ edge-tts (ucretsiz, Microsoft Edge sesleri) kullanarak Turkce seslendirme uretir
 """
 import asyncio
 import json
+import time
 import edge_tts
 
-# Turkce erkek ses - atmosferik/ciddi ton icin uygun
 VOICE = "tr-TR-AhmetNeural"
-# Alternatif: "tr-TR-EmelNeural" (kadin ses)
 
-RATE = "-5%"   # hafif yavas, daha gerilimli/dramatik anlatim icin
-PITCH = "-2Hz"  # hafif kalin ton
+RATE = "-5%"
+PITCH = "-2Hz"
+
+MAX_RETRIES = 4
+RETRY_DELAY_SECONDS = 8
 
 
 async def generate_voice(text: str, output_path: str):
-    communicate = edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH)
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            communicate = edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH)
 
-    word_boundaries = []
-    with open(output_path, "wb") as audio_file:
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                audio_file.write(chunk["data"])
-            elif chunk["type"] == "WordBoundary":
-                word_boundaries.append({
-                    "text": chunk["text"],
-                    "offset": chunk["offset"] / 10_000_000,  # 100ns -> saniye
-                    "duration": chunk["duration"] / 10_000_000,
-                })
-    return word_boundaries
+            word_boundaries = []
+            with open(output_path, "wb") as audio_file:
+                async for chunk in communicate.stream():
+                    if chunk["type"] == "audio":
+                        audio_file.write(chunk["data"])
+                    elif chunk["type"] == "WordBoundary":
+                        word_boundaries.append({
+                            "text": chunk["text"],
+                            "offset": chunk["offset"] / 10_000_000,
+                            "duration": chunk["duration"] / 10_000_000,
+                        })
+
+            if not word_boundaries:
+                raise RuntimeError("Ses uretildi ama kelime zamanlamasi bos geldi")
+
+            return word_boundaries
+        except Exception as e:
+            last_error = e
+            print(f"Deneme {attempt}/{MAX_RETRIES} basarisiz: {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY_SECONDS)
+
+    raise RuntimeError(f"Seslendirme {MAX_RETRIES} denemeden sonra basarisiz oldu: {last_error}")
 
 
 if __name__ == "__main__":
