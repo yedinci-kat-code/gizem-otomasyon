@@ -36,7 +36,8 @@ def upload_video(youtube, video_path: str, story: dict):
         title = title[:92] + "..."
 
     hashtags = " ".join(story.get("hashtags", ["#gizem", "#korku", "#shorts"]))
-    description = f"{story['story'][:200]}...\n\n{hashtags}\n\n#shorts"
+    desc_summary = story.get("description", story["story"][:200])
+    description = f"{desc_summary}\n\n{hashtags}\n\n#shorts"
 
     body = {
         "snippet": {
