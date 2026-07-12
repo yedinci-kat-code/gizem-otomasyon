@@ -1,157 +1,94 @@
 """
-Zifiri Saatler - Video Montaj
-Ust panel: atmosferik gradient + kelime kelime beliren altyazi
-Alt panel: Pexels'ten cekilen hareketli arkaplan
-Ses: edge-tts ile uretilen seslendirme
+Zifiri Saatler - YouTube Otomatik Yukleme
+Refresh token kullanarak, insan onayi gerekmeden video yukler.
 """
-import json
-import subprocess
 import os
+import json
+import sys
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
-WIDTH = 1080
-HEIGHT = 1920
-TOP_HEIGHT = int(HEIGHT * 0.56)
-BOTTOM_HEIGHT = HEIGHT - TOP_HEIGHT
+CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
+REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
 
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+if not all([CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN]):
+    print("HATA: YouTube kimlik bilgileri eksik", file=sys.stderr)
+    sys.exit(1)
 
 
-def get_audio_duration(path: str) -> float:
-    result = subprocess.run(
-        [
-            "ffprobe", "-v", "error", "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1", path,
-        ],
-        capture_output=True, text=True, check=True,
+def get_authenticated_service():
+    creds = Credentials(
+        token=None,
+        refresh_token=REFRESH_TOKEN,
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=["https://www.googleapis.com/auth/youtube.upload"],
     )
-    return float(result.stdout.strip())
+    return build("youtube", "v3", credentials=creds)
 
 
-def build_caption_filters(word_timings, video_offset_y=0):
-    groups = []
-    current = []
-    current_start = None
-    for w in word_timings:
-        if current_start is None:
-            current_start = w["offset"]
-        current.append(w["text"])
-        if len(current) >= 5:
-            groups.append({
-                "text": " ".join(current),
-                "start": current_start,
-                "end": w["offset"] + w["duration"] + 0.15,
-            })
-            current = []
-            current_start = None
-    if current:
-        last = word_timings[-1]
-        groups.append({
-            "text": " ".join(current),
-            "start": current_start,
-            "end": last["offset"] + last["duration"] + 0.3,
-        })
+def upload_video(youtube, video_path: str, story: dict):
+    title = story["title"]
+    if len(title) > 95:
+        title = title[:92] + "..."
 
-    filters = []
-    for g in groups:
-        text = (
-            g["text"]
-            .replace("\\", "")
-            .replace("'", "\u2019")
-            .replace(":", "\\:")
-        )
-        y_pos = f"(h*0.56)*0.68"
-        filters.append(
-            f"drawtext=fontfile={FONT_PATH}:text='{text}':"
-            f"fontsize=52:fontcolor=white:borderw=4:bordercolor=black@0.8:"
-            f"x=(w-text_w)/2:y={y_pos}:"
-            f"enable='between(t,{g['start']:.2f},{g['end']:.2f})'"
-        )
-    return filters
+    hashtags = " ".join(story.get("hashtags", ["#gizem", "#korku", "#shorts"]))
+    description = f"{story['story'][:200]}...\n\n{hashtags}\n\n#shorts"
 
+    body = {
+        "snippet": {
+            "title": title,
+            "description": description,
+            "tags": [t.strip("#") for t in story.get("hashtags", [])],
+            "categoryId": "24",
+        },
+        "status": {
+            "privacyStatus": "public",
+            "selfDeclaredMadeForKids": False,
+        },
+    }
 
-def render(story_path="output/story.json",
-           voice_path="output/voice.mp3",
-           background_path="output/background.mp4",
-           timings_path="output/word_timings.json",
-           output_path="output/final.mp4"):
+    media = MediaFileUpload(video_path, chunksize=-1, resumable=True, mimetype="video/mp4")
 
-    with open(story_path, "r", encoding="utf-8") as f:
-        story = json.load(f)
-    with open(timings_path, "r", encoding="utf-8") as f:
-        word_timings = json.load(f)
-
-    duration = get_audio_duration(voice_path) + 0.5
-
-    caption_filters = build_caption_filters(word_timings)
-    caption_chain = ",".join(caption_filters) if caption_filters else "null"
-
-    top_cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-i", f"color=c=0x120a1a:s={WIDTH}x{TOP_HEIGHT}:d={duration}",
-        "-vf", caption_chain if caption_filters else "null",
-        "-t", str(duration),
-        "output/top_panel.mp4",
-    ]
-    subprocess.run(top_cmd, check=True)
-
-    final_cmd = [
-        "ffmpeg", "-y",
-        "-i", "output/top_panel.mp4",
-        "-stream_loop", "-1", "-i", background_path,
-        "-i", voice_path,
-        "-filter_complex",
-        (
-            f"[1:v]scale={WIDTH}:{BOTTOM_HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={WIDTH}:{BOTTOM_HEIGHT}[botv];"
-            f"[0:v][botv]vstack=inputs=2[outv]"
-        ),
-        "-map", "[outv]",
-        "-map", "2:a",
-        "-t", str(duration),
-        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
-        "-c:a", "aac", "-b:a", "160k",
-        "-shortest",
-        output_path,
-    ]
-    subprocess.run(final_cmd, check=True)
-    print(f"Video render edildi: {output_path}")
-
-
-def generate_thumbnail(story_path="output/story.json", output_path="output/thumbnail.jpg"):
-    with open(story_path, "r", encoding="utf-8") as f:
-        story = json.load(f)
-
-    title = story["title"].replace("'", "\u2019").replace(":", "\\:")
-
-    words = title.split()
-    mid = len(words) // 2 + (len(words) % 2)
-    line1 = " ".join(words[:mid])
-    line2 = " ".join(words[mid:])
-
-    draw1 = (
-        f"drawtext=fontfile={FONT_PATH}:text='{line1}':"
-        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
-        f"x=(w-text_w)/2:y=(h/2)-110"
-    )
-    draw2 = (
-        f"drawtext=fontfile={FONT_PATH}:text='{line2}':"
-        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
-        f"x=(w-text_w)/2:y=(h/2)+10"
-        if line2 else "null"
+    request = youtube.videos().insert(
+        part="snippet,status",
+        body=body,
+        media_body=media,
     )
 
-    cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi",
-        "-i", f"color=c=0x120a1a:s={WIDTH}x{HEIGHT}:d=1",
-        "-vf", f"{draw1},{draw2}" if line2 else draw1,
-        "-frames:v", "1",
-        output_path,
-    ]
-    subprocess.run(cmd, check=True)
-    print(f"Kapak (thumbnail) uretildi: {output_path}")
+    response = None
+    while response is None:
+        status, response = request.next_chunk()
+        if status:
+            print(f"Yukleniyor: %{int(status.progress() * 100)}")
+
+    video_id = response["id"]
+    print(f"Yuklendi: https://youtube.com/shorts/{video_id}")
+    return video_id
+
+
+def set_thumbnail(youtube, video_id: str, thumbnail_path: str):
+    if not os.path.exists(thumbnail_path):
+        print("Kapak dosyasi bulunamadi, atlaniyor.")
+        return
+    youtube.thumbnails().set(
+        videoId=video_id,
+        media_body=MediaFileUpload(thumbnail_path, mimetype="image/jpeg"),
+    ).execute()
+    print("Ozel kapak atandi.")
 
 
 if __name__ == "__main__":
-    render()
-    generate_thumbnail()
+    with open("output/story.json", "r", encoding="utf-8") as f:
+        story = json.load(f)
+
+    youtube = get_authenticated_service()
+    video_id = upload_video(youtube, "output/final.mp4", story)
+
+    try:
+        set_thumbnail(youtube, video_id, "output/thumbnail.jpg")
+    except Exception as e:
+        print(f"Kapak atanamadi (video yine de yuklendi): {e}")
