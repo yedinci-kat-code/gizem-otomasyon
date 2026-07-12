@@ -53,7 +53,7 @@ bolunmus halidir - toplam story ile ayni anlami tasimali, kelime kelime kopya ol
 def generate_story():
     theme = random.choice(THEMES)
     model = genai.GenerativeModel(
-        "gemini-2.0-flash",
+        "gemini-2.5-flash"
         system_instruction=SYSTEM_PROMPT,
     )
     prompt = f"Tema: {theme}\n\nBu temaya uygun yeni ve ozgun bir hikaye uret."
