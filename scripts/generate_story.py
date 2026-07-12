@@ -115,6 +115,8 @@ def generate_story():
     text = text.strip()
 
     data = json.loads(text)
+
+    # Guvenlik: model theme_key'i degistirmis/atlamis olabilir, biz zaten biliyoruz
     data["_theme"] = theme
 
     save_history(history, data["title"])
