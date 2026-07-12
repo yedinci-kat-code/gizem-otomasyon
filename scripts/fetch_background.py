@@ -1,11 +1,15 @@
 """
-Zifiri Saatler - Arkaplan Video Cekici
-Pexels API kullanarak telifsiz, hareketli arkaplan videolari ceker.
-Her videoda farkli bir gorsel gelsin diye rastgele bir arama terimi secer.
+Zifiri Saatler - Arkaplan Video ve Muzik Cekici
+Pexels API kullanarak:
+  - ALT panel icin: hareketli/hipnotik "oyun tarzi" arkaplan videosu
+  - UST panel icin: hikayenin konusuyla ilgili atmosferik video
+Pixabay Audio (API-key gerektirmez, dogrudan indirilebilir mp3'ler) ile
+telifsiz gerilim/ambiyans muzigi indirir.
 """
 import os
 import random
 import sys
+import json
 import requests
 
 PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY")
@@ -13,42 +17,49 @@ if not PEXELS_API_KEY:
     print("HATA: PEXELS_API_KEY bulunamadi", file=sys.stderr)
     sys.exit(1)
 
-# Alt kisimda dönecek, dikkat cekici / hipnotik hareketli arkaplan aramalari
-SEARCH_TERMS = [
+HEADERS = {"Authorization": PEXELS_API_KEY}
+
+BOTTOM_SEARCH_TERMS = [
     "parkour running",
     "abstract liquid motion",
     "neon tunnel drive",
-    "forest walking pov",
-    "city night drive",
     "sand dunes aerial",
     "waterfall slow motion",
     "train tunnel pov",
-    "mountain hiking pov",
     "underwater diving",
+    "city night drive",
 ]
 
-HEADERS = {"Authorization": PEXELS_API_KEY}
+THEME_TO_TOP_SEARCH = {
+    "terk edilmis bir evde yasanan aciklanamayan olay": ["abandoned house interior", "old dark hallway"],
+    "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi": ["foggy small town night", "empty street fog"],
+    "cozulmemis esrarengiz bir kayip vakasi": ["dark forest night", "flashlight search night"],
+    "bir aile mirasindaki lanetli esya": ["antique attic dark", "old photograph dust"],
+    "gece vardiyasinda calisan birinin basina gelen tuhaf olay": ["empty office night", "hospital corridor night"],
+    "eski bir fotografta ortaya cikan aciklanamayan detay": ["vintage photo album", "old film grain"],
+    "bir ormanda kaybolan grubun basina gelenler": ["dark forest fog", "night camping forest"],
+    "apartmanda tekrar eden gizemli sesler": ["dark apartment hallway", "empty stairwell"],
+    "bir mektupla ortaya cikan eski bir sir": ["old letter candle", "vintage desk night"],
+    "psikolojik olarak aciklanamayan dejavu deneyimi": ["abstract dark clouds", "mirror reflection dark"],
+}
+
+MUSIC_URLS = [
+    "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8e70c5fdc.mp3",
+    "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3",
+    "https://cdn.pixabay.com/download/audio/2021/11/25/audio_00fa5b4a68.mp3",
+]
 
 
-def fetch_background(output_path: str = "output/background.mp4"):
-    term = random.choice(SEARCH_TERMS)
+def _download_pexels_video(term: str, output_path: str):
     url = "https://api.pexels.com/videos/search"
-    params = {
-        "query": term,
-        "orientation": "portrait",
-        "size": "medium",
-        "per_page": 15,
-    }
+    params = {"query": term, "orientation": "portrait", "size": "medium", "per_page": 15}
     resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
     resp.raise_for_status()
-    data = resp.json()
-
-    videos = data.get("videos", [])
+    videos = resp.json().get("videos", [])
     if not videos:
-        raise RuntimeError(f"'{term}' icin video bulunamadi")
+        return False
 
     video = random.choice(videos)
-    # En uygun (dikey, orta boy) video dosyasini sec
     video_files = sorted(
         video["video_files"],
         key=lambda vf: abs((vf.get("height") or 0) - 1920),
@@ -60,11 +71,51 @@ def fetch_background(output_path: str = "output/background.mp4"):
     with open(output_path, "wb") as f:
         for chunk in video_resp.iter_content(chunk_size=8192):
             f.write(chunk)
+    return True
 
-    print(f"Arkaplan indirildi ({term}): {output_path}")
-    return term
+
+def fetch_bottom_background(output_path: str = "output/background.mp4"):
+    term = random.choice(BOTTOM_SEARCH_TERMS)
+    ok = _download_pexels_video(term, output_path)
+    if not ok:
+        ok = _download_pexels_video("abstract motion", output_path)
+    print(f"Alt panel arkaplani indirildi ({term}): {output_path}")
+
+
+def fetch_top_background(theme: str, output_path: str = "output/top_background.mp4"):
+    search_options = THEME_TO_TOP_SEARCH.get(theme, ["dark atmosphere fog"])
+    term = random.choice(search_options)
+    ok = _download_pexels_video(term, output_path)
+    if not ok:
+        ok = _download_pexels_video("dark atmosphere fog", output_path)
+    if ok:
+        print(f"Ust panel arkaplani indirildi ({term}): {output_path}")
+    else:
+        print("Ust panel arkaplani bulunamadi, duz renk kullanilacak.")
+
+
+def fetch_music(output_path: str = "output/music.mp3"):
+    url = random.choice(MUSIC_URLS)
+    try:
+        resp = requests.get(url, stream=True, timeout=30)
+        resp.raise_for_status()
+        with open(output_path, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print(f"Arkaplan muzigi indirildi: {output_path}")
+    except Exception as e:
+        print(f"Muzik indirilemedi, muziksiz devam edilecek: {e}")
 
 
 if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
-    fetch_background()
+
+    theme = "dark atmosphere fog"
+    if os.path.exists("output/story.json"):
+        with open("output/story.json", "r", encoding="utf-8") as f:
+            story = json.load(f)
+        theme = story.get("_theme", theme)
+
+    fetch_bottom_background()
+    fetch_top_background(theme)
+    fetch_music()
