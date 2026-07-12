@@ -1,6 +1,6 @@
 """
 Zifiri Saatler - Video Montaj
-Ust panel: atmosferik gradient + kelime kelime beliren altyazi
+Ust panel: atmosferik gradient + beliren altyazi
 Alt panel: Pexels'ten cekilen hareketli arkaplan
 Ses: edge-tts ile uretilen seslendirme
 """
@@ -27,7 +27,7 @@ def get_audio_duration(path: str) -> float:
     return float(result.stdout.strip())
 
 
-def build_caption_filters(word_timings, video_offset_y=0):
+def build_caption_groups_from_words(word_timings):
     groups = []
     current = []
     current_start = None
@@ -50,7 +50,27 @@ def build_caption_filters(word_timings, video_offset_y=0):
             "start": current_start,
             "end": last["offset"] + last["duration"] + 0.3,
         })
+    return groups
 
+
+def build_caption_groups_from_text(story_text: str, duration: float):
+    words = story_text.split()
+    chunk_size = 5
+    chunks = [" ".join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
+    if not chunks:
+        return []
+    per_chunk = duration / len(chunks)
+    groups = []
+    for i, text in enumerate(chunks):
+        groups.append({
+            "text": text,
+            "start": i * per_chunk,
+            "end": (i + 1) * per_chunk + 0.1,
+        })
+    return groups
+
+
+def build_caption_filters(groups):
     filters = []
     for g in groups:
         text = (
@@ -59,7 +79,7 @@ def build_caption_filters(word_timings, video_offset_y=0):
             .replace("'", "\u2019")
             .replace(":", "\\:")
         )
-        y_pos = f"(h*0.56)*0.68"
+        y_pos = "(h*0.56)*0.68"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
             f"fontsize=52:fontcolor=white:borderw=4:bordercolor=black@0.8:"
@@ -82,13 +102,19 @@ def render(story_path="output/story.json",
 
     duration = get_audio_duration(voice_path) + 0.5
 
-    caption_filters = build_caption_filters(word_timings)
+    if word_timings:
+        groups = build_caption_groups_from_words(word_timings)
+    else:
+        print("Kelime zamanlamasi bulunamadi, esit araliklarla altyazi olusturuluyor.")
+        groups = build_caption_groups_from_text(story["story"], duration)
+
+    caption_filters = build_caption_filters(groups)
     caption_chain = ",".join(caption_filters) if caption_filters else "null"
 
     top_cmd = [
         "ffmpeg", "-y",
         "-f", "lavfi", "-i", f"color=c=0x120a1a:s={WIDTH}x{TOP_HEIGHT}:d={duration}",
-        "-vf", caption_chain if caption_filters else "null",
+        "-vf", caption_chain,
         "-t", str(duration),
         "output/top_panel.mp4",
     ]
