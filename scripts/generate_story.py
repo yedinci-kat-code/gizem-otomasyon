@@ -1,6 +1,7 @@
 """
 Zifiri Saatler - Senaryo Uretici
 Gemini API kullanarak kisa, atmosferik gizem/korku hikayeleri uretir.
+Tekrar etmemesi icin gecmis basliklari/temalari kontrol eder.
 """
 import os
 import json
@@ -14,6 +15,9 @@ if not GEMINI_API_KEY:
     sys.exit(1)
 
 genai.configure(api_key=GEMINI_API_KEY)
+
+HISTORY_PATH = "data/history.json"
+MAX_HISTORY_IN_PROMPT = 30
 
 THEMES = [
     "terk edilmis bir evde yasanan aciklanamayan olay",
@@ -37,31 +41,60 @@ hikayeler yazmak. Kurallar:
 - Duz, akici, seslendirmeye uygun Turkce yaz (kisa cumleler)
 - Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
 - Kufur, asiri siddet, gercek kisi ismi kullanma
+- Sana verilen "daha once kullanilan basliklar" listesindeki konularla AYNI veya
+  cok benzer bir hikaye UYDURMA, tamamen ozgun ve farkli bir olay/detay/karakter kullan
 
 JSON formati:
 {
-  "title": "Youtube icin merak uyandiran vurucu kisa baslik (max 60 karakter)",
+  "title": "Youtube icin merak uyandiran kisa baslik (max 60 karakter)",
   "story": "Hikayenin tam metni (seslendirme icin)",
   "captions": ["Ekranda gorunecek kisa altyazi parcasi 1", "parca 2", "parca 3", "..."],
-  "hashtags": ["#gizem", "#korku", "diger 5-7 alakali hashtag"]
+  "hashtags": ["#gizem", "#korku", "diger 3-4 alakali hashtag"]
 }
 
 captions alani, story metnini ekranda 4-8 kelimelik kisa parcalar halinde gostermek icin
 bolunmus halidir - toplam story ile ayni anlami tasimali, kelime kelime kopya olabilir."""
 
 
+def load_history():
+    if not os.path.exists(HISTORY_PATH):
+        return []
+    try:
+        with open(HISTORY_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return []
+
+
+def save_history(history, new_title: str):
+    history.append(new_title)
+    os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
+    with open(HISTORY_PATH, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+
+
 def generate_story():
     theme = random.choice(THEMES)
+    history = load_history()
+    recent_titles = history[-MAX_HISTORY_IN_PROMPT:]
+
     model = genai.GenerativeModel(
         "gemini-3.5-flash",
         system_instruction=SYSTEM_PROMPT,
     )
-    prompt = f"Tema: {theme}\n\nBu temaya uygun yeni ve ozgun bir hikaye uret."
+
+    avoid_text = ""
+    if recent_titles:
+        avoid_text = (
+            "\n\nDaha once kullanilan basliklar (bunlarla ayni/benzer konu UYDURMA):\n"
+            + "\n".join(f"- {t}" for t in recent_titles)
+        )
+
+    prompt = f"Tema: {theme}\n\nBu temaya uygun yeni ve ozgun bir hikaye uret.{avoid_text}"
 
     response = model.generate_content(prompt)
     text = response.text.strip()
 
-    # Markdown code fence temizligi
     if text.startswith("```"):
         text = text.split("```")[1]
         if text.startswith("json"):
@@ -69,6 +102,9 @@ def generate_story():
     text = text.strip()
 
     data = json.loads(text)
+
+    save_history(history, data["title"])
+
     return data
 
 
