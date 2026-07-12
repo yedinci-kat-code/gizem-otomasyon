@@ -34,9 +34,6 @@ async def generate_voice(text: str, output_path: str):
                             "duration": chunk["duration"] / 10_000_000,
                         })
 
-            if not word_boundaries:
-                raise RuntimeError("Ses uretildi ama kelime zamanlamasi bos geldi")
-
             return word_boundaries
         except Exception as e:
             last_error = e
