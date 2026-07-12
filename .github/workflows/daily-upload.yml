@@ -1,0 +1,60 @@
+name: Zifiri Saatler - Otomatik Video Uretimi
+
+on:
+  schedule:
+    # Turkiye saatiyle yaklasik 09:00, 15:00, 20:00 (UTC+3 -> UTC 06:00, 12:00, 17:00)
+    - cron: "0 6 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 17 * * *"
+  workflow_dispatch: {}  # Manuel olarak "Run workflow" ile de tetiklenebilir
+
+jobs:
+  create-and-upload-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Repo'yu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: FFmpeg kur
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu
+
+      - name: Bağımlılıkları kur
+        run: pip install -r requirements.txt
+
+      - name: 1) Senaryo uret
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/generate_story.py
+
+      - name: 2) Seslendirme uret
+        run: python scripts/generate_voice.py
+
+      - name: 3) Arkaplan video cek
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: python scripts/fetch_background.py
+
+      - name: 4) Videoyu render et
+        run: python scripts/render_video.py
+
+      - name: 5) YouTube'a yukle
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python scripts/upload_youtube.py
+
+      - name: Ciktilari sakla (hata ayiklama icin)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-${{ github.run_number }}
+          path: output/
+          retention-days: 3
