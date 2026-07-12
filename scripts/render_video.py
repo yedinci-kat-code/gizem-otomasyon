@@ -28,11 +28,6 @@ def get_audio_duration(path: str) -> float:
 
 
 def build_caption_filters(word_timings, video_offset_y=0):
-    """
-    Kelime kelime beliren altyazi icin ffmpeg drawtext filtrelerini olusturur.
-    Basitlik icin kelimeleri ~4-6 kelimelik gruplar halinde birlestirir,
-    her grup ekranda kendi zaman araliginda gorunur.
-    """
     groups = []
     current = []
     current_start = None
@@ -90,23 +85,6 @@ def render(story_path="output/story.json",
     caption_filters = build_caption_filters(word_timings)
     caption_chain = ",".join(caption_filters) if caption_filters else "null"
 
-    # Ust panel: koyu atmosferik gradient (renkli gecis) uzerine altyazi
-    # Alt panel: pexels videosu, loop'lanip kirpiliyor
-    filter_complex = (
-        f"color=c=0x0a0812:s={WIDTH}x{TOP_HEIGHT}:d={duration}[topbg];"
-        f"[topbg]{caption_chain}[topfinal];"
-        f"[1:v]scale={WIDTH}:{BOTTOM_HEIGHT}:force_original_aspect_ratio=increase,"
-        f"crop={WIDTH}:{BOTTOM_HEIGHT},setpts=PTS-STARTPTS[botv];"
-        f"[topfinal][botv]vstack=inputs=2[outv]"
-    )
-
-    cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-i", f"color=c=black:s={WIDTH}x{TOP_HEIGHT}",  # dummy, degistirilecek
-    ]
-
-    # Basit ve saglam yontem: iki ayri asama
-    # 1) Ust paneli (altyazili) ayri bir video olarak render et
     top_cmd = [
         "ffmpeg", "-y",
         "-f", "lavfi", "-i", f"color=c=0x120a1a:s={WIDTH}x{TOP_HEIGHT}:d={duration}",
@@ -116,7 +94,6 @@ def render(story_path="output/story.json",
     ]
     subprocess.run(top_cmd, check=True)
 
-    # 2) Alt paneli (arkaplan videosu) hazirlayip, ust panelle vstack et + sesi ekle
     final_cmd = [
         "ffmpeg", "-y",
         "-i", "output/top_panel.mp4",
@@ -140,5 +117,41 @@ def render(story_path="output/story.json",
     print(f"Video render edildi: {output_path}")
 
 
+def generate_thumbnail(story_path="output/story.json", output_path="output/thumbnail.jpg"):
+    with open(story_path, "r", encoding="utf-8") as f:
+        story = json.load(f)
+
+    title = story["title"].replace("'", "\u2019").replace(":", "\\:")
+
+    words = title.split()
+    mid = len(words) // 2 + (len(words) % 2)
+    line1 = " ".join(words[:mid])
+    line2 = " ".join(words[mid:])
+
+    draw1 = (
+        f"drawtext=fontfile={FONT_PATH}:text='{line1}':"
+        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
+        f"x=(w-text_w)/2:y=(h/2)-110"
+    )
+    draw2 = (
+        f"drawtext=fontfile={FONT_PATH}:text='{line2}':"
+        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
+        f"x=(w-text_w)/2:y=(h/2)+10"
+        if line2 else "null"
+    )
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-f", "lavfi",
+        "-i", f"color=c=0x120a1a:s={WIDTH}x{HEIGHT}:d=1",
+        "-vf", f"{draw1},{draw2}" if line2 else draw1,
+        "-frames:v", "1",
+        output_path,
+    ]
+    subprocess.run(cmd, check=True)
+    print(f"Kapak (thumbnail) uretildi: {output_path}")
+
+
 if __name__ == "__main__":
     render()
+    generate_thumbnail()
