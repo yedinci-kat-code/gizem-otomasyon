@@ -47,11 +47,43 @@ THEME_TO_TOP_SEARCH = {
 
 # Ucretsiz, dogrudan indirilebilir (API key gerektirmeyen) ambiyans/gerilim muzikleri
 # Pixabay'in acik CDN linkleri - telifsiz, ticari kullanima uygun
-MUSIC_URLS = [
+MUSIC_FOLDER = "music"
+
+# Yedek: eger music/ klasoru boşsa (henuz kendi muziklerini eklemediysen)
+# kullanilacak ucretsiz telifsiz muzikler
+FALLBACK_MUSIC_URLS = [
     "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8e70c5fdc.mp3",
     "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3",
     "https://cdn.pixabay.com/download/audio/2021/11/25/audio_00fa5b4a68.mp3",
 ]
+
+
+def fetch_music(output_path: str = "output/music.mp3"):
+    # Once kendi eklediğin muzikler var mi diye bak
+    if os.path.isdir(MUSIC_FOLDER):
+        local_files = [
+            f for f in os.listdir(MUSIC_FOLDER)
+            if f.lower().endswith((".mp3", ".m4a", ".wav"))
+        ]
+        if local_files:
+            chosen = random.choice(local_files)
+            src = os.path.join(MUSIC_FOLDER, chosen)
+            with open(src, "rb") as fsrc, open(output_path, "wb") as fdst:
+                fdst.write(fsrc.read())
+            print(f"Kendi muzik dosyan kullanildi: {chosen}")
+            return
+
+    # Yoksa yedek (ucretsiz) muziklerden birini indir
+    url = random.choice(FALLBACK_MUSIC_URLS)
+    try:
+        resp = requests.get(url, stream=True, timeout=30)
+        resp.raise_for_status()
+        with open(output_path, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print(f"Yedek arkaplan muzigi indirildi: {output_path}")
+    except Exception as e:
+        print(f"Muzik indirilemedi, muziksiz devam edilecek: {e}")
 
 
 def _download_pexels_video(term: str, output_path: str):
@@ -97,19 +129,6 @@ def fetch_top_background(theme: str, output_path: str = "output/top_background.m
         print(f"Ust panel arkaplani indirildi ({term}): {output_path}")
     else:
         print("Ust panel arkaplani bulunamadi, duz renk kullanilacak.")
-
-
-def fetch_music(output_path: str = "output/music.mp3"):
-    url = random.choice(MUSIC_URLS)
-    try:
-        resp = requests.get(url, stream=True, timeout=30)
-        resp.raise_for_status()
-        with open(output_path, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print(f"Arkaplan muzigi indirildi: {output_path}")
-    except Exception as e:
-        print(f"Muzik indirilemedi, muziksiz devam edilecek: {e}")
 
 
 if __name__ == "__main__":
