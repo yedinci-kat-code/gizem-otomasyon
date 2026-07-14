@@ -28,11 +28,12 @@ def get_audio_duration(path: str) -> float:
     return float(result.stdout.strip())
 
 
-def split_into_sentence_chunks(story_text: str, max_chars_per_line=22):
+def split_into_sentence_chunks(story_text: str, max_words_per_line=3):
     """
-    Metni CUMLE sinirlarina gore boler (nokta/soru/unlem isaretinden sonra
-    yeni grup baslar). Her cumle, ekrana sigmiyorsa kelime bazinda
-    alt satirlara bolunur (\\n ile), boylece drawtext otomatik cok satirli gosterir.
+    Metni CUMLE sinirlarina gore boler, her cumle en fazla 3 kelimelik
+    satirlara bolunur (gercek newline karakteri ile - ffmpeg drawtext
+    bunu doğru okur, ASLA '\\n' (backslash+n) metni KULLANMA çünkü
+    ffmpeg bunu 'n' harfine cevirir, satir kirilmasi olmaz).
     """
     import re
     raw_sentences = re.split(r'(?<=[.!?])\s+', story_text.strip())
@@ -42,20 +43,9 @@ def split_into_sentence_chunks(story_text: str, max_chars_per_line=22):
     for sentence in raw_sentences:
         words = sentence.split()
         lines = []
-        current_line = []
-        current_len = 0
-        for w in words:
-            add_len = len(w) + (1 if current_line else 0)
-            if current_len + add_len > max_chars_per_line and current_line:
-                lines.append(" ".join(current_line))
-                current_line = [w]
-                current_len = len(w)
-            else:
-                current_line.append(w)
-                current_len += add_len
-        if current_line:
-            lines.append(" ".join(current_line))
-        chunks.append("\n".join(lines))
+        for i in range(0, len(words), max_words_per_line):
+            lines.append(" ".join(words[i:i + max_words_per_line]))
+        chunks.append("\n".join(lines))  # gercek newline karakteri
     return chunks
 
 
@@ -110,13 +100,15 @@ def build_caption_filters(groups):
             .replace("\\", "")
             .replace("'", "\u2019")
             .replace(":", "\\:")
-            .replace("\n", "\\n")
         )
-        y_pos = "(h*0.56)*0.60"
+        # DIKKAT: gercek \n (newline) karakterine DOKUNMUYORUZ - oldugu gibi
+        # birakiyoruz, ffmpeg drawtext bunu dogru sekilde satir sonu olarak okur.
+        # '\n' -> '\\n' donusumu YAPILMAMALI (ffmpeg bunu 'n' harfine cevirir, hataya sebep olur)
+        y_pos = "(h*0.56)*0.55"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
-            f"fontsize=42:fontcolor=white:borderw=4:bordercolor=black@0.85:"
-            f"line_spacing=8:x=(w-text_w)/2:y={y_pos}:"
+            f"fontsize=54:fontcolor=white:borderw=4:bordercolor=black@0.85:"
+            f"line_spacing=12:x=(w-text_w)/2:y={y_pos}:"
             f"enable='between(t,{g['start']:.2f},{g['end']:.2f})'"
         )
     return filters
