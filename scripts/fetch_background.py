@@ -19,7 +19,10 @@ if not PEXELS_API_KEY:
 
 HEADERS = {"Authorization": PEXELS_API_KEY}
 
-# ALT panel: dikkat cekici, hipnotik hareketli arkaplanlar (oyun-tarzi izlenim)
+BG_HISTORY_PATH = "data/bg_history.json"
+MAX_BG_HISTORY = 15  # son 15 video ID'sini hatirla, tekrarindan kacin
+
+# ALT panel: dikkat cekici, hipnotik hareketli arkaplanlar
 BOTTOM_SEARCH_TERMS = [
     "parkour running",
     "abstract liquid motion",
@@ -29,6 +32,10 @@ BOTTOM_SEARCH_TERMS = [
     "train tunnel pov",
     "underwater diving",
     "city night drive",
+    "kinetic sand cutting",
+    "lava lamp closeup",
+    "ink drop water",
+    "glass marble roll",
 ]
 
 # UST panel icin, hikaye temasina gore uygun arama terimleri
@@ -49,17 +56,11 @@ THEME_TO_TOP_SEARCH = {
 # Pixabay'in acik CDN linkleri - telifsiz, ticari kullanima uygun
 MUSIC_FOLDER = "music"
 
-# Yedek: eger music/ klasoru boşsa (henuz kendi muziklerini eklemediysen)
-# kullanilacak ucretsiz telifsiz muzikler
-FALLBACK_MUSIC_URLS = [
-    "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8e70c5fdc.mp3",
-    "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3",
-    "https://cdn.pixabay.com/download/audio/2021/11/25/audio_00fa5b4a68.mp3",
-]
-
 
 def fetch_music(output_path: str = "output/music.mp3"):
-    # Once kendi eklediğin muzikler var mi diye bak
+    # SADECE senin music/ klasorune ekledigin, kendi sectigin (telif sorunu olmayan)
+    # muzikleri kullanir. Hicbir "yedek/rastgele internet" muzigi KULLANILMAZ -
+    # bir onceki telif sorunundan sonra bu guvenlik onlemi bilerek eklendi.
     if os.path.isdir(MUSIC_FOLDER):
         local_files = [
             f for f in os.listdir(MUSIC_FOLDER)
@@ -73,29 +74,43 @@ def fetch_music(output_path: str = "output/music.mp3"):
             print(f"Kendi muzik dosyan kullanildi: {chosen}")
             return
 
-    # Yoksa yedek (ucretsiz) muziklerden birini indir
-    url = random.choice(FALLBACK_MUSIC_URLS)
+    print("music/ klasorunde dosya yok - video muziksiz (sadece seslendirme ile) devam ediyor.")
+
+
+def _load_bg_history():
+    if not os.path.exists(BG_HISTORY_PATH):
+        return []
     try:
-        resp = requests.get(url, stream=True, timeout=30)
-        resp.raise_for_status()
-        with open(output_path, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print(f"Yedek arkaplan muzigi indirildi: {output_path}")
-    except Exception as e:
-        print(f"Muzik indirilemedi, muziksiz devam edilecek: {e}")
+        with open(BG_HISTORY_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return []
 
 
-def _download_pexels_video(term: str, output_path: str):
+def _save_bg_history(history, video_id):
+    history.append(video_id)
+    history = history[-MAX_BG_HISTORY:]
+    os.makedirs(os.path.dirname(BG_HISTORY_PATH), exist_ok=True)
+    with open(BG_HISTORY_PATH, "w", encoding="utf-8") as f:
+        json.dump(history, f)
+    return history
+
+
+def _download_pexels_video(term: str, output_path: str, avoid_ids=None):
+    avoid_ids = avoid_ids or []
     url = "https://api.pexels.com/videos/search"
-    params = {"query": term, "orientation": "portrait", "size": "medium", "per_page": 15}
+    params = {"query": term, "orientation": "portrait", "size": "medium", "per_page": 30}
     resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
     resp.raise_for_status()
     videos = resp.json().get("videos", [])
     if not videos:
-        return False
+        return False, None
 
-    video = random.choice(videos)
+    # Once daha once kullanilmamis videolari dene, hepsi kullanilmissa herhangi birini sec
+    fresh_videos = [v for v in videos if v["id"] not in avoid_ids]
+    pool = fresh_videos if fresh_videos else videos
+
+    video = random.choice(pool)
     video_files = sorted(
         video["video_files"],
         key=lambda vf: abs((vf.get("height") or 0) - 1920),
@@ -107,24 +122,26 @@ def _download_pexels_video(term: str, output_path: str):
     with open(output_path, "wb") as f:
         for chunk in video_resp.iter_content(chunk_size=8192):
             f.write(chunk)
-    return True
+    return True, video["id"]
 
 
 def fetch_bottom_background(output_path: str = "output/background.mp4"):
+    history = _load_bg_history()
     term = random.choice(BOTTOM_SEARCH_TERMS)
-    ok = _download_pexels_video(term, output_path)
+    ok, video_id = _download_pexels_video(term, output_path, avoid_ids=history)
     if not ok:
-        # Yedek terim dene
-        ok = _download_pexels_video("abstract motion", output_path)
+        ok, video_id = _download_pexels_video("abstract motion", output_path, avoid_ids=history)
+    if ok and video_id:
+        _save_bg_history(history, video_id)
     print(f"Alt panel arkaplani indirildi ({term}): {output_path}")
 
 
 def fetch_top_background(theme: str, output_path: str = "output/top_background.mp4"):
     search_options = THEME_TO_TOP_SEARCH.get(theme, ["dark atmosphere fog"])
     term = random.choice(search_options)
-    ok = _download_pexels_video(term, output_path)
+    ok, video_id = _download_pexels_video(term, output_path)
     if not ok:
-        ok = _download_pexels_video("dark atmosphere fog", output_path)
+        ok, video_id = _download_pexels_video("dark atmosphere fog", output_path)
     if ok:
         print(f"Ust panel arkaplani indirildi ({term}): {output_path}")
     else:
