@@ -28,7 +28,7 @@ def get_audio_duration(path: str) -> float:
     return float(result.stdout.strip())
 
 
-def split_into_sentence_chunks(story_text: str, max_chars_per_line=32):
+def split_into_sentence_chunks(story_text: str, max_chars_per_line=22):
     """
     Metni CUMLE sinirlarina gore boler (nokta/soru/unlem isaretinden sonra
     yeni grup baslar). Her cumle, ekrana sigmiyorsa kelime bazinda
@@ -112,11 +112,11 @@ def build_caption_filters(groups):
             .replace(":", "\\:")
             .replace("\n", "\\n")
         )
-        y_pos = "(h*0.56)*0.62"
+        y_pos = "(h*0.56)*0.60"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
-            f"fontsize=48:fontcolor=white:borderw=4:bordercolor=black@0.85:"
-            f"line_spacing=10:x=(w-text_w)/2:y={y_pos}:"
+            f"fontsize=42:fontcolor=white:borderw=4:bordercolor=black@0.85:"
+            f"line_spacing=8:x=(w-text_w)/2:y={y_pos}:"
             f"enable='between(t,{g['start']:.2f},{g['end']:.2f})'"
         )
     return filters
