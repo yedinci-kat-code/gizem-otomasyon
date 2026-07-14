@@ -175,13 +175,29 @@ def render(story_path="output/story.json",
     else:
         final_audio_path = voice_path
 
-    # --- 4) Ust + alt paneli dikey birlestir (vstack), sesi ekle ---
+    # --- 4) Ust + alt paneli dikey birlestir, ilk 1.5 saniyeye carpici hook basligi ekle ---
+    hook_words = story["title"].split()[:4]
+    hook_text = (
+        " ".join(hook_words)
+        .replace("\\", "")
+        .replace("'", "\u2019")
+        .replace(":", "\\:")
+    )
+
     final_cmd = [
         "ffmpeg", "-y",
         "-i", "output/top_panel.mp4",
         "-i", "output/bottom_panel.mp4",
         "-i", final_audio_path,
-        "-filter_complex", "[0:v][1:v]vstack=inputs=2[outv]",
+        "-filter_complex",
+        (
+            "[0:v][1:v]vstack=inputs=2[stacked];"
+            f"[stacked]drawtext=fontfile={FONT_PATH}:text='{hook_text}':"
+            f"fontsize=68:fontcolor=white:borderw=6:bordercolor=black@0.9:"
+            f"box=1:boxcolor=black@0.55:boxborderw=24:"
+            f"x=(w-text_w)/2:y=(h-text_h)/2:"
+            f"enable='between(t,0,1.5)'[outv]"
+        ),
         "-map", "[outv]",
         "-map", "2:a",
         "-t", str(duration),
