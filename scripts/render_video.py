@@ -28,67 +28,44 @@ def get_audio_duration(path: str) -> float:
     return float(result.stdout.strip())
 
 
-def split_into_sentence_chunks(story_text: str, max_words_per_line=3):
-    """
-    Metni CUMLE sinirlarina gore boler, her cumle en fazla 3 kelimelik
-    satirlara bolunur (gercek newline karakteri ile - ffmpeg drawtext
-    bunu doğru okur, ASLA '\\n' (backslash+n) metni KULLANMA çünkü
-    ffmpeg bunu 'n' harfine cevirir, satir kirilmasi olmaz).
-    """
+def split_into_sentence_chunks(story_text: str):
+    """Sadece kelime sayimi/eslestirme icin cumlelere ayirir (satir kirma YOK artik)."""
     import re
     raw_sentences = re.split(r'(?<=[.!?])\s+', story_text.strip())
-    raw_sentences = [s.strip() for s in raw_sentences if s.strip()]
-
-    chunks = []
-    for sentence in raw_sentences:
-        words = sentence.split()
-        lines = []
-        for i in range(0, len(words), max_words_per_line):
-            lines.append(" ".join(words[i:i + max_words_per_line]))
-        chunks.append("\n".join(lines))  # gercek newline karakteri
-    return chunks
+    return [s.strip() for s in raw_sentences if s.strip()]
 
 
-def build_caption_groups_from_words(word_timings, story_text: str):
+def build_caption_groups_from_words(word_timings, story_text: str, group_size=3):
     """
-    Kelime zamanlamasi varsa, cumle sinirlarina gore gruplar olusturur
-    ve her cumlenin baslangic/bitis zamanini kelime zamanlamasindan hesaplar.
+    Kelime zamanlamasina gore, ekranda AYNI ANDA sadece 'group_size' kadar
+    kelime gorunecek sekilde gruplar olusturur (TikTok/Shorts tarzi,
+    sirayla degisen kisa altyazi - paragraf DEGIL).
     """
-    sentence_chunks = split_into_sentence_chunks(story_text)
-    total_words = sum(len(c.replace("\n", " ").split()) for c in sentence_chunks)
-
+    total_words = len(story_text.split())
     if len(word_timings) < total_words * 0.5:
-        # Kelime sayisi cok tutmuyorsa (TTS metni degistirmis olabilir), guvenli mod
         return None
 
     groups = []
-    idx = 0
-    for chunk in sentence_chunks:
-        n_words = len(chunk.replace("\n", " ").split())
-        chunk_words = word_timings[idx: idx + n_words]
+    for i in range(0, len(word_timings), group_size):
+        chunk_words = word_timings[i:i + group_size]
         if not chunk_words:
-            idx += n_words
             continue
+        text = " ".join(w["text"] for w in chunk_words)
         start = chunk_words[0]["offset"]
-        end = chunk_words[-1]["offset"] + chunk_words[-1]["duration"] + 0.2
-        groups.append({"text": chunk, "start": start, "end": end})
-        idx += n_words
+        end = chunk_words[-1]["offset"] + chunk_words[-1]["duration"] + 0.1
+        groups.append({"text": text, "start": start, "end": end})
     return groups
 
 
-def build_caption_groups_from_text(story_text: str, duration: float):
-    chunks = split_into_sentence_chunks(story_text)
-    if not chunks:
+def build_caption_groups_from_text(story_text: str, duration: float, group_size=3):
+    words = story_text.split()
+    if not words:
         return []
-    # Cumle uzunluguna gore agirlikli sure dagit (kisa cumle az, uzun cumle cok sure alsin)
-    weights = [max(len(c.replace("\n", " ")), 5) for c in chunks]
-    total_weight = sum(weights)
+    chunks = [" ".join(words[i:i + group_size]) for i in range(0, len(words), group_size)]
+    per_chunk = duration / len(chunks)
     groups = []
-    t = 0.0
-    for chunk, w in zip(chunks, weights):
-        seg = duration * (w / total_weight)
-        groups.append({"text": chunk, "start": t, "end": t + seg + 0.15})
-        t += seg
+    for i, text in enumerate(chunks):
+        groups.append({"text": text, "start": i * per_chunk, "end": (i + 1) * per_chunk + 0.08})
     return groups
 
 
@@ -101,14 +78,11 @@ def build_caption_filters(groups):
             .replace("'", "\u2019")
             .replace(":", "\\:")
         )
-        # DIKKAT: gercek \n (newline) karakterine DOKUNMUYORUZ - oldugu gibi
-        # birakiyoruz, ffmpeg drawtext bunu dogru sekilde satir sonu olarak okur.
-        # '\n' -> '\\n' donusumu YAPILMAMALI (ffmpeg bunu 'n' harfine cevirir, hataya sebep olur)
         y_pos = "(h*0.56)*0.55"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
-            f"fontsize=54:fontcolor=white:borderw=4:bordercolor=black@0.85:"
-            f"line_spacing=12:x=(w-text_w)/2:y={y_pos}:"
+            f"fontsize=58:fontcolor=white:borderw=5:bordercolor=black@0.85:"
+            f"x=(w-text_w)/2:y={y_pos}:"
             f"enable='between(t,{g['start']:.2f},{g['end']:.2f})'"
         )
     return filters
