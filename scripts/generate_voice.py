@@ -9,8 +9,8 @@ import edge_tts
 
 VOICE = "tr-TR-AhmetNeural"
 
-RATE = "-5%"
-PITCH = "-2Hz"
+RATE = "-2%"    # neredeyse normal hiz
+PITCH = "-14Hz"  # belirgin sekilde kalin/ciddi ton
 
 MAX_RETRIES = 4
 RETRY_DELAY_SECONDS = 8
