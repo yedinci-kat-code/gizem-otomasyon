@@ -2,6 +2,7 @@
 Zifiri Saatler - Senaryo Uretici
 Gemini API kullanarak kisa, atmosferik gizem/korku hikayeleri uretir.
 Tekrar etmemesi icin gecmis basliklari/temalari kontrol eder.
+Performans analizine gore, "kisisel/miras kalan esya" temalari agirlikli.
 """
 import os
 import json
@@ -18,18 +19,41 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 HISTORY_PATH = "data/history.json"
 MAX_HISTORY_IN_PROMPT = 30
+AVOID_SAME_THEME_LAST_N = 3  # son 3 videoda kullanilan tema tekrar secilmesin
 
-THEMES = [
+# Performans analizi: "kisisel/miras esya" temalari cok daha fazla izlenme aliyor
+# (fotograf, saat, ayna, gunluk gibi herkesin evinde olabilecek nesneler).
+# Bu yuzden bu gruba 3x agirlik veriyoruz, soyut/genel mekan temalarina 1x.
+HIGH_PERFORMING_THEMES = [
+    "bir aile mirasindaki lanetli esya (saat, ayna, kolye vb.)",
+    "eski bir fotografta ortaya cikan aciklanamayan detay",
+    "bir mektupla ortaya cikan eski bir sir",
+    "dededen/anneanneden kalan gunluk ya da defterdeki gizemli notlar",
+    "eski bir kutu icinde bulunan aciklanamayan esya",
+    "bir aile yadigari saatin garip sekilde davranmasi",
+]
+
+STANDARD_THEMES = [
     "terk edilmis bir evde yasanan aciklanamayan olay",
     "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
     "cozulmemis esrarengiz bir kayip vakasi",
-    "bir aile mirasindaki lanetli esya",
     "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
-    "eski bir fotografta ortaya cikan aciklanamayan detay",
     "bir ormanda kaybolan grubun basina gelenler",
     "apartmanda tekrar eden gizemli sesler",
-    "bir mektupla ortaya cikan eski bir sir",
     "psikolojik olarak aciklanamayan dejavu deneyimi",
+]
+
+# Agirlikli havuz: yuksek performansli temalar 3 kat daha sik secilsin
+WEIGHTED_THEMES = (HIGH_PERFORMING_THEMES * 3) + STANDARD_THEMES
+
+# Videonun sonunda ekranda gosterilecek, izleyiciyi etkilesime tesvik eden
+# CTA (call-to-action) cumleleri - render_video.py bunlardan rastgele birini kullanir
+CTA_PHRASES = [
+    "Sence gerçekten ne oldu? Yorumlara yaz",
+    "Bu sana da olduysa yorumla",
+    "Devamını kaçırma, takip et",
+    "Sen olsan ne yapardın? Yaz",
+    "Benzer bir anın var mı? Anlat",
 ]
 
 SYSTEM_PROMPT = """Sen Turkce icerik ureten, viral YouTube Shorts basliklari konusunda uzman bir
@@ -39,6 +63,9 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 - Gercek, yasayan kisilerden veya spesifik gercek olaylardan bahsetme (kurgu/genel senaryo olsun)
 - Ilk cumle GUCLU bir kanca olsun, izleyiciyi hemen icine ceksin
 - Hikaye merak uyandirsin, sonunda hafif bir cliffhanger veya rahatsiz edici bir detay birak
+- MUMKUNSE hikayeyi, izleyicinin kendi hayatiyla bag kurabilecegi somut, gunluk bir esya/nesne
+  uzerinden anlat (fotograf, saat, mektup, defter, ayna gibi) - bu tarz hikayeler izleyicide
+  "bende de var" hissi yaratip cok daha fazla izleniyor
 - Duz, akici, seslendirmeye uygun Turkce yaz, KISA VE NET CUMLELER kullan (altyazida okunacak)
 - Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
 - Kufur, asiri siddet, gercek kisi ismi kullanma
@@ -47,25 +74,23 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 
 BASLIK kurallari (cok onemli, tiklama oranini belirliyor):
 - 60-90 karakter arasi, MERAK UYANDIRAN, yari aciklayan yari gizleyen bir baslik olsun
-- Sayilar, "gercek", "kimse bilmiyor", "asla anlatilmadi" gibi merak tetikleyen ifadeler kullanabilirsin
-- Ornek ton: "Bu Evde 3 Kisi Kayboldu, Sebebi Hala Cozulemedi" gibi carpici ama tik tuzagi (clickbait) sayilmayacak, hikayeyle dogrudan alakali olsun
+- Somut nesne + "sirri cozulemedi" / "hala aciklanamiyor" gibi merak tetikleyen kaliplar iyi calisiyor
+- Ornek ton: "Dedesinden Kalan Saat Her Gece 03.17'de Duruyor, Sebebi Hala Bulunamadi"
 
 ACIKLAMA (description) kurallari:
 - 2-3 cumlelik, hikayeyi ozetleyen ama sonunu vermeyen, merak birakan bir aciklama yaz
-- Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir (ornek: "Sizce gercekten ne oldu?")
+- Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir
 
 ETIKET (hashtags) kurallari:
 - 8-12 arasi etiket uret: hem genel (#shorts #gizem #korku #viral) hem temaya ozel
-  (#şehirefsanesi #paranormal #gerçekhikaye vb.) hem de kesfet/one cikma icin populer
-  Turkce icerik etiketleri kullan
+  hem de kesfet/one cikma icin populer Turkce icerik etiketleri kullan
 
 JSON formati:
 {
   "title": "Merak uyandiran, 60-90 karakter arasi baslik",
   "description": "2-3 cumlelik ozet + soru ile bitsin",
   "story": "Hikayenin tam metni (seslendirme icin)",
-  "hashtags": ["#gizem", "#korku", "... 8-12 arasi etiket"],
-  "theme_key": "Verilen temanin AYNEN kendisi (asagida gonderilen 'Tema:' degeri, degistirmeden)"
+  "hashtags": ["#gizem", "#korku", "... 8-12 arasi etiket"]
 }"""
 
 
@@ -74,22 +99,38 @@ def load_history():
         return []
     try:
         with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            # Eski format (sadece string liste) ile uyumluluk
+            normalized = []
+            for item in data:
+                if isinstance(item, str):
+                    normalized.append({"title": item, "theme": None})
+                else:
+                    normalized.append(item)
+            return normalized
     except (json.JSONDecodeError, FileNotFoundError):
         return []
 
 
-def save_history(history, new_title: str):
-    history.append(new_title)
+def save_history(history, new_title: str, new_theme: str):
+    history.append({"title": new_title, "theme": new_theme})
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
+def pick_theme(history):
+    recent_themes = [h["theme"] for h in history[-AVOID_SAME_THEME_LAST_N:] if h.get("theme")]
+    candidates = [t for t in WEIGHTED_THEMES if t not in recent_themes]
+    if not candidates:
+        candidates = WEIGHTED_THEMES
+    return random.choice(candidates)
+
+
 def generate_story():
-    theme = random.choice(THEMES)
     history = load_history()
-    recent_titles = history[-MAX_HISTORY_IN_PROMPT:]
+    theme = pick_theme(history)
+    recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:]]
 
     model = genai.GenerativeModel(
         "gemini-3.5-flash",
@@ -115,11 +156,10 @@ def generate_story():
     text = text.strip()
 
     data = json.loads(text)
-
-    # Guvenlik: model theme_key'i degistirmis/atlamis olabilir, biz zaten biliyoruz
     data["_theme"] = theme
+    data["_cta"] = random.choice(CTA_PHRASES)
 
-    save_history(history, data["title"])
+    save_history(history, data["title"], theme)
 
     return data
 
