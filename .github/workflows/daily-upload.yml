@@ -1,13 +1,9 @@
 name: Zifiri Saatler - Otomatik Video Uretimi
 
 on:
-  schedule:
-    # Turkiye saatiyle 08:00, 11:00, 14:00, 17:00, 20:00 (UTC+3 -> UTC 05:00, 08:00, 11:00, 14:00, 17:00)
-    - cron: "0 5 * * *"
-    - cron: "0 8 * * *"
-    - cron: "0 11 * * *"
-    - cron: "0 14 * * *"
-    - cron: "0 17 * * *"
+  # NOT: GitHub'in kendi 'schedule' cron'u guvenilmez cikti (sik sik gecikiyor),
+  # bu yuzden kaldirildi. Zamanlama artik cron-job.org uzerinden, disaridan
+  # bu workflow'u tetikleyerek yapiliyor (workflow_dispatch).
   workflow_dispatch: {}
 
 permissions:
