@@ -175,7 +175,7 @@ def render(story_path="output/story.json",
     else:
         final_audio_path = voice_path
 
-    # --- 4) Ust + alt paneli dikey birlestir, ilk 1.5 saniyeye carpici hook basligi ekle ---
+    # --- 4) Ust + alt paneli dikey birlestir, basa hook, sona CTA ekle ---
     hook_words = story["title"].split()[:4]
     hook_text = (
         " ".join(hook_words)
@@ -183,6 +183,14 @@ def render(story_path="output/story.json",
         .replace("'", "\u2019")
         .replace(":", "\\:")
     )
+
+    cta_text = (
+        story.get("_cta", "Sence gerçekten ne oldu? Yorumlara yaz")
+        .replace("\\", "")
+        .replace("'", "\u2019")
+        .replace(":", "\\:")
+    )
+    cta_start = max(duration - 2.0, 0)
 
     final_cmd = [
         "ffmpeg", "-y",
@@ -196,7 +204,12 @@ def render(story_path="output/story.json",
             f"fontsize=68:fontcolor=white:borderw=6:bordercolor=black@0.9:"
             f"box=1:boxcolor=black@0.55:boxborderw=24:"
             f"x=(w-text_w)/2:y=(h-text_h)/2:"
-            f"enable='between(t,0,1.5)'[outv]"
+            f"enable='between(t,0,1.5)',"
+            f"drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
+            f"fontsize=44:fontcolor=white:borderw=4:bordercolor=black@0.9:"
+            f"box=1:boxcolor=black@0.6:boxborderw=18:"
+            f"x=(w-text_w)/2:y=h-160:"
+            f"enable='between(t,{cta_start:.2f},{duration:.2f})'[outv]"
         ),
         "-map", "[outv]",
         "-map", "2:a",
