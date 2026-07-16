@@ -175,7 +175,7 @@ def render(story_path="output/story.json",
     else:
         final_audio_path = voice_path
 
-    # --- 4) Ust + alt paneli dikey birlestir, basa hook, sona CTA ekle ---
+    # --- 4) Ust + alt paneli dikey birlestir, basa hook, sona CTA, kalici alt banner + rozet ---
     hook_words = story["title"].split()[:4]
     hook_text = (
         " ".join(hook_words)
@@ -200,16 +200,32 @@ def render(story_path="output/story.json",
         "-filter_complex",
         (
             "[0:v][1:v]vstack=inputs=2[stacked];"
-            f"[stacked]drawtext=fontfile={FONT_PATH}:text='{hook_text}':"
+            # Ust-sol kose: sabit "ABSURT KORKU" etiketi (tum video boyunca)
+            f"[stacked]drawtext=fontfile={FONT_PATH}:text='ABSÜRT KORKU':"
+            f"fontsize=26:fontcolor=0x9be8d0:borderw=2:bordercolor=black@0.8:"
+            f"box=1:boxcolor=black@0.45:boxborderw=10:"
+            f"x=24:y=24[labeled];"
+            # Acilis hook basligi (ilk 1.5 saniye, ortada, buyuk)
+            f"[labeled]drawtext=fontfile={FONT_PATH}:text='{hook_text}':"
             f"fontsize=68:fontcolor=white:borderw=6:bordercolor=black@0.9:"
             f"box=1:boxcolor=black@0.55:boxborderw=24:"
             f"x=(w-text_w)/2:y=(h-text_h)/2:"
-            f"enable='between(t,0,1.5)',"
-            f"drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
+            f"enable='between(t,0,1.5)'[hooked];"
+            # Kapanis CTA'si (son 2 saniye, alt bolgede)
+            f"[hooked]drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
             f"fontsize=44:fontcolor=white:borderw=4:bordercolor=black@0.9:"
             f"box=1:boxcolor=black@0.6:boxborderw=18:"
-            f"x=(w-text_w)/2:y=h-160:"
-            f"enable='between(t,{cta_start:.2f},{duration:.2f})'[outv]"
+            f"x=(w-text_w)/2:y=h-220:"
+            f"enable='between(t,{cta_start:.2f},{duration:.2f})'[cta_done];"
+            # Kalici alt banner: "BEGENIRSEN ABONE OLMAYI UNUTMA :)" - tum video boyunca
+            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
+            f"fontsize=30:fontcolor=0x4ade80:borderw=3:bordercolor=black:"
+            f"x=(w-text_w)/2:y=h-58[banner];"
+            # Sag-alt kose: "ABONE OL" rozeti - tum video boyunca
+            f"[banner]drawtext=fontfile={FONT_PATH}:text='ABONE OL':"
+            f"fontsize=26:fontcolor=white:borderw=2:bordercolor=black:"
+            f"box=1:boxcolor=0xcc1111@0.9:boxborderw=14:"
+            f"x=w-text_w-24:y=h-110[outv]"
         ),
         "-map", "[outv]",
         "-map", "2:a",
