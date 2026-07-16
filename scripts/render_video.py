@@ -219,15 +219,11 @@ def render(story_path="output/story.json",
             f"box=1:boxcolor=black@0.6:boxborderw=16:"
             f"x=(w-text_w)/2:y=h-480:"
             f"enable='between(t,{cta_start:.2f},{duration:.2f})'[cta_done];"
-            # Kalici, ORTALANMIS abone rozeti - YouTube'un sag ikon sutunu ve alt
-            # aciklama alaniyla CAKISMAYAN guvenli bolgede (h-400 / h-350)
-            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='ABONE OL':"
-            f"fontsize=38:fontcolor=white:borderw=3:bordercolor=black:"
-            f"box=1:boxcolor=0xcc1111@0.85:boxborderw=16:"
-            f"x=(w-text_w)/2:y=h-400[banner];"
-            f"[banner]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
-            f"fontsize=30:fontcolor=0x4ade80:borderw=3:bordercolor=black:"
-            f"x=(w-text_w)/2:y=h-340[outv]"
+            # Kalici, tam ortalanmis abone/begeni hatirlatmasi - mavi (kanal logo rengi),
+            # YouTube'un sag ikon sutunu ve alt aciklama alaniyla CAKISMAYAN guvenli bolgede
+            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
+            f"fontsize=32:fontcolor=0x4f8ef7:borderw=3:bordercolor=black:"
+            f"x=(w-text_w)/2:y=h-370[outv]"
         ),
         "-map", "[outv]",
         "-map", "2:a",
