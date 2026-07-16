@@ -211,21 +211,21 @@ def render(story_path="output/story.json",
             f"box=1:boxcolor=black@0.55:boxborderw=24:"
             f"x=(w-text_w)/2:y=(h-text_h)/2:"
             f"enable='between(t,0,1.5)'[hooked];"
-            # Kapanis CTA'si (son 2 saniye, alt bolgede)
+            # Kapanis sorusu (son 2 saniye) - ortada, YouTube arayuzunun ustunde kalacak yukseklikte
             f"[hooked]drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
-            f"fontsize=44:fontcolor=white:borderw=4:bordercolor=black@0.9:"
-            f"box=1:boxcolor=black@0.6:boxborderw=18:"
-            f"x=(w-text_w)/2:y=h-220:"
+            f"fontsize=40:fontcolor=white:borderw=4:bordercolor=black@0.9:"
+            f"box=1:boxcolor=black@0.6:boxborderw=16:"
+            f"x=(w-text_w)/2:y=h-480:"
             f"enable='between(t,{cta_start:.2f},{duration:.2f})'[cta_done];"
-            # Kalici alt banner: "BEGENIRSEN ABONE OLMAYI UNUTMA :)" - tum video boyunca
-            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
+            # Kalici, ORTALANMIS abone rozeti - YouTube'un sag ikon sutunu ve alt
+            # aciklama alaniyla CAKISMAYAN guvenli bolgede (h-400 / h-350)
+            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='ABONE OL':"
+            f"fontsize=38:fontcolor=white:borderw=3:bordercolor=black:"
+            f"box=1:boxcolor=0xcc1111@0.85:boxborderw=16:"
+            f"x=(w-text_w)/2:y=h-400[banner];"
+            f"[banner]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
             f"fontsize=30:fontcolor=0x4ade80:borderw=3:bordercolor=black:"
-            f"x=(w-text_w)/2:y=h-58[banner];"
-            # Sag-alt kose: "ABONE OL" rozeti - tum video boyunca
-            f"[banner]drawtext=fontfile={FONT_PATH}:text='ABONE OL':"
-            f"fontsize=26:fontcolor=white:borderw=2:bordercolor=black:"
-            f"box=1:boxcolor=0xcc1111@0.9:boxborderw=14:"
-            f"x=w-text_w-24:y=h-110[outv]"
+            f"x=(w-text_w)/2:y=h-340[outv]"
         ),
         "-map", "[outv]",
         "-map", "2:a",
@@ -239,54 +239,55 @@ def render(story_path="output/story.json",
     print(f"Video render edildi: {output_path}")
 
 
+SERIF_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
+CHANNEL_LABEL = "ZİFİRİ SAATLER"
+
+
 def generate_thumbnail(story_path="output/story.json", output_path="output/thumbnail.jpg"):
+    """
+    'Yedinci Kat' kanalindaki basarili kapak formatindan ilham alinmistir:
+    duz siyah arkaplan + ustte kucuk marka etiketi + ortada buyuk, serif,
+    beyaz baslik. Kucuk boyutta (liste gorunumu) bile cok okunakli.
+    """
     with open(story_path, "r", encoding="utf-8") as f:
         story = json.load(f)
 
-    title = story["title"].replace("'", "\u2019").replace(":", "\\:")
+    title = story["title"]
 
     words = title.split()
-    mid = len(words) // 2 + (len(words) % 2)
-    line1 = " ".join(words[:mid])
-    line2 = " ".join(words[mid:])
+    lines = []
+    for i in range(0, len(words), 3):
+        lines.append(" ".join(words[i:i + 3]))
+    lines = lines[:5]
 
-    draw1 = (
-        f"drawtext=fontfile={FONT_PATH}:text='{line1}':"
-        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
-        f"x=(w-text_w)/2:y=(h/2)-110"
-    )
-    draw2 = (
-        f"drawtext=fontfile={FONT_PATH}:text='{line2}':"
-        f"fontsize=90:fontcolor=white:borderw=6:bordercolor=black@0.9:"
-        f"x=(w-text_w)/2:y=(h/2)+10"
-        if line2 else "null"
-    )
+    n_lines = len(lines)
+    line_height = 118
+    total_text_height = n_lines * line_height
+    start_y = (HEIGHT // 2) - (total_text_height // 2) + 40
 
-    top_bg = "output/top_background.mp4"
-    if os.path.exists(top_bg):
-        cmd = [
-            "ffmpeg", "-y",
-            "-i", top_bg,
-            "-vf",
-            (
-                f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
-                f"crop={WIDTH}:{HEIGHT},eq=brightness=-0.2,"
-                f"{draw1},{draw2}" if line2 else
-                f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
-                f"crop={WIDTH}:{HEIGHT},eq=brightness=-0.2,{draw1}"
-            ),
-            "-frames:v", "1",
-            output_path,
-        ]
-    else:
-        cmd = [
-            "ffmpeg", "-y",
-            "-f", "lavfi",
-            "-i", f"color=c=0x120a1a:s={WIDTH}x{HEIGHT}:d=1",
-            "-vf", f"{draw1},{draw2}" if line2 else draw1,
-            "-frames:v", "1",
-            output_path,
-        ]
+    draw_filters = [
+        f"drawtext=fontfile={FONT_PATH}:text='{CHANNEL_LABEL}':"
+        f"fontsize=34:fontcolor=0xc9a84a:x=(w-text_w)/2:y=110",
+        "drawbox=x=(iw-260)/2:y=168:w=260:h=3:color=0xc9a84a@0.9:t=fill",
+    ]
+    for i, line in enumerate(lines):
+        line_escaped = line.replace("'", "\u2019").replace(":", "\\:")
+        y = start_y + i * line_height
+        draw_filters.append(
+            f"drawtext=fontfile={SERIF_FONT_PATH}:text='{line_escaped}':"
+            f"fontsize=76:fontcolor=white:x=(w-text_w)/2:y={y}"
+        )
+
+    vf_chain = ",".join(draw_filters)
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-f", "lavfi",
+        "-i", f"color=c=0x0a0a0a:s={WIDTH}x{HEIGHT}:d=1",
+        "-vf", vf_chain,
+        "-frames:v", "1",
+        output_path,
+    ]
     subprocess.run(cmd, check=True)
     print(f"Kapak (thumbnail) uretildi: {output_path}")
 
