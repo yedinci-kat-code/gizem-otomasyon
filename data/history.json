@@ -1,19 +1,74 @@
 [
-  "Duvarın İçindeki Fısıltı",
-  "1920'den Kalan O Mektubu Açtı, Karşılaştığı Şey Hala Çözülemedi",
-  "30 Yıldır Boş Olan Evdeki Bu Saat Her Gece Olmayan Çarklarıyla Çalıyor",
-  "Asla Gitmediği O Yerde Kendi Günlüğünü Buldu: Bu Dejavu Açıklanamıyor",
-  "Anneannesinden Kalan 100 Yıllık Aynaya Baktı, Yansıması Ondan Önce Davrandı",
-  "2 Yıldır Boş Olan Kattan Gelen Seslerin Arkasındaki Korkunç Gerçek",
-  "Dedemin Asla Dokunma Dediği O Mirasla 3 Fotoğraf Çekti, Son Fotoğraf Dehşete Düşürdü",
-  "50 Yıl Önce Yazılan O Mektubu Açtı, Evin Altındaki Korkunç Sır Ortaya Çıktı",
-  "Bu Kasabada 100 Yıldır Anlatılan O Efsane Gerçek Oldu: 2. Tıklama Sırrı",
-  "Gece 03.14'te Kamerada Kendini Gören Güvenlikçinin Sırrı Hala Çözülemedi",
-  "Nesillerdir Anlatılan O Efsaneyi Bozdu: Kapısındaki Siyah İzlerin Sırrı",
-  "Her Perşembe 04.12’de Gelen Bu Sesin Sırrı 30 Yıldır Çözülemedi",
-  "110 Yıllık Fotoğraftaki O Detayı Yakınlaştırdı, Sırrı Hala Çözülemedi",
-  "40 Yıldır Boş Olan Evde Bulduğu O Kupürün Sırrı Hala Çözülemedi",
-  "Her Gece Gelen O Gizemli Sese Yanıt Verdi, Hayatının En Büyük Hatasını Yaptı",
-  "Boş Metro Tünelinde Gece 02.40'ta Bulduğu O Nesnenin Sırrı Çözülemiyor",
-  "1974'ten Gelen O Gizemli Zarfı Açtı, 4. Katta Yaşanan Sır Çözülemedi"
+  {
+    "title": "Duvarın İçindeki Fısıltı",
+    "theme": null
+  },
+  {
+    "title": "1920'den Kalan O Mektubu Açtı, Karşılaştığı Şey Hala Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "30 Yıldır Boş Olan Evdeki Bu Saat Her Gece Olmayan Çarklarıyla Çalıyor",
+    "theme": null
+  },
+  {
+    "title": "Asla Gitmediği O Yerde Kendi Günlüğünü Buldu: Bu Dejavu Açıklanamıyor",
+    "theme": null
+  },
+  {
+    "title": "Anneannesinden Kalan 100 Yıllık Aynaya Baktı, Yansıması Ondan Önce Davrandı",
+    "theme": null
+  },
+  {
+    "title": "2 Yıldır Boş Olan Kattan Gelen Seslerin Arkasındaki Korkunç Gerçek",
+    "theme": null
+  },
+  {
+    "title": "Dedemin Asla Dokunma Dediği O Mirasla 3 Fotoğraf Çekti, Son Fotoğraf Dehşete Düşürdü",
+    "theme": null
+  },
+  {
+    "title": "50 Yıl Önce Yazılan O Mektubu Açtı, Evin Altındaki Korkunç Sır Ortaya Çıktı",
+    "theme": null
+  },
+  {
+    "title": "Bu Kasabada 100 Yıldır Anlatılan O Efsane Gerçek Oldu: 2. Tıklama Sırrı",
+    "theme": null
+  },
+  {
+    "title": "Gece 03.14'te Kamerada Kendini Gören Güvenlikçinin Sırrı Hala Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "Nesillerdir Anlatılan O Efsaneyi Bozdu: Kapısındaki Siyah İzlerin Sırrı",
+    "theme": null
+  },
+  {
+    "title": "Her Perşembe 04.12’de Gelen Bu Sesin Sırrı 30 Yıldır Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "110 Yıllık Fotoğraftaki O Detayı Yakınlaştırdı, Sırrı Hala Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "40 Yıldır Boş Olan Evde Bulduğu O Kupürün Sırrı Hala Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "Her Gece Gelen O Gizemli Sese Yanıt Verdi, Hayatının En Büyük Hatasını Yaptı",
+    "theme": null
+  },
+  {
+    "title": "Boş Metro Tünelinde Gece 02.40'ta Bulduğu O Nesnenin Sırrı Çözülemiyor",
+    "theme": null
+  },
+  {
+    "title": "1974'ten Gelen O Gizemli Zarfı Açtı, 4. Katta Yaşanan Sır Çözülemedi",
+    "theme": null
+  },
+  {
+    "title": "Eski Ahşap Kutuda Bulduğu Antika Pusulanın Sırrı Hala Çözülemedi",
+    "theme": "eski bir kutu icinde bulunan aciklanamayan esya"
+  }
 ]
