@@ -94,7 +94,7 @@ def render(story_path="output/story.json",
            top_background_path="output/top_background.mp4",
            music_path="output/music.mp3",
            timings_path="output/word_timings.json",
-           output_path="output/final.mp4"):
+           output_path="output/main_body.mp4"):
 
     with open(story_path, "r", encoding="utf-8") as f:
         story = json.load(f)
@@ -292,6 +292,52 @@ def generate_thumbnail(story_path="output/story.json", output_path="output/thumb
     print(f"Kapak (thumbnail) uretildi: {output_path}")
 
 
+def prepend_thumbnail_intro(
+    thumbnail_path="output/thumbnail.jpg",
+    main_body_path="output/main_body.mp4",
+    output_path="output/final.mp4",
+    intro_duration=0.5,
+):
+    """
+    Uretilen statik kapak gorselini, videonun GERCEK ilk 0.5 saniyesi
+    olarak ekler. Boylece Studio/mobil'de "ilk kareyi kapak yap" secilse
+    bile hep bu tasarim gorunur - ayri bir API kapagina gerek kalmaz.
+    """
+    intro_path = "output/intro_clip.mp4"
+
+    intro_cmd = [
+        "ffmpeg", "-y",
+        "-loop", "1", "-i", thumbnail_path,
+        "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+        "-t", str(intro_duration),
+        "-vf",
+        (
+            f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+            f"crop={WIDTH}:{HEIGHT},fps={FPS},format=yuv420p"
+        ),
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-c:a", "aac", "-ar", "44100",
+        "-shortest",
+        intro_path,
+    ]
+    subprocess.run(intro_cmd, check=True)
+
+    concat_cmd = [
+        "ffmpeg", "-y",
+        "-i", intro_path,
+        "-i", main_body_path,
+        "-filter_complex",
+        "[0:v:0][0:a:0][1:v:0][1:a:0]concat=n=2:v=1:a=1[outv][outa]",
+        "-map", "[outv]", "-map", "[outa]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", "-b:a", "160k",
+        output_path,
+    ]
+    subprocess.run(concat_cmd, check=True)
+    print(f"Kapak videonun basina eklendi: {output_path}")
+
+
 if __name__ == "__main__":
-    render()
-    generate_thumbnail()
+    generate_thumbnail()          # once kapagi uret (sadece story.json gerekir)
+    render()                      # sonra ana videoyu uret (main_body.mp4)
+    prepend_thumbnail_intro()     # kapagi videonun basina fiziksel olarak ekle
