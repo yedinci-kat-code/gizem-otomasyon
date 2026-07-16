@@ -10,7 +10,9 @@ import os
 
 WIDTH = 1080
 HEIGHT = 1920
-TOP_HEIGHT = int(HEIGHT * 0.56)
+# libx264 cift sayi yukseklik/genislik ister (4:2:0 chroma icin) - tek sayi
+# olursa sessizce 1px kirpip toplam boyutu bozuyordu. Cift sayiya yuvarliyoruz.
+TOP_HEIGHT = (int(HEIGHT * 0.56) // 2) * 2
 BOTTOM_HEIGHT = HEIGHT - TOP_HEIGHT
 FPS = 30
 
@@ -199,7 +201,7 @@ def render(story_path="output/story.json",
         "-i", final_audio_path,
         "-filter_complex",
         (
-            "[0:v][1:v]vstack=inputs=2[stacked];"
+            "[0:v][1:v]vstack=inputs=2,setsar=1[stacked];"
             # Ust-sol kose: sabit "ABSURT KORKU" etiketi (tum video boyunca)
             f"[stacked]drawtext=fontfile={FONT_PATH}:text='ABSÜRT KORKU':"
             f"fontsize=26:fontcolor=0x9be8d0:borderw=2:bordercolor=black@0.8:"
