@@ -1,8 +1,8 @@
 """
 Zifiri Saatler - Senaryo Uretici
 Gemini API kullanarak kisa, atmosferik gizem/korku hikayeleri uretir.
-Tekrar etmemesi icin gecmis basliklari/temalari kontrol eder.
-Performans analizine gore, "kisisel/miras kalan esya" temalari agirlikli.
+Performans analizine gore: "kisisel esya + IMKANSIZ/MANTIKSIZ detay" kalibi
+en yuksek izlenme suresini (bazen %150+ - tekrar izletme) aliyor.
 """
 import os
 import json
@@ -19,18 +19,21 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 HISTORY_PATH = "data/history.json"
 MAX_HISTORY_IN_PROMPT = 30
-AVOID_SAME_THEME_LAST_N = 3  # son 3 videoda kullanilan tema tekrar secilmesin
+AVOID_SAME_THEME_LAST_N = 3
 
-# Performans analizi: "kisisel/miras esya" temalari cok daha fazla izlenme aliyor
-# (fotograf, saat, ayna, gunluk gibi herkesin evinde olabilecek nesneler).
-# Bu yuzden bu gruba 3x agirlik veriyoruz, soyut/genel mekan temalarina 1x.
+# Performans analizi (16 Temmuz 2026): en yuksek izlenme suresi/tekrar izletme
+# "kisisel esya + FIZIKSEL OLARAK IMKANSIZ/MANTIKSIZ bir detay" kalibinda
+# cikiyor (ornek: aynadaki yansimanin kisiden ONCE hareket etmesi -> %151.8
+# izlenme suresi, yani izleyiciler videoyu birden fazla kez izlemis).
+# Soyut/psikolojik temalar (dejavu gibi) en dusuk performansi verdi (%16.6),
+# bu yuzden havuzdan tamamen cikarildi.
 HIGH_PERFORMING_THEMES = [
-    "bir aile mirasindaki lanetli esya (saat, ayna, kolye vb.)",
-    "eski bir fotografta ortaya cikan aciklanamayan detay",
-    "bir mektupla ortaya cikan eski bir sir",
-    "dededen/anneanneden kalan gunluk ya da defterdeki gizemli notlar",
-    "eski bir kutu icinde bulunan aciklanamayan esya",
-    "bir aile yadigari saatin garip sekilde davranmasi",
+    "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
 ]
 
 STANDARD_THEMES = [
@@ -40,14 +43,10 @@ STANDARD_THEMES = [
     "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "bir ormanda kaybolan grubun basina gelenler",
     "apartmanda tekrar eden gizemli sesler",
-    "psikolojik olarak aciklanamayan dejavu deneyimi",
 ]
 
-# Agirlikli havuz: yuksek performansli temalar 3 kat daha sik secilsin
 WEIGHTED_THEMES = (HIGH_PERFORMING_THEMES * 3) + STANDARD_THEMES
 
-# Videonun sonunda ekranda gosterilecek, izleyiciyi etkilesime tesvik eden
-# CTA (call-to-action) cumleleri - render_video.py bunlardan rastgele birini kullanir
 CTA_PHRASES = [
     "Sence gerçekten ne oldu? Yorumlara yaz",
     "Bu sana da olduysa yorumla",
@@ -56,16 +55,27 @@ CTA_PHRASES = [
     "Benzer bir anın var mı? Anlat",
 ]
 
+# Turkce gizem/korku niginde her zaman yuksek aranan, evrensel gecerlilikte
+# anahtar kelimeler - her videoda otomatik karisir, arama/kesfette bulunma
+# sansini artirir
+SEO_KEYWORDS = [
+    "gerçek hikaye", "gerçek olay", "esrarengiz olaylar", "çözülemeyen gizem",
+    "paranormal olaylar", "şehir efsanesi", "tüyler ürpertici",
+    "açıklanamayan olaylar", "gerçek yaşanmış", "korkunç gerçek",
+]
+
 SYSTEM_PROMPT = """Sen Turkce icerik ureten, viral YouTube Shorts basliklari konusunda uzman bir
 senarist yapay zekasin. Gorevin kisa (45-60 saniye seslendirmeye uygun, yaklasik 110-150 kelime),
 atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 
 - Gercek, yasayan kisilerden veya spesifik gercek olaylardan bahsetme (kurgu/genel senaryo olsun)
 - Ilk cumle GUCLU bir kanca olsun, izleyiciyi hemen icine ceksin
+- COK ONEMLI: Hikayenin merkezinde, somut bir esya/nesne uzerinde FIZIKSEL OLARAK IMKANSIZ
+  veya MANTIKSIZ bir detay olsun (ornek: yansimanin kisiden once hareket etmesi, saatin
+  imkansiz sekilde davranmasi, fotografta olmamasi gereken bir seyin gorunmesi). Bu tarz
+  "imkansiz detay" iceren hikayeler izleyicinin videoyu tekrar tekrar izlemesini sagliyor
+  (analiz verisi: %150+ izlenme suresi elde edildi), bu yuzden mutlaka bu kalibi kullan
 - Hikaye merak uyandirsin, sonunda hafif bir cliffhanger veya rahatsiz edici bir detay birak
-- MUMKUNSE hikayeyi, izleyicinin kendi hayatiyla bag kurabilecegi somut, gunluk bir esya/nesne
-  uzerinden anlat (fotograf, saat, mektup, defter, ayna gibi) - bu tarz hikayeler izleyicide
-  "bende de var" hissi yaratip cok daha fazla izleniyor
 - Duz, akici, seslendirmeye uygun Turkce yaz, KISA VE NET CUMLELER kullan (altyazida okunacak)
 - Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
 - Kufur, asiri siddet, gercek kisi ismi kullanma
@@ -74,23 +84,26 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 
 BASLIK kurallari (cok onemli, tiklama oranini belirliyor):
 - 60-90 karakter arasi, MERAK UYANDIRAN, yari aciklayan yari gizleyen bir baslik olsun
-- Somut nesne + "sirri cozulemedi" / "hala aciklanamiyor" gibi merak tetikleyen kaliplar iyi calisiyor
-- Ornek ton: "Dedesinden Kalan Saat Her Gece 03.17'de Duruyor, Sebebi Hala Bulunamadi"
+- Somut nesne + imkansiz detay + "sirri cozulemedi" gibi kaliplar en iyi calisiyor
+- Ornek ton: "Aynadaki Yansiması Ondan Önce Hareket Etti, Sırrı Hâlâ Çözülemedi"
+- Mumkunse, dogal bir sekilde su anahtar kelimelerden BIRINI baslik veya aciklamaya
+  entegre et (zorla sokusturma, sadece uyuyorsa kullan): gerçek hikaye, gerçek olay,
+  esrarengiz olaylar, çözülemeyen gizem, tüyler ürpertici
 
 ACIKLAMA (description) kurallari:
 - 2-3 cumlelik, hikayeyi ozetleyen ama sonunu vermeyen, merak birakan bir aciklama yaz
 - Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir
 
 ETIKET (hashtags) kurallari:
-- 8-12 arasi etiket uret: hem genel (#shorts #gizem #korku #viral) hem temaya ozel
-  hem de kesfet/one cikma icin populer Turkce icerik etiketleri kullan
+- 8-10 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
+  onlari sen tekrar yazma)
 
 JSON formati:
 {
   "title": "Merak uyandiran, 60-90 karakter arasi baslik",
   "description": "2-3 cumlelik ozet + soru ile bitsin",
   "story": "Hikayenin tam metni (seslendirme icin)",
-  "hashtags": ["#gizem", "#korku", "... 8-12 arasi etiket"]
+  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 8-10 arasi"]
 }"""
 
 
@@ -100,7 +113,6 @@ def load_history():
     try:
         with open(HISTORY_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            # Eski format (sadece string liste) ile uyumluluk
             normalized = []
             for item in data:
                 if isinstance(item, str):
@@ -125,6 +137,15 @@ def pick_theme(history):
     if not candidates:
         candidates = WEIGHTED_THEMES
     return random.choice(candidates)
+
+
+def merge_seo_keywords(hashtags):
+    """SEO havuzundan 3-4 tanesini rastgele secip mevcut etiketlere ekler,
+    tekrarlari temizler, toplamda makul bir sayida tutar."""
+    picked = random.sample(SEO_KEYWORDS, k=min(4, len(SEO_KEYWORDS)))
+    seo_tags = ["#" + k.replace(" ", "") for k in picked]
+    combined = list(dict.fromkeys(hashtags + seo_tags + ["#shorts", "#keşfet"]))
+    return combined[:14]
 
 
 def generate_story():
@@ -158,6 +179,7 @@ def generate_story():
     data = json.loads(text)
     data["_theme"] = theme
     data["_cta"] = random.choice(CTA_PHRASES)
+    data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
 
     save_history(history, data["title"], theme)
 
