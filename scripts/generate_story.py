@@ -62,6 +62,10 @@ SEO_KEYWORDS = [
     "gerçek hikaye", "gerçek olay", "esrarengiz olaylar", "çözülemeyen gizem",
     "paranormal olaylar", "şehir efsanesi", "tüyler ürpertici",
     "açıklanamayan olaylar", "gerçek yaşanmış", "korkunç gerçek",
+    "gizemli olaylar", "korku hikayesi", "gerçek korku", "esrarengiz olay",
+    "sırrı çözülemedi", "kaybolan insanlar", "tüyler ürperten hikaye",
+    "gece hikayeleri", "ürkütücü olaylar", "açıklanamayan gizem",
+    "gerçek dehşet", "gizem dolu", "korku anıları", "inanılmaz gerçek olay",
 ]
 
 SYSTEM_PROMPT = """Sen Turkce icerik ureten, viral YouTube Shorts basliklari konusunda uzman bir
@@ -95,7 +99,7 @@ ACIKLAMA (description) kurallari:
 - Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir
 
 ETIKET (hashtags) kurallari:
-- 8-10 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
+- 10-15 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
   onlari sen tekrar yazma)
 
 JSON formati:
@@ -103,7 +107,7 @@ JSON formati:
   "title": "Merak uyandiran, 60-90 karakter arasi baslik",
   "description": "2-3 cumlelik ozet + soru ile bitsin",
   "story": "Hikayenin tam metni (seslendirme icin)",
-  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 8-10 arasi"]
+  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 10-20 arasi"]
 }"""
 
 
@@ -140,12 +144,27 @@ def pick_theme(history):
 
 
 def merge_seo_keywords(hashtags):
-    """SEO havuzundan 3-4 tanesini rastgele secip mevcut etiketlere ekler,
-    tekrarlari temizler, toplamda makul bir sayida tutar."""
-    picked = random.sample(SEO_KEYWORDS, k=min(4, len(SEO_KEYWORDS)))
+    """SEO havuzundan daha genis bir kismini secip mevcut etiketlere ekler,
+    tekrarlari temizler. YouTube'un toplam etiket karakter limitini (500)
+    asmamak icin guvenli bir sinirda tutar."""
+    picked = random.sample(SEO_KEYWORDS, k=min(12, len(SEO_KEYWORDS)))
     seo_tags = ["#" + k.replace(" ", "") for k in picked]
     combined = list(dict.fromkeys(hashtags + seo_tags + ["#shorts", "#keşfet"]))
-    return combined[:14]
+
+    # YouTube toplam etiket karakter limiti ~500 - guvenli tarafta kalmak
+    # icin 480 karaktere kadar ekle, 30 etiketi de gecme
+    result = []
+    total_chars = 0
+    for tag in combined:
+        if len(result) >= 30:
+            break
+        tag_len = len(tag.strip("#")) + 1  # virgul icin +1
+        if total_chars + tag_len > 480:
+            break
+        result.append(tag)
+        total_chars += tag_len
+
+    return result
 
 
 def generate_story():
