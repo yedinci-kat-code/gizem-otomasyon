@@ -49,6 +49,7 @@ def upload_video(youtube, video_path: str, story: dict):
         "status": {
             "privacyStatus": "public",
             "selfDeclaredMadeForKids": False,
+            "containsSyntheticMedia": True,  # YouTube'un YZ icerik beyani
         },
     }
 
