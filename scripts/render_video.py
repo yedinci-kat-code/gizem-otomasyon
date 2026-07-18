@@ -42,6 +42,11 @@ def build_caption_groups_from_words(word_timings, story_text: str, group_size=3)
     Kelime zamanlamasina gore, ekranda AYNI ANDA sadece 'group_size' kadar
     kelime gorunecek sekilde gruplar olusturur (TikTok/Shorts tarzi,
     sirayla degisen kisa altyazi - paragraf DEGIL).
+
+    ONEMLI: Bir grubun bitis zamani, bir SONRAKI grubun baslangicina TAM
+    olarak baglanir (hicbir bosluk/tolerans payi birakilmaz). Boylece iki
+    grubun ayni anda ekranda gorunmesi (ustuste binme) matematiksel olarak
+    imkansiz hale gelir.
     """
     total_words = len(story_text.split())
     if len(word_timings) < total_words * 0.5:
@@ -54,8 +59,19 @@ def build_caption_groups_from_words(word_timings, story_text: str, group_size=3)
             continue
         text = " ".join(w["text"] for w in chunk_words)
         start = chunk_words[0]["offset"]
-        end = chunk_words[-1]["offset"] + chunk_words[-1]["duration"] + 0.1
-        groups.append({"text": text, "start": start, "end": end})
+        groups.append({"text": text, "start": start})
+
+    if not groups:
+        return []
+
+    # Her grubun bitisini bir sonrakinin baslangicina sabitle (sifir bosluk/ortusme)
+    for i in range(len(groups) - 1):
+        groups[i]["end"] = groups[i + 1]["start"]
+
+    # Son grubun bitisini son kelimenin gercek bitis zamanina gore ayarla
+    last_word = word_timings[-1]
+    groups[-1]["end"] = last_word["offset"] + last_word["duration"] + 0.3
+
     return groups
 
 
@@ -67,7 +83,7 @@ def build_caption_groups_from_text(story_text: str, duration: float, group_size=
     per_chunk = duration / len(chunks)
     groups = []
     for i, text in enumerate(chunks):
-        groups.append({"text": text, "start": i * per_chunk, "end": (i + 1) * per_chunk + 0.08})
+        groups.append({"text": text, "start": i * per_chunk, "end": (i + 1) * per_chunk})
     return groups
 
 
@@ -219,11 +235,14 @@ def render(story_path="output/story.json",
             f"box=1:boxcolor=black@0.6:boxborderw=16:"
             f"x=(w-text_w)/2:y=h-480:"
             f"enable='between(t,{cta_start:.2f},{duration:.2f})'[cta_done];"
-            # Kalici, tam ortalanmis abone/begeni hatirlatmasi - mavi (kanal logo rengi),
-            # YouTube'un sag ikon sutunu ve alt aciklama alaniyla CAKISMAYAN guvenli bolgede
-            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENİRSEN ABONE OLMAYI UNUTMA :)':"
-            f"fontsize=32:fontcolor=0x4f8ef7:borderw=3:bordercolor=black:"
-            f"x=(w-text_w)/2:y=h-370[outv]"
+            # Abone/begeni hatirlatmasi - EKRANIN TAM ORTASI, profesyonel koyu-lacivert
+            # rozet tasarimi. Hook (0-1.5sn) ve kapanis sorusu (son 2sn) ile CAKISMAMASI
+            # icin sadece aradaki bolumde gosterilir.
+            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENDİYSEN ABONE OLMAYI UNUTMA':"
+            f"fontsize=34:fontcolor=white:borderw=2:bordercolor=0x1a3a8f:"
+            f"box=1:boxcolor=0x14247a@0.88:boxborderw=30:"
+            f"x=(w-text_w)/2:y=(h-text_h)/2:"
+            f"enable='between(t,1.7,{max(duration - 2.3, 1.8):.2f})'[outv]"
         ),
         "-map", "[outv]",
         "-map", "2:a",
