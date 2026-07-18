@@ -20,6 +20,16 @@ genai.configure(api_key=GEMINI_API_KEY)
 HISTORY_PATH = "data/history.json"
 MAX_HISTORY_IN_PROMPT = 30
 AVOID_SAME_THEME_LAST_N = 3
+AVOID_SAME_CITY_LAST_N = 5
+
+# Hikayeye "gercekci hissettirme" katmak icin kullanilan Turkiye sehir/bolge
+# havuzu. GUVENLIK: sadece sehir/bolge adi kullanilir, GERCEK adres, isletme,
+# kurum veya kisi ismi ASLA kullanilmaz (prompt'ta ayrica vurgulanir).
+CITIES = [
+    "Bursa", "Kayseri", "Trabzon", "Mersin", "Konya", "Eskişehir",
+    "Antalya", "Adana", "Samsun", "Gaziantep", "Malatya", "Erzurum",
+    "Denizli", "Sivas", "Van", "Diyarbakır", "Kastamonu", "Rize",
+]
 
 # Performans analizi (16 Temmuz 2026): en yuksek izlenme suresi/tekrar izletme
 # "kisisel esya + FIZIKSEL OLARAK IMKANSIZ/MANTIKSIZ bir detay" kalibinda
@@ -85,6 +95,12 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 - Kufur, asiri siddet, gercek kisi ismi kullanma
 - Sana verilen "daha once kullanilan basliklar" listesindeki konularla AYNI veya
   cok benzer bir hikaye UYDURMA, tamamen ozgun ve farkli bir olay/detay/karakter kullan
+- Sana verilen SEHIR adini hikayeye dogal bir sekilde yedir (ornek: "Kayseri'nin eski
+  bir mahallesinde", "Trabzon'da bir sahil kasabasinda"). COK ONEMLI GUVENLIK KURALI:
+  SADECE genel sehir/bolge/mahalle duzeyinde kal - GERCEK bir adres, sokak ismi,
+  isletme adi, kurum adi (okul, hastane, cami vb. spesifik isimlerle) veya gercek
+  bir kisi ismi ASLA kullanma. Amac hikayeyi "bir yerde geciyormus gibi" hissettirmek,
+  dogrulanabilir/iddia edilebilir gercek bir yer/kurum/kisi ile iliskilendirmek DEGIL.
 
 BASLIK kurallari (cok onemli, tiklama oranini belirliyor):
 - 60-90 karakter arasi, MERAK UYANDIRAN, yari aciklayan yari gizleyen bir baslik olsun
@@ -99,7 +115,7 @@ ACIKLAMA (description) kurallari:
 - Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir
 
 ETIKET (hashtags) kurallari:
-- 10-15 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
+- 10-12 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
   onlari sen tekrar yazma)
 
 JSON formati:
@@ -107,7 +123,7 @@ JSON formati:
   "title": "Merak uyandiran, 60-90 karakter arasi baslik",
   "description": "2-3 cumlelik ozet + soru ile bitsin",
   "story": "Hikayenin tam metni (seslendirme icin)",
-  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 10-20 arasi"]
+  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 10-12 arasi"]
 }"""
 
 
@@ -128,8 +144,8 @@ def load_history():
         return []
 
 
-def save_history(history, new_title: str, new_theme: str):
-    history.append({"title": new_title, "theme": new_theme})
+def save_history(history, new_title: str, new_theme: str, new_city: str):
+    history.append({"title": new_title, "theme": new_theme, "city": new_city})
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
@@ -140,6 +156,14 @@ def pick_theme(history):
     candidates = [t for t in WEIGHTED_THEMES if t not in recent_themes]
     if not candidates:
         candidates = WEIGHTED_THEMES
+    return random.choice(candidates)
+
+
+def pick_city(history):
+    recent_cities = [h.get("city") for h in history[-AVOID_SAME_CITY_LAST_N:] if h.get("city")]
+    candidates = [c for c in CITIES if c not in recent_cities]
+    if not candidates:
+        candidates = CITIES
     return random.choice(candidates)
 
 
@@ -170,6 +194,7 @@ def merge_seo_keywords(hashtags):
 def generate_story():
     history = load_history()
     theme = pick_theme(history)
+    city = pick_city(history)
     recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:]]
 
     model = genai.GenerativeModel(
@@ -184,7 +209,13 @@ def generate_story():
             + "\n".join(f"- {t}" for t in recent_titles)
         )
 
-    prompt = f"Tema: {theme}\n\nBu temaya uygun yeni ve ozgun bir hikaye uret.{avoid_text}"
+    prompt = (
+        f"Tema: {theme}\n"
+        f"Sehir: {city}\n\n"
+        f"Bu temaya uygun, {city} sehrinde/bolgesinde gecen yeni ve ozgun bir hikaye uret. "
+        f"Sadece genel bir mahalle/bolge atfet, gercek adres/kurum/kisi ismi kullanma."
+        f"{avoid_text}"
+    )
 
     response = model.generate_content(prompt)
     text = response.text.strip()
@@ -200,7 +231,7 @@ def generate_story():
     data["_cta"] = random.choice(CTA_PHRASES)
     data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
 
-    save_history(history, data["title"], theme)
+    save_history(history, data["title"], theme, city)
 
     return data
 
