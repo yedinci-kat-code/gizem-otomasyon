@@ -89,6 +89,11 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
   imkansiz sekilde davranmasi, fotografta olmamasi gereken bir seyin gorunmesi). Bu tarz
   "imkansiz detay" iceren hikayeler izleyicinin videoyu tekrar tekrar izlemesini sagliyor
   (analiz verisi: %150+ izlenme suresi elde edildi), bu yuzden mutlaka bu kalibi kullan
+- BU IMKANSIZ DETAYI mumkunse SOMUT, DUYUSAL bir nitelikle (bir RENK, bir SES, bir doku/
+  malzeme detayi) tarif et - "kirmizi bir leke", "cizik sesi", "islak bir iz" gibi. Soyut
+  ("garip bir sey oldu") degil, gozle/kulakla algilanabilir somut bir detay olsun. Analiz
+  verisi: somut duyusal detay iceren basliklar (ornek "kirmizi detay") diger imkansiz-detay
+  basliklarina gore ONE MISLI daha fazla izlenme aldi (1600 vs ~100 izlenme)
 - Hikaye merak uyandirsin, sonunda hafif bir cliffhanger veya rahatsiz edici bir detay birak
 - Duz, akici, seslendirmeye uygun Turkce yaz, KISA VE NET CUMLELER kullan (altyazida okunacak)
 - Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
@@ -105,7 +110,10 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
 BASLIK kurallari (cok onemli, tiklama oranini belirliyor):
 - 60-90 karakter arasi, MERAK UYANDIRAN, yari aciklayan yari gizleyen bir baslik olsun
 - Somut nesne + imkansiz detay + "sirri cozulemedi" gibi kaliplar en iyi calisiyor
-- Ornek ton: "Aynadaki Yansiması Ondan Önce Hareket Etti, Sırrı Hâlâ Çözülemedi"
+- Basliga MUMKUNSE somut duyusal detayi (renk/ses/doku kelimesini) DAHIL et
+  (ornek: "Kırmızı Detay", "Islak Çizgi", "Cızırtı Sesi" gibi somut bir ibare basligin
+  icinde gecsin - bu, soyut basliklara gore ONE MISLI daha fazla izlenme aldi)
+- Ornek ton: "Aynadaki Kırmızı Leke Ondan Önce Hareket Etti, Sırrı Hâlâ Çözülemedi"
 - Mumkunse, dogal bir sekilde su anahtar kelimelerden BIRINI baslik veya aciklamaya
   entegre et (zorla sokusturma, sadece uyuyorsa kullan): gerçek hikaye, gerçek olay,
   esrarengiz olaylar, çözülemeyen gizem, tüyler ürpertici
