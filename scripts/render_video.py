@@ -235,9 +235,8 @@ def render(story_path="output/story.json",
         final_audio_path = voice_path
 
     # --- 4) Ust + alt paneli dikey birlestir, basa hook, sona CTA, kalici alt banner + rozet ---
-    hook_words = story["title"].split()[:4]
     hook_text = (
-        " ".join(hook_words)
+        story.get("thumb_hook", "Hâlâ Çözülemedi")
         .replace("\\", "")
         .replace("'", "\u2019")
         .replace(":", "\\:")
@@ -345,11 +344,9 @@ def generate_thumbnail(story_path="output/story.json", output_path="output/thumb
     title_lines = wrap_text_safe(title, max_chars_per_line=15)
     title_lines = title_lines[:5]  # cok uzunsa tasmayi onlemek icin sinirla
 
-    # Hook ifadesi: basligin ilk birkac kelimesi, farkli renk/font, daha kucuk
-    # punto (cunku ayni satirda ana baslikla birlikte yer alacak, video ile
-    # tutarli olsun diye video hook'uyla ayni mantik kullanilir)
-    hook_words = title.split()[:5]
-    hook_text = " ".join(hook_words)
+    # Hook ifadesi: basligin bir kesmesi DEGIL, Gemini'nin ayrica uretttigi
+    # gramer olarak TAM, bagimsiz carpici ifade (thumb_hook alani)
+    hook_text = story.get("thumb_hook", "Hâlâ Çözülemedi")
     hook_lines = wrap_text_safe(hook_text, max_chars_per_line=20)
     hook_lines = hook_lines[:2]
 
