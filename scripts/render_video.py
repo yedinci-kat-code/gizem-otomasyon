@@ -7,6 +7,7 @@ Ses: edge-tts seslendirme + arkaplan muzigi (dusuk sesle karistirilmis)
 import json
 import subprocess
 import os
+import re
 
 WIDTH = 1080
 HEIGHT = 1920
@@ -47,18 +48,30 @@ def build_caption_groups_from_words(word_timings, story_text: str, group_size=3)
     olarak baglanir (hicbir bosluk/tolerans payi birakilmaz). Boylece iki
     grubun ayni anda ekranda gorunmesi (ustuste binme) matematiksel olarak
     imkansiz hale gelir.
+
+    AYRICA: Bir cumle bitince (nokta/soru/unlem isareti gorulunce) grup
+    orada KAPATILIR, bir sonraki cumlenin ilk kelimesi ayni grup icine
+    ASLA sizmaz - "...kalmisti. Yercekimine" gibi iki farkli cumlenin
+    ayni altyazi kutusunda karismasini onler.
     """
     total_words = len(story_text.split())
     if len(word_timings) < total_words * 0.5:
         return None
 
     groups = []
-    for i in range(0, len(word_timings), group_size):
-        chunk_words = word_timings[i:i + group_size]
-        if not chunk_words:
-            continue
-        text = " ".join(w["text"] for w in chunk_words)
-        start = chunk_words[0]["offset"]
+    current_chunk = []
+    for w in word_timings:
+        current_chunk.append(w)
+        ends_sentence = bool(re.search(r'[.!?…]["\')]?$', w["text"].strip()))
+        if len(current_chunk) >= group_size or ends_sentence:
+            text = " ".join(x["text"] for x in current_chunk)
+            start = current_chunk[0]["offset"]
+            groups.append({"text": text, "start": start})
+            current_chunk = []
+
+    if current_chunk:
+        text = " ".join(x["text"] for x in current_chunk)
+        start = current_chunk[0]["offset"]
         groups.append({"text": text, "start": start})
 
     if not groups:
@@ -79,7 +92,18 @@ def build_caption_groups_from_text(story_text: str, duration: float, group_size=
     words = story_text.split()
     if not words:
         return []
-    chunks = [" ".join(words[i:i + group_size]) for i in range(0, len(words), group_size)]
+
+    chunks = []
+    current = []
+    for w in words:
+        current.append(w)
+        ends_sentence = bool(re.search(r'[.!?…]["\')]?$', w.strip()))
+        if len(current) >= group_size or ends_sentence:
+            chunks.append(" ".join(current))
+            current = []
+    if current:
+        chunks.append(" ".join(current))
+
     per_chunk = duration / len(chunks)
     groups = []
     for i, text in enumerate(chunks):
