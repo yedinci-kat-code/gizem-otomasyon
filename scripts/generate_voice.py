@@ -9,7 +9,8 @@ import edge_tts
 
 VOICE = "tr-TR-AhmetNeural"
 
-RATE = "-2%"    # neredeyse normal hiz
+RATE = "+10%"   # ~1.1x hiz - daha enerjik/heyecanli giris, senkron duzeltmesi
+                # sayesinde artik hiz degisikligi altyazi kaymasi YARATMAZ
 PITCH = "-14Hz"  # belirgin sekilde kalin/ciddi ton
 
 MAX_RETRIES = 4
