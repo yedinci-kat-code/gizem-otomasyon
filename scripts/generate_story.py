@@ -138,9 +138,19 @@ ETIKET (hashtags) kurallari:
 - 10-12 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
   onlari sen tekrar yazma)
 
+KAPAK HOOK ifadesi kurallari (thumb_hook alani - COK ONEMLI):
+- Bu, basligin bir parcasi/kesilmisi DEGIL, TAMAMEN AYRI, KENDI BASINA
+  GRAMER OLARAK TAM ve anlamli 3-6 kelimelik carpici bir ifade olmali
+- YANLIS ornek (basligi kesmek): "Kilitli Sandiktaki Mor Ipligin" (yarim
+  kalmis, "ipligin" hal eki ile bitiyor, anlamsiz) - BOYLE YAPMA
+- DOGRU ornek: "Kimse Inanmiyor" / "Bu Nasil Mumkun" / "Hala Cozulemedi"
+  / "Gozlerine Inanamadi" gibi, tek basina okundugunda TAM bir anlam
+  ifade eden, baslikla ilgili ama ondan BAGIMSIZ carpici bir vurgu cumlesi
+
 JSON formati:
 {
   "title": "Merak uyandiran, 60-90 karakter arasi baslik",
+  "thumb_hook": "Kapak icin 3-6 kelimelik, GRAMER OLARAK TAM, bagimsiz carpici ifade",
   "description": "2-3 cumlelik ozet + soru ile bitsin",
   "story": "Hikayenin tam metni (seslendirme icin)",
   "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 10-12 arasi"]
@@ -250,6 +260,14 @@ def generate_story():
     data["_theme"] = theme
     data["_cta"] = random.choice(CTA_PHRASES)
     data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
+
+    # Gemini thumb_hook uretmezse (eski/beklenmedik format), basligi kesmek
+    # yerine GUVENLI, gramer olarak tam, genel bir yedek ifade kullan
+    if not data.get("thumb_hook"):
+        data["thumb_hook"] = random.choice([
+            "Kimse İnanmıyor", "Hâlâ Çözülemedi", "Bu Nasıl Mümkün",
+            "Gözlerine İnanamadı", "Herkes Şaşkın",
+        ])
 
     save_history(history, data["title"], theme, city)
 
