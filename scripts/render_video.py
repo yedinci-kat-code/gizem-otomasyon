@@ -119,7 +119,22 @@ def render(story_path="output/story.json",
     with open(timings_path, "r", encoding="utf-8") as f:
         word_timings = json.load(f)
 
-    duration = get_audio_duration(voice_path) + 0.5
+    raw_audio_duration = get_audio_duration(voice_path)
+    duration = raw_audio_duration + 0.5
+
+    # ONEMLI KAYMA DUZELTMESI: edge-tts'in bildirdigi kelime zamanlamalari
+    # (word_timings) ile gercek ses dosyasinin suresi arasinda kucuk bir
+    # oransal fark olabiliyor - bu da video uzadikca ses/altyazi kaymasinin
+    # buyumesine sebep oluyordu. Tum zamanlamalari GERCEK ses suresine gore
+    # olcekleyerek bu kaymayi matematiksel olarak sifirliyoruz.
+    if word_timings:
+        last_word = word_timings[-1]
+        reported_total = last_word["offset"] + last_word["duration"]
+        if reported_total > 0:
+            scale = raw_audio_duration / reported_total
+            for w in word_timings:
+                w["offset"] *= scale
+                w["duration"] *= scale
 
     groups = None
     if word_timings:
@@ -186,6 +201,8 @@ def render(story_path="output/story.json",
             "[1:a]volume=0.12[music];[0:a][music]amix=inputs=2:duration=first:dropout_transition=2[aout]",
             "-map", "[aout]",
             "-t", str(duration),
+            "-avoid_negative_ts", "make_zero",
+            "-async", "1",
             "output/mixed_audio.aac",
         ]
         subprocess.run(audio_cmd, check=True)
@@ -249,6 +266,8 @@ def render(story_path="output/story.json",
         "-t", str(duration),
         "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "160k",
+        "-avoid_negative_ts", "make_zero",
+        "-async", "1",
         "-shortest",
         output_path,
     ]
@@ -260,40 +279,95 @@ SERIF_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 CHANNEL_LABEL = "ZİFİRİ SAATLER"
 
 
+def wrap_text_safe(text, max_chars_per_line):
+    """
+    Kelimeleri, her satir belirlenen karakter sinirini asmayacak sekilde
+    ac gozlu (greedy) bir algoritmayla satirlara boler. Sabit kelime sayisi
+    yerine karakter uzunluguna gore boldugu icin uzun kelimeli basliklarda
+    bile ekran disina tasma OLMAZ.
+    """
+    words = text.split()
+    lines = []
+    current = []
+    current_len = 0
+    for w in words:
+        add_len = len(w) + (1 if current else 0)
+        if current_len + add_len > max_chars_per_line and current:
+            lines.append(" ".join(current))
+            current = [w]
+            current_len = len(w)
+        else:
+            current.append(w)
+            current_len += add_len
+    if current:
+        lines.append(" ".join(current))
+    return lines
+
+
 def generate_thumbnail(story_path="output/story.json", output_path="output/thumbnail.jpg"):
     """
     'Yedinci Kat' kanalindaki basarili kapak formatindan ilham alinmistir:
-    duz siyah arkaplan + ustte kucuk marka etiketi + ortada buyuk, serif,
-    beyaz baslik. Kucuk boyutta (liste gorunumu) bile cok okunakli.
+    duz siyah arkaplan + ustte kucuk marka etiketi + carpici renkli HOOK
+    ifadesi + altinda buyuk, serif, beyaz ana baslik. Tum metinler karakter
+    sayisina gore GUVENLI sekilde satirlara bolunur, ekran disina TASMAZ.
     """
     with open(story_path, "r", encoding="utf-8") as f:
         story = json.load(f)
 
     title = story["title"]
 
-    words = title.split()
-    lines = []
-    for i in range(0, len(words), 3):
-        lines.append(" ".join(words[i:i + 3]))
-    lines = lines[:5]
+    # Ana baslik: 76 punto serif fontta, guvenli max ~15 karakter/satir
+    # (WIDTH=1080, kenar boslugu dahil - serif bold karakterler genis)
+    title_lines = wrap_text_safe(title, max_chars_per_line=15)
+    title_lines = title_lines[:5]  # cok uzunsa tasmayi onlemek icin sinirla
 
-    n_lines = len(lines)
-    line_height = 118
-    total_text_height = n_lines * line_height
-    start_y = (HEIGHT // 2) - (total_text_height // 2) + 40
+    # Hook ifadesi: basligin ilk birkac kelimesi, farkli renk/font, daha kucuk
+    # punto (cunku ayni satirda ana baslikla birlikte yer alacak, video ile
+    # tutarli olsun diye video hook'uyla ayni mantik kullanilir)
+    hook_words = title.split()[:5]
+    hook_text = " ".join(hook_words)
+    hook_lines = wrap_text_safe(hook_text, max_chars_per_line=20)
+    hook_lines = hook_lines[:2]
+
+    TITLE_FONTSIZE = 68
+    TITLE_LINE_HEIGHT = 100
+    HOOK_FONTSIZE = 42
+    HOOK_LINE_HEIGHT = 58
+
+    n_title_lines = len(title_lines)
+    n_hook_lines = len(hook_lines)
+
+    total_height = (n_hook_lines * HOOK_LINE_HEIGHT) + 30 + (n_title_lines * TITLE_LINE_HEIGHT)
+    start_y = max((HEIGHT // 2) - (total_height // 2) + 60, 260)
 
     draw_filters = [
         f"drawtext=fontfile={FONT_PATH}:text='{CHANNEL_LABEL}':"
         f"fontsize=34:fontcolor=0xc9a84a:x=(w-text_w)/2:y=110",
         "drawbox=x=(iw-260)/2:y=168:w=260:h=3:color=0xc9a84a@0.9:t=fill",
     ]
-    for i, line in enumerate(lines):
+
+    # Hook ifadesi (turuncu/altin vurgu rengi, sans-serif bold)
+    y = start_y
+    for line in hook_lines:
         line_escaped = line.replace("'", "\u2019").replace(":", "\\:")
-        y = start_y + i * line_height
+        draw_filters.append(
+            f"drawtext=fontfile={FONT_PATH}:text='{line_escaped}':"
+            f"fontsize={HOOK_FONTSIZE}:fontcolor=0xff9d3d:"
+            f"borderw=2:bordercolor=black@0.6:"
+            f"x=(w-text_w)/2:y={y}"
+        )
+        y += HOOK_LINE_HEIGHT
+
+    # Ana baslik (beyaz, serif) - hook'un hemen altinda baslar
+    y += 30
+    for line in title_lines:
+        line_escaped = line.replace("'", "\u2019").replace(":", "\\:")
         draw_filters.append(
             f"drawtext=fontfile={SERIF_FONT_PATH}:text='{line_escaped}':"
-            f"fontsize=76:fontcolor=white:x=(w-text_w)/2:y={y}"
+            f"fontsize={TITLE_FONTSIZE}:fontcolor=white:"
+            f"x=(w-text_w)/2:y={y}"
         )
+        y += TITLE_LINE_HEIGHT
 
     vf_chain = ",".join(draw_filters)
 
@@ -348,6 +422,8 @@ def prepend_thumbnail_intro(
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "160k",
+        "-avoid_negative_ts", "make_zero",
+        "-async", "1",
         output_path,
     ]
     subprocess.run(concat_cmd, check=True)
