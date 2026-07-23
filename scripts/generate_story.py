@@ -21,6 +21,20 @@ HISTORY_PATH = "data/history.json"
 MAX_HISTORY_IN_PROMPT = 30
 AVOID_SAME_THEME_LAST_N = 3
 AVOID_SAME_CITY_LAST_N = 5
+AVOID_SAME_DETAIL_TYPE_LAST_N = 4
+
+# Imkansiz detayin HANGI duyusal turde olacagini belirler - sadece "renk/leke"
+# kalibina saplanmamak icin dongusel olarak degistirilir (analiz: art arda
+# ayni kalip kullanildiginda izlenme suresi dusuyor, cesitlilik onemli)
+DETAIL_TYPES = [
+    "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)",
+    "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)",
+    "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)",
+    "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)",
+    "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)",
+    "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)",
+    "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)",
+]
 
 # Hikayeye "gercekci hissettirme" katmak icin kullanilan Turkiye sehir/bolge
 # havuzu. GUVENLIK: sadece sehir/bolge adi kullanilir, GERCEK adres, isletme,
@@ -101,11 +115,11 @@ atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
   imkansiz sekilde davranmasi, fotografta olmamasi gereken bir seyin gorunmesi). Bu tarz
   "imkansiz detay" iceren hikayeler izleyicinin videoyu tekrar tekrar izlemesini sagliyor
   (analiz verisi: %150+ izlenme suresi elde edildi), bu yuzden mutlaka bu kalibi kullan
-- BU IMKANSIZ DETAYI mumkunse SOMUT, DUYUSAL bir nitelikle (bir RENK, bir SES, bir doku/
-  malzeme detayi) tarif et - "kirmizi bir leke", "cizik sesi", "islak bir iz" gibi. Soyut
-  ("garip bir sey oldu") degil, gozle/kulakla algilanabilir somut bir detay olsun. Analiz
-  verisi: somut duyusal detay iceren basliklar (ornek "kirmizi detay") diger imkansiz-detay
-  basliklarina gore ONE MISLI daha fazla izlenme aldi (1600 vs ~100 izlenme)
+- BU IMKANSIZ DETAYI, sana verilen DUYUSAL TUR'e uygun SOMUT bir sekilde tarif et
+  (asagida "Duyusal tur:" olarak verilecek). Soyut ("garip bir sey oldu") degil,
+  gozle/kulakla/dokunarak algilanabilir somut bir detay olsun. ONEMLI: ART ARDA
+  AYNI TUR (ozellikle sadece "renk/leke") KULLANILDIGINDA IZLENME SURESI DUSUYOR -
+  bu yuzden sana verilen duyusal turu MUTLAKA kullan, farkli turler cesitlilik saglar
 - Hikaye merak uyandirsin, sonunda hafif bir cliffhanger veya rahatsiz edici bir detay birak
 - Duz, akici, seslendirmeye uygun Turkce yaz, KISA VE NET CUMLELER kullan (altyazida okunacak)
 - Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
@@ -174,8 +188,11 @@ def load_history():
         return []
 
 
-def save_history(history, new_title: str, new_theme: str, new_city: str):
-    history.append({"title": new_title, "theme": new_theme, "city": new_city})
+def save_history(history, new_title: str, new_theme: str, new_city: str, new_detail_type: str):
+    history.append({
+        "title": new_title, "theme": new_theme, "city": new_city,
+        "detail_type": new_detail_type,
+    })
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
@@ -194,6 +211,17 @@ def pick_city(history):
     candidates = [c for c in CITIES if c not in recent_cities]
     if not candidates:
         candidates = CITIES
+    return random.choice(candidates)
+
+
+def pick_detail_type(history):
+    recent_types = [
+        h.get("detail_type") for h in history[-AVOID_SAME_DETAIL_TYPE_LAST_N:]
+        if h.get("detail_type")
+    ]
+    candidates = [d for d in DETAIL_TYPES if d not in recent_types]
+    if not candidates:
+        candidates = DETAIL_TYPES
     return random.choice(candidates)
 
 
@@ -225,6 +253,7 @@ def generate_story():
     history = load_history()
     theme = pick_theme(history)
     city = pick_city(history)
+    detail_type = pick_detail_type(history)
     recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:]]
 
     model = genai.GenerativeModel(
@@ -241,8 +270,10 @@ def generate_story():
 
     prompt = (
         f"Tema: {theme}\n"
-        f"Sehir: {city}\n\n"
+        f"Sehir: {city}\n"
+        f"Duyusal tur: {detail_type}\n\n"
         f"Bu temaya uygun, {city} sehrinde/bolgesinde gecen yeni ve ozgun bir hikaye uret. "
+        f"Imkansiz detayi verilen DUYUSAL TUR'e gore kur. "
         f"Sadece genel bir mahalle/bolge atfet, gercek adres/kurum/kisi ismi kullanma."
         f"{avoid_text}"
     )
@@ -269,7 +300,7 @@ def generate_story():
             "Gözlerine İnanamadı", "Herkes Şaşkın",
         ])
 
-    save_history(history, data["title"], theme, city)
+    save_history(history, data["title"], theme, city, detail_type)
 
     return data
 
