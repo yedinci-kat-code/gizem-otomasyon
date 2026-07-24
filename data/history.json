@@ -293,5 +293,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Gaziantep",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Aynadaki Vişne Çürüğü Lekesi Ondan Önce Kımıldadı, Gerçek Hikaye",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Diyarbakır",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
