@@ -275,5 +275,11 @@
     "title": "Eski Fotoğraftaki Islak Kiremit Kırmızısı Leke Yer Değiştirdi: Sırrı Çözülemedi",
     "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
     "city": "Bursa"
+  },
+  {
+    "title": "Geriye Dönen Saatten Gelen Islak Tıkırtı Sesi: Bu Çözülemeyen Gizem Ürpertiyor",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Mersin",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
