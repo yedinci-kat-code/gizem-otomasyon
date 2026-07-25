@@ -299,5 +299,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Diyarbakır",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Günden Güne Ağırlaşan Eski Günlüğün Sırrı Hâlâ Çözülemedi",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Erzurum",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
