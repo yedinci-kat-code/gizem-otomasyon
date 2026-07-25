@@ -305,5 +305,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Erzurum",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "İçi Boş Saatten Gelen Metalik Tıkırtı Sesi ve Çözülemeyen Esrarengiz Kayıp",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Denizli",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
