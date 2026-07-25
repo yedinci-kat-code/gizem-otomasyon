@@ -317,5 +317,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Konya",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Eski Fotoğraftaki Geriye Akan Saatin Sırrı: Bu Çözülemeyen Gizem Ürpertiyor",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Samsun",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
