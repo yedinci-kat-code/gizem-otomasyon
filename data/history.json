@@ -329,5 +329,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Rize",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Eski Belgedeki Titreyen Kurşun Kalem Yazısı: Bu Çözülemeyen Gizem Ürpertiyor",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Van",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
