@@ -353,5 +353,11 @@
     "theme": "bir ormanda kaybolan grubun basina gelenler",
     "city": "Sivas",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "1954 Tarihli Mektuptaki Küf Yeşili Lekenin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Trabzon",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
