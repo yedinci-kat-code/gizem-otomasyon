@@ -335,5 +335,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Van",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Cebindeki Pirinç Saatin Kurşun Gibi Ağırlaşan Sırrı: Çözülemeyen Gizem",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Kastamonu",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
