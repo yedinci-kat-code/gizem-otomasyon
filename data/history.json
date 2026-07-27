@@ -359,5 +359,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Trabzon",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Pirinç Lambadan Uzayan Karanlık Gölgenin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
+    "city": "Mersin",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
