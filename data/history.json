@@ -407,5 +407,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Diyarbakır",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Fotoğraftaki Kor Sıcaklığındaki Elin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Trabzon",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
