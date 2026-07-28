@@ -413,5 +413,11 @@
     "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
     "city": "Trabzon",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Sandıktaki Kükürt Sarısı Lekenin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Samsun",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
