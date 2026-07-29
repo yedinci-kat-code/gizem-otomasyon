@@ -419,5 +419,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Samsun",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Mersin Ormanındaki Çiğ Sarı Işığın İmkansız Hareketi: Sırrı Çözülemedi",
+    "theme": "bir ormanda kaybolan grubun basina gelenler",
+    "city": "Mersin",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
