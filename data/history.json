@@ -431,5 +431,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Konya",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Apartmandaki Geriye Doğru Akan Zamanın Esrarengiz Sesi: Sırrı Çözülemedi",
+    "theme": "apartmanda tekrar eden gizemli sesler",
+    "city": "Gaziantep",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
