@@ -443,5 +443,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Bursa",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Geriye Dönen Metal Saatten Yayılan Dondurucu Soğukluk: Çözülemeyen Gizem",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Erzurum",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
