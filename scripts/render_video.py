@@ -1,7 +1,6 @@
 """
 Zifiri Saatler - Video Montaj
-Ust panel: konuyla ilgili atmosferik arkaplan (Pexels) + beliren altyazi
-Alt panel: Pexels'ten cekilen hareketli arkaplan (farkli video)
+TEK PANEL: tam ekran, tek stok arkaplan videosu (sürekli loop) + beliren altyazi
 Ses: edge-tts seslendirme + arkaplan muzigi (dusuk sesle karistirilmis)
 """
 import json
@@ -11,10 +10,6 @@ import re
 
 WIDTH = 1080
 HEIGHT = 1920
-# libx264 cift sayi yukseklik/genislik ister (4:2:0 chroma icin) - tek sayi
-# olursa sessizce 1px kirpip toplam boyutu bozuyordu. Cift sayiya yuvarliyoruz.
-TOP_HEIGHT = (int(HEIGHT * 0.56) // 2) * 2
-BOTTOM_HEIGHT = HEIGHT - TOP_HEIGHT
 FPS = 30
 
 FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -111,7 +106,52 @@ def build_caption_groups_from_text(story_text: str, duration: float, group_size=
     return groups
 
 
+def make_seamless_loop(input_path: str, output_path: str, xfade_duration: float = 0.8) -> str:
+    """
+    Kaynak stok videonun SONU ile BAŞI arasında kısa bir crossfade (xfade)
+    uygulayarak "dikissiz" bir loop klibi üretir. Bu klip daha sonra
+    -stream_loop -1 ile arka arkaya oynatıldığında, D saniyede bir görülen
+    sert kesim yerine yumuşak bir geçiş olur - stok videonun "kopyala
+    yapıştır" gibi tekrarlandığı belli olmaz.
+
+    Teknik: klibi ikiye ayırıyoruz (body + ins). ins, klibin ilk
+    xfade_duration saniyesinin bir kopyası. body'nin SONUNA, ins'i xfade
+    (fade gecisli) olarak bindiriyoruz. Yani klip biterken, aslında kendi
+    basindaki karelerle eriyerek birlesiyor - loop noktasi gorunmez olur.
+    """
+    src_duration = get_audio_duration(input_path)  # ffprobe format=duration, video icin de calisir
+
+    # Guvenlik: cok kisa kaynak klip gelirse crossfade suresini kucult
+    xfade_duration = min(xfade_duration, max(src_duration / 4, 0.2))
+    offset = max(src_duration - xfade_duration, 0.05)
+
+    filter_complex = (
+        "[0:v]split[body][ins];"
+        f"[ins]trim=0:{xfade_duration:.3f},setpts=PTS-STARTPTS[ins];"
+        f"[body]trim=0:{src_duration:.3f},setpts=PTS-STARTPTS[body];"
+        f"[body][ins]xfade=transition=fade:duration={xfade_duration:.3f}:offset={offset:.3f}[v]"
+    )
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", input_path,
+        "-filter_complex", filter_complex,
+        "-map", "[v]",
+        "-an",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
+        output_path,
+    ]
+    subprocess.run(cmd, check=True)
+    print(f"Dikissiz loop klibi uretildi: {output_path} (crossfade={xfade_duration:.2f}s)")
+    return output_path
+
+
 def build_caption_filters(groups):
+    """
+    TEK PANEL duzeninde altyazilar ekranin UST bolgesinde durur (y=h*0.16
+    civari) - boylece render()'daki merkez "abone ol" rozeti (ekranin tam
+    ortasi) ve alttaki kapanis CTA'siyla (h-480) hicbir zaman cakismaz.
+    """
     filters = []
     for g in groups:
         text = (
@@ -120,7 +160,7 @@ def build_caption_filters(groups):
             .replace("'", "\u2019")
             .replace(":", "\\:")
         )
-        y_pos = "(h*0.56)*0.55"
+        y_pos = "h*0.16"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
             f"fontsize=58:fontcolor=white:borderw=5:bordercolor=black@0.85:"
@@ -133,7 +173,6 @@ def build_caption_filters(groups):
 def render(story_path="output/story.json",
            voice_path="output/voice.mp3",
            background_path="output/background.mp4",
-           top_background_path="output/top_background.mp4",
            music_path="output/music.mp3",
            timings_path="output/word_timings.json",
            output_path="output/main_body.mp4"):
@@ -170,52 +209,32 @@ def render(story_path="output/story.json",
     caption_filters = build_caption_filters(groups)
     caption_chain = ",".join(caption_filters) if caption_filters else "null"
 
-    has_top_bg = os.path.exists(top_background_path)
     has_music = os.path.exists(music_path)
 
-    # --- 1) UST PANEL: video varsa uzerine altyazi, yoksa duz renk ---
-    if has_top_bg:
-        top_cmd = [
-            "ffmpeg", "-y",
-            "-stream_loop", "-1", "-i", top_background_path,
-            "-t", str(duration),
-            "-vf",
-            (
-                f"scale={WIDTH}:{TOP_HEIGHT}:force_original_aspect_ratio=increase,"
-                f"crop={WIDTH}:{TOP_HEIGHT},"
-                f"eq=brightness=-0.15:saturation=0.7,"
-                f"{caption_chain},"
-                f"fps={FPS},format=yuv420p"
-            ),
-            "-an",
-            "output/top_panel.mp4",
-        ]
-    else:
-        top_cmd = [
-            "ffmpeg", "-y",
-            "-f", "lavfi", "-i", f"color=c=0x120a1a:s={WIDTH}x{TOP_HEIGHT}:d={duration}:r={FPS}",
-            "-vf", f"{caption_chain},format=yuv420p",
-            "-t", str(duration),
-            "output/top_panel.mp4",
-        ]
-    subprocess.run(top_cmd, check=True)
+    # --- 1) TEK PANEL: once kaynagi dikissiz loop klibine cevir, sonra o
+    #        klibi surekli loop'la (-stream_loop -1), uzerine karartma/hafif
+    #        blur + altyazi ---
+    seamless_bg_path = "output/seamless_bg.mp4"
+    make_seamless_loop(background_path, seamless_bg_path)
 
-    # --- 2) ALT PANEL: arkaplan videosunu ayri, standart bir formata cevir ---
-    bottom_cmd = [
+    panel_cmd = [
         "ffmpeg", "-y",
-        "-stream_loop", "-1", "-i", background_path,
+        "-stream_loop", "-1", "-i", seamless_bg_path,
         "-t", str(duration),
         "-vf",
         (
-            f"scale={WIDTH}:{BOTTOM_HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={WIDTH}:{BOTTOM_HEIGHT},fps={FPS},format=yuv420p"
+            f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+            f"crop={WIDTH}:{HEIGHT},setsar=1,"
+            f"eq=brightness=-0.12:saturation=0.8,"
+            f"{caption_chain},"
+            f"fps={FPS},format=yuv420p"
         ),
         "-an",
-        "output/bottom_panel.mp4",
+        "output/panel.mp4",
     ]
-    subprocess.run(bottom_cmd, check=True)
+    subprocess.run(panel_cmd, check=True)
 
-    # --- 3) SES: seslendirme + (varsa) dusuk sesli arkaplan muzigi karistir ---
+    # --- 2) SES: seslendirme + (varsa) dusuk sesli arkaplan muzigi karistir ---
     if has_music:
         audio_cmd = [
             "ffmpeg", "-y",
@@ -235,7 +254,7 @@ def render(story_path="output/story.json",
     else:
         final_audio_path = voice_path
 
-    # --- 4) Ust + alt paneli dikey birlestir, basa hook, sona CTA, kalici alt banner + rozet ---
+    # --- 3) Panelin uzerine hook, CTA, abone rozeti bindir ---
     hook_text = (
         story.get("thumb_hook", "Hâlâ Çözülemedi")
         .replace("\\", "")
@@ -253,14 +272,12 @@ def render(story_path="output/story.json",
 
     final_cmd = [
         "ffmpeg", "-y",
-        "-i", "output/top_panel.mp4",
-        "-i", "output/bottom_panel.mp4",
+        "-i", "output/panel.mp4",
         "-i", final_audio_path,
         "-filter_complex",
         (
-            "[0:v][1:v]vstack=inputs=2,setsar=1[stacked];"
             # Ust-sol kose: sabit "ABSURT KORKU" etiketi (tum video boyunca)
-            f"[stacked]drawtext=fontfile={FONT_PATH}:text='ABSÜRT KORKU':"
+            f"[0:v]drawtext=fontfile={FONT_PATH}:text='ABSÜRT KORKU':"
             f"fontsize=26:fontcolor=0x9be8d0:borderw=2:bordercolor=black@0.8:"
             f"box=1:boxcolor=black@0.45:boxborderw=10:"
             f"x=24:y=24[labeled];"
@@ -286,15 +303,9 @@ def render(story_path="output/story.json",
             f"enable='between(t,1.7,{max(duration - 2.3, 1.8):.2f})'[outv]"
         ),
         "-map", "[outv]",
-        "-map", "2:a",
+        "-map", "1:a",
         "-t", str(duration),
         "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
-        # DUZELTME: -ar 44100 eklendi. Onceden bu satirda sample rate
-        # belirtilmiyordu, bu yuzden edge-tts'in dogal ciktisi olan 24000 Hz
-        # kullaniliyordu. prepend_thumbnail_intro() ise intro klibini sabit
-        # 44100 Hz uretiyor. Iki farkli sample rate'teki ses akisi concat
-        # edilince ffmpeg bazen sessizce bozuk/senkronsuz bir final.mp4
-        # uretiyordu - kapagin bazen gorunup bazen gorunmemesinin sebebi buydu.
         "-c:a", "aac", "-ar", "44100", "-b:a", "160k",
         "-avoid_negative_ts", "make_zero",
         "-async", "1",
