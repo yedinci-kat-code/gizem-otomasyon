@@ -224,6 +224,7 @@ def render(story_path="output/story.json",
             "-filter_complex",
             "[1:a]volume=0.12[music];[0:a][music]amix=inputs=2:duration=first:dropout_transition=2[aout]",
             "-map", "[aout]",
+            "-ar", "44100",
             "-t", str(duration),
             "-avoid_negative_ts", "make_zero",
             "-async", "1",
@@ -288,7 +289,13 @@ def render(story_path="output/story.json",
         "-map", "2:a",
         "-t", str(duration),
         "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "160k",
+        # DUZELTME: -ar 44100 eklendi. Onceden bu satirda sample rate
+        # belirtilmiyordu, bu yuzden edge-tts'in dogal ciktisi olan 24000 Hz
+        # kullaniliyordu. prepend_thumbnail_intro() ise intro klibini sabit
+        # 44100 Hz uretiyor. Iki farkli sample rate'teki ses akisi concat
+        # edilince ffmpeg bazen sessizce bozuk/senkronsuz bir final.mp4
+        # uretiyordu - kapagin bazen gorunup bazen gorunmemesinin sebebi buydu.
+        "-c:a", "aac", "-ar", "44100", "-b:a", "160k",
         "-avoid_negative_ts", "make_zero",
         "-async", "1",
         "-shortest",
