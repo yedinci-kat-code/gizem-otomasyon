@@ -1,10 +1,9 @@
 """
 Zifiri Saatler - Arkaplan Video ve Muzik Cekici
-Pexels API kullanarak:
-  - ALT panel icin: hareketli/hipnotik "oyun tarzi" arkaplan videosu
-  - UST panel icin: hikayenin konusuyla ilgili atmosferik video
-Pixabay Audio (API-key gerektirmez, dogrudan indirilebilir mp3'ler) ile
-telifsiz gerilim/ambiyans muzigi indirir.
+TEK PANEL: Pexels API'den, hikayenin konusuyla ilgili TEK bir atmosferik
+arkaplan videosu indirir (artik ust/alt panel ayrimi yok).
+Pixabay Audio yerine, senin music/ klasorune ekledigin telifsiz muzikler
+kullanilir.
 """
 import os
 import random
@@ -22,24 +21,12 @@ HEADERS = {"Authorization": PEXELS_API_KEY}
 BG_HISTORY_PATH = "data/bg_history.json"
 MAX_BG_HISTORY = 15  # son 15 video ID'sini hatirla, tekrarindan kacin
 
-# ALT panel: dikkat cekici, hipnotik hareketli arkaplanlar
-BOTTOM_SEARCH_TERMS = [
-    "parkour running",
-    "abstract liquid motion",
-    "neon tunnel drive",
-    "sand dunes aerial",
-    "waterfall slow motion",
-    "train tunnel pov",
-    "underwater diving",
-    "city night drive",
-    "kinetic sand cutting",
-    "lava lamp closeup",
-    "ink drop water",
-    "glass marble roll",
-]
-
-# UST panel icin, hikaye temasina gore uygun arama terimleri
-THEME_TO_TOP_SEARCH = {
+# Hikaye temasina gore uygun, atmosferik arama terimleri. Tek panel oldugu
+# icin arkaplan artik SADECE bu tema-bazli havuzdan seciliyor - "hipnotik/
+# oyun tarzi" soyut arkaplan havuzu (eski BOTTOM_SEARCH_TERMS) kaldirildi,
+# cunku artik ekranin tamamini kapladigi icin hikayeyle alakasiz bir gorsel
+# (parkur, lav lambasi vb.) yaninda konusan bir video garip kacardi.
+THEME_TO_SEARCH = {
     "terk edilmis bir evde yasanan aciklanamayan olay": ["abandoned house interior", "old dark hallway"],
     "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi": ["foggy small town night", "empty street fog"],
     "cozulmemis esrarengiz bir kayip vakasi": ["dark forest night", "flashlight search night"],
@@ -52,8 +39,6 @@ THEME_TO_TOP_SEARCH = {
     "psikolojik olarak aciklanamayan dejavu deneyimi": ["abstract dark clouds", "mirror reflection dark"],
 }
 
-# Ucretsiz, dogrudan indirilebilir (API key gerektirmeyen) ambiyans/gerilim muzikleri
-# Pixabay'in acik CDN linkleri - telifsiz, ticari kullanima uygun
 MUSIC_FOLDER = "music"
 
 
@@ -125,27 +110,27 @@ def _download_pexels_video(term: str, output_path: str, avoid_ids=None):
     return True, video["id"]
 
 
-def fetch_bottom_background(output_path: str = "output/background.mp4"):
+def fetch_background(theme: str, output_path: str = "output/background.mp4"):
+    """
+    TEK panel icin, hikaye temasina uygun tek bir arkaplan videosu indirir.
+    Once o temanin arama terimlerinden birini dener, video hic bulunamazsa
+    genel "dark atmosphere fog" terimine duser.
+    """
     history = _load_bg_history()
-    term = random.choice(BOTTOM_SEARCH_TERMS)
+    search_options = THEME_TO_SEARCH.get(theme, ["dark atmosphere fog"])
+    term = random.choice(search_options)
+
     ok, video_id = _download_pexels_video(term, output_path, avoid_ids=history)
     if not ok:
-        ok, video_id = _download_pexels_video("abstract motion", output_path, avoid_ids=history)
+        term = "dark atmosphere fog"
+        ok, video_id = _download_pexels_video(term, output_path, avoid_ids=history)
+
     if ok and video_id:
         _save_bg_history(history, video_id)
-    print(f"Alt panel arkaplani indirildi ({term}): {output_path}")
-
-
-def fetch_top_background(theme: str, output_path: str = "output/top_background.mp4"):
-    search_options = THEME_TO_TOP_SEARCH.get(theme, ["dark atmosphere fog"])
-    term = random.choice(search_options)
-    ok, video_id = _download_pexels_video(term, output_path)
-    if not ok:
-        ok, video_id = _download_pexels_video("dark atmosphere fog", output_path)
-    if ok:
-        print(f"Ust panel arkaplani indirildi ({term}): {output_path}")
+        print(f"Arkaplan indirildi ({term}): {output_path}")
     else:
-        print("Ust panel arkaplani bulunamadi, duz renk kullanilacak.")
+        print("HATA: Arkaplan videosu hicbir terimle bulunamadi.", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -157,6 +142,5 @@ if __name__ == "__main__":
             story = json.load(f)
         theme = story.get("_theme", theme)
 
-    fetch_bottom_background()
-    fetch_top_background(theme)
+    fetch_background(theme)
     fetch_music()
