@@ -467,5 +467,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Konya",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Kayseri'deki Saatin Yavaşlayan Tıkırtı Sesi ve Çözülemeyen Gizem",
+    "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
+    "city": "Kayseri",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
