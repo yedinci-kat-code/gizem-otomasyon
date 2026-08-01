@@ -485,5 +485,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Sivas",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Müzik Kutusundan Gelen Hızlanan Tıkırtı Sesi Adımları Takip Etti: Çözülemeyen Gizem",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Trabzon",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
