@@ -473,5 +473,11 @@
     "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "city": "Kayseri",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Gaziantep'teki Pirinç Mührün Giderek Artan Ateş Sıcaklığı: Gerçek Hikaye",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Gaziantep",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
