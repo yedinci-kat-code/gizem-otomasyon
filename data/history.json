@@ -479,5 +479,11 @@
     "theme": "cozulmemis esrarengiz bir kayip vakasi",
     "city": "Gaziantep",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Sandıktaki Siyah Mürekkep Yazısının İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Sivas",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
