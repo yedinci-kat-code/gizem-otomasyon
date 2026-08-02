@@ -503,5 +503,11 @@
     "theme": "cozulmemis esrarengiz bir kayip vakasi",
     "city": "Malatya",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Denizli'deki Eski Sandıktan Uzayan Kapkara Gölgenin Sırrı Çözülemedi",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Denizli",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
