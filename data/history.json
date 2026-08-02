@@ -491,5 +491,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Trabzon",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Aynadaki Gece Karası Lekenin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Samsun",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
