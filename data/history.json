@@ -521,5 +521,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Gaziantep",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Bursa'da Haritadaki Kan Kırmızı Lekenin İmkansız Hareketi: Gerçek Olay",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Bursa",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
