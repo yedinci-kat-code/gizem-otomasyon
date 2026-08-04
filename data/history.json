@@ -533,5 +533,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Mersin",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Pilsiz Saatin Kalp Atışıyla Hızlanan Tıkırtı Sesi: Çözülemeyen Gizem",
+    "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
+    "city": "Trabzon",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
