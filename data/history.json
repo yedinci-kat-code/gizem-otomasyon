@@ -539,5 +539,11 @@
     "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "city": "Trabzon",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Malatya'daki Sandıktan Sızan Mavi Işığın Ters Gölgesi: Çözülemeyen Gizem",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Malatya",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
