@@ -557,5 +557,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Gaziantep",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Kayseri’deki Ormanda Tonlarca Ağırlaşan Pusulanın Çözülemeyen Gizemi",
+    "theme": "bir ormanda kaybolan grubun basina gelenler",
+    "city": "Kayseri",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
