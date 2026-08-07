@@ -563,5 +563,11 @@
     "theme": "bir ormanda kaybolan grubun basina gelenler",
     "city": "Kayseri",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Kastamonu’daki Karlı Fotoğraftan Yayılan Yakan Sıcaklığın Çözülemeyen Gizemi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Kastamonu",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
