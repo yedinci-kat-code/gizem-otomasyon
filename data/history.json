@@ -587,5 +587,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Sivas",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Fotoğraftaki Duvar Saatinin Delice Hızlanan Yelkovanı: Sırrı Çözülemedi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Denizli",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
