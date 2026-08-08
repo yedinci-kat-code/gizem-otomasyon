@@ -581,5 +581,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Eskişehir",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Sivas'ta Adımları Takip Eden Daktilo Tıkırtısı: Çözülemeyen Gizem",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Sivas",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
