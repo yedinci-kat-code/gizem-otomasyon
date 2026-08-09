@@ -605,5 +605,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Trabzon",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Rize'deki Fenerden Yayılan Ters Gölgenin İmkansız Hareketi: Çözülemeyen Gizem",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Rize",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
