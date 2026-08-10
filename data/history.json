@@ -617,5 +617,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Gaziantep",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Sandıktaki Mendilde Büyüyen Sarı Lekenin İmkansız Hareketi: Gerçek Hikaye",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Mersin",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
