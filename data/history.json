@@ -623,5 +623,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Mersin",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Van'daki Gümüş Saatin Geriye Akan Saniyeleri: Tüyler Ürpertici Çözülemeyen Gizem",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Van",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
