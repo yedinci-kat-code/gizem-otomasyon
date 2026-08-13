@@ -683,5 +683,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Diyarbakır",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Mersin'deki Terk Edilmiş Evde Geriye Dönen Saatin Tüyler Ürpertici Sırrı",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Mersin",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
