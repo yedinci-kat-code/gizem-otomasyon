@@ -701,5 +701,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Kastamonu",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Malatya'daki 1950 Tarihli Mektupta Beliren Islak Yazının Sırrı Çözülemedi",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Malatya",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
