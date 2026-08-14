@@ -695,5 +695,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Eskişehir",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Kastamonu'daki Gümüş Kutuda Kayan Zift Karası Lekenin Çözülemeyen Gizemi",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Kastamonu",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
