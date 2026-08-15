@@ -719,5 +719,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Sivas",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Rize'de Her Gün Tonlarca Ağırlaşan Aynanın Çözülemeyen Gizemi",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Rize",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
