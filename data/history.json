@@ -725,5 +725,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Rize",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Gaziantep'teki 1948 Tarihli Mektuptan Gelen Hızlanan Tıkırtının Sırrı Çözülemedi",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Gaziantep",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
