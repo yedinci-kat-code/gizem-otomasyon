@@ -737,5 +737,11 @@
     "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
     "city": "Diyarbakır",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Denizli'deki Notta Kendiliğinden Değişen Islak Mürekkebin Çözülemeyen Gizemi",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Denizli",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
