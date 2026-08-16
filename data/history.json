@@ -731,5 +731,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Gaziantep",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Diyarbakır'da Geriye Dönen Saatte Büyüyen Kırmızı Leke: Çözülemeyen Gizem",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Diyarbakır",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
