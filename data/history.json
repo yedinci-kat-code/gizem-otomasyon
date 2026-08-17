@@ -755,5 +755,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Eskişehir",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Bursa'daki Aynadan Yayılan Kor Ateş Sıcaklığı: Tüyler Ürpertici Bir Gizem",
+    "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
+    "city": "Bursa",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
