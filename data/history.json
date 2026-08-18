@@ -773,5 +773,11 @@
     "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
     "city": "Rize",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Kayseri'deki Terk Edilmiş Evde Zamanı Tersine Döndüren Saatin Esrarengiz Olayı",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Kayseri",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
