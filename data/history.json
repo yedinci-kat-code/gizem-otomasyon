@@ -761,5 +761,11 @@
     "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
     "city": "Bursa",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Malatya'daki Apartmanda Seslerle Birlikte Betona Batan O Ağır Anahtarın Gizemi",
+    "theme": "apartmanda tekrar eden gizemli sesler",
+    "city": "Malatya",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
