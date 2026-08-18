@@ -767,5 +767,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Malatya",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Rize’deki Eski Fotoğraftan Gelen Hızlanan Tıkırtı Sesi: Sırrı Hâlâ Çözülemedi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Rize",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
