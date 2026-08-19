@@ -785,5 +785,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Mersin",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Erzurum'daki Saatin Yakan Sıcaklığı ve Tersine Dönen Zamanın Çözülemeyen Gizemi",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Erzurum",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
