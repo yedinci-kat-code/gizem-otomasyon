@@ -779,5 +779,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Kayseri",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Mersin'deki Tarihi Mektupta Kendiliğinden Değişen Siyah Yazı: Çözülemeyen Gizem",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Mersin",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
