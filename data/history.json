@@ -791,5 +791,11 @@
     "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
     "city": "Erzurum",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Denizli'de Prizden Çekilen Lambanın Havada Bükülen Soğuk Işığı: Çözülemeyen Gizem",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Denizli",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
