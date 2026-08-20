@@ -803,5 +803,11 @@
     "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "city": "Gaziantep",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Eskişehir'deki Terk Edilmiş Evden Gelen Metalik Tıkırtının Sırrı Çözülemedi",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Eskişehir",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
