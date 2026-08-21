@@ -809,5 +809,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Eskişehir",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Van'daki 1942 Tarihli Mektubun Kurşun Gibi Ağırlaşan Sırrı Çözülemedi",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Van",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
