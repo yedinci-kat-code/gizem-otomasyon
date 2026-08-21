@@ -821,5 +821,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Kastamonu",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Mersin'deki Aynada Işığa Doğru Uzayan Ters Gölgenin Tüyler Ürpertici Gizemi",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Mersin",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
