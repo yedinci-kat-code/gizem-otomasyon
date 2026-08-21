@@ -815,5 +815,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Van",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Kastamonu'da Kilitli Sandıktan Yayılan Kavurucu Sıcaklığın Sırrı Çözülemedi",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Kastamonu",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
