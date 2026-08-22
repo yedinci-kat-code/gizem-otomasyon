@@ -827,5 +827,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Mersin",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Diyarbakır'daki Apartmanda Seslerle Büyüyen Islak Yazının Sırrı Çözülemedi",
+    "theme": "apartmanda tekrar eden gizemli sesler",
+    "city": "Diyarbakır",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
