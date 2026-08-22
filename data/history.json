@@ -833,5 +833,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Diyarbakır",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Trabzon'daki 1934 Tarihli Günlükten Gelen Hızlanan Fısıltı: Çözülemeyen Gizem",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Trabzon",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
