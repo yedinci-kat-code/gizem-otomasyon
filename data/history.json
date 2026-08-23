@@ -845,5 +845,11 @@
     "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
     "city": "Gaziantep",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Konya'da Sandıktaki Bronz Mührün Yakan Sıcaklığı: Sırrı Çözülemedi",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Konya",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
