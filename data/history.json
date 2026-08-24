@@ -869,5 +869,11 @@
     "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
     "city": "Kastamonu",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Sivas'taki Konakta Yankılanan Hızlanan Bozuk Ninninin Sırrı Hâlâ Çözülemedi",
+    "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
+    "city": "Sivas",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
