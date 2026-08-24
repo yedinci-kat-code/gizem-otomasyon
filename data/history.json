@@ -875,5 +875,11 @@
     "theme": "terk edilmis bir evde yasanan aciklanamayan olay",
     "city": "Sivas",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Samsun'daki Kayıp Adamın Gittikçe Hafifleyen Pusulasının Sırrı Çözülemedi",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Samsun",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
