@@ -881,5 +881,11 @@
     "theme": "cozulmemis esrarengiz bir kayip vakasi",
     "city": "Samsun",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Trabzon'da Geriye Giden Saatteki Küf Yeşili Lekenin Çözülemeyen Gizemi",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Trabzon",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
