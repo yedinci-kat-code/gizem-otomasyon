@@ -893,5 +893,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Erzurum",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Bursa'daki Depoda Nefesle Geriye Dönen Saatin Tüyler Ürperici Gizemi",
+    "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
+    "city": "Bursa",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
