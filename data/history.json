@@ -899,5 +899,11 @@
     "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "city": "Bursa",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Eskişehir'deki Cep Saatinin Kor Sıcaklığı ve Çözülemeyen Gizemi",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Eskişehir",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
