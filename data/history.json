@@ -947,5 +947,11 @@
     "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
     "city": "Bursa",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Diyarbakır'daki Kayıp Adamın Fenerinden Sızan Mavi Işığın Tüyler Ürpertici Gizemi",
+    "theme": "cozulmemis esrarengiz bir kayip vakasi",
+    "city": "Diyarbakır",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
