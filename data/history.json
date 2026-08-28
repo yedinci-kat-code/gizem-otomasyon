@@ -935,5 +935,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Samsun",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Eskişehir'de Sandıktaki Gümüş Madalyonun Dondurucu Soğukluğu: Çözülemeyen Gizem",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Eskişehir",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
