@@ -965,5 +965,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Kastamonu",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Konya’daki Günlükten Yayılan Kaynar Mürekkebin Sırrı: Çözülemeyen Gizem",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Konya",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
