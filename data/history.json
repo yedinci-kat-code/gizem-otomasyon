@@ -959,5 +959,11 @@
     "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
     "city": "Trabzon",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Kastamonu'daki Apartmanda Her Sesle Kayan O Turuncu Leke: Çözülemeyen Gizem",
+    "theme": "apartmanda tekrar eden gizemli sesler",
+    "city": "Kastamonu",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
