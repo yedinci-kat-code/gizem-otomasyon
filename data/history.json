@@ -953,5 +953,11 @@
     "theme": "cozulmemis esrarengiz bir kayip vakasi",
     "city": "Diyarbakır",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Trabzon'da Geriye Dönen Saatte Kendiliğinden Değişen Islak Yazının Tüyler Ürpertici Sırrı",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Trabzon",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
