@@ -977,5 +977,11 @@
     "theme": "bir ormanda kaybolan grubun basina gelenler",
     "city": "Denizli",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Rize'deki Fotoğrafta Güneşe Doğru Uzayan Gölgenin Çözülemeyen Gizemi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Rize",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
