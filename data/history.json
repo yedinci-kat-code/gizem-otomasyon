@@ -1019,5 +1019,11 @@
     "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
     "city": "Kastamonu",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Van'da Tersine Dönen Saatteki Kayan Islak Harflerin Çözülemeyen Gizemi",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Van",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
