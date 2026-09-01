@@ -1013,5 +1013,11 @@
     "theme": "cozulmemis esrarengiz bir kayip vakasi",
     "city": "Eskişehir",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Kastamonu’da Gece Vardiyasındaki Telsizin Ezici Ağırlığı: Çözülemeyen Gizem",
+    "theme": "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
+    "city": "Kastamonu",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
