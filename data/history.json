@@ -1037,5 +1037,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Samsun",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Konya'daki Dilsiz Çıngırağın Önden Giden Tıkırtısı ve Çözülemeyen Gizemi",
+    "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
+    "city": "Konya",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
