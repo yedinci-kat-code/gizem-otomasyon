@@ -1043,5 +1043,11 @@
     "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
     "city": "Konya",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Trabzon'da Tersine Dönen Saatin Kaynar Sıcaklığı ve Çözülemeyen Gizemi",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Trabzon",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
