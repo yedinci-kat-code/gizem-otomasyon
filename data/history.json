@@ -1061,5 +1061,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Malatya",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Sivas'taki Fotoğrafta Büyüyen Ters Gölgenin Tüyler Ürpertici Sırrı",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Sivas",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
