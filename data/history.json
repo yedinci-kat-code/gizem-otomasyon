@@ -1091,5 +1091,11 @@
     "theme": "apartmanda tekrar eden gizemli sesler",
     "city": "Mersin",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Adana'da Fenerden Sızan Ters Gölgenin Çözülemeyen Gizemi",
+    "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
+    "city": "Adana",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
