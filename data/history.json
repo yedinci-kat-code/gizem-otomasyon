@@ -1097,5 +1097,11 @@
     "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
     "city": "Adana",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Bursa'daki Ahşap Metronomdan Yayılan O Öncü Tıkırtının Çözülemeyen Gizemi",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Bursa",
+    "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
   }
 ]
