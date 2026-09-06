@@ -1109,5 +1109,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Konya",
     "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
+  },
+  {
+    "title": "Sivas'ta Her Nefeste Zamanda Geriye Giden Saatin Sırrı Hâlâ Çözülemedi",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Sivas",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
