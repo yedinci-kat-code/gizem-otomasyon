@@ -1115,5 +1115,11 @@
     "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
     "city": "Sivas",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Samsun'daki Fotoğrafta Kayan Zümrüt Yeşili Lekenin Çözülemeyen Gizemi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Samsun",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
