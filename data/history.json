@@ -1133,5 +1133,11 @@
     "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
     "city": "Erzurum",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Adana'da Şamdanın Duvardaki Gölgesinde Beliren Işıkların Çözülemeyen Gizemi",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Adana",
+    "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
   }
 ]
