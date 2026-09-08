@@ -1139,5 +1139,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Adana",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Malatya’da Geriye Dönen Saatin ve O Mektubun Çözülemeyen Gizemi",
+    "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
+    "city": "Malatya",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
