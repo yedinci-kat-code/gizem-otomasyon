@@ -1145,5 +1145,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Malatya",
     "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
+  },
+  {
+    "title": "Antalya'da Ormandaki Haritada Kayan Mor Lekenin Çözülemeyen Gizemi",
+    "theme": "bir ormanda kaybolan grubun basina gelenler",
+    "city": "Antalya",
+    "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
   }
 ]
