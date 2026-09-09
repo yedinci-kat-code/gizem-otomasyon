@@ -1157,5 +1157,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Sivas",
     "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
+  },
+  {
+    "title": "Gaziantep’te Çekmecedeki Anahtarın Buz Kesen Sırrı Hâlâ Çözülemedi",
+    "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
+    "city": "Gaziantep",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
