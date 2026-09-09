@@ -1151,5 +1151,11 @@
     "theme": "bir ormanda kaybolan grubun basina gelenler",
     "city": "Antalya",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Sivas’taki Eski Sandıkta Kayan Mavi Mürekkebin Çözülemeyen Gizemi",
+    "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
+    "city": "Sivas",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
