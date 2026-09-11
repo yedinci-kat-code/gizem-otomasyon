@@ -1175,5 +1175,11 @@
     "theme": "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
     "city": "Konya",
     "detail_type": "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)"
+  },
+  {
+    "title": "Samsun'da Sahibini Taklit Edip Kurşun Gibi Ağırlaşan Aynanın Gizemi",
+    "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
+    "city": "Samsun",
+    "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
   }
 ]
