@@ -1181,5 +1181,11 @@
     "theme": "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
     "city": "Samsun",
     "detail_type": "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)"
+  },
+  {
+    "title": "Van’da Fotoğrafta Kayan O Titrek El Yazısının Çözülemeyen Gizemi",
+    "theme": "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
+    "city": "Van",
+    "detail_type": "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)"
   }
 ]
