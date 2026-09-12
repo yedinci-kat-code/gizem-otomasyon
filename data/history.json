@@ -1193,5 +1193,11 @@
     "theme": "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
     "city": "Eskişehir",
     "detail_type": "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)"
+  },
+  {
+    "title": "Diyarbakır'da Zamanı Tersine Çeken Saatin Kor Sıcaklığı: Çözülemeyen Gizem",
+    "theme": "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
+    "city": "Diyarbakır",
+    "detail_type": "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)"
   }
 ]
