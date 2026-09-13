@@ -35,16 +35,20 @@ def upload_video(youtube, video_path: str, story: dict):
     if len(title) > 95:
         title = title[:92] + "..."
 
-    hashtags = " ".join(story.get("hashtags", ["#gizem", "#korku", "#shorts"]))
+    hashtags = " ".join(story.get("hashtags", ["#tarih", "#efsane", "#shorts"]))
     desc_summary = story.get("description", story["story"][:200])
-    description = f"{desc_summary}\n\n{hashtags}\n\n#shorts"
+    footer = (
+        "Zifiri Saatler - Turk/Osmanli/Anadolu efsanelerinin ve karanlik tarihin "
+        "'efsane mi, gercek mi' anlatimi. Anlatilanlar rivayet/efsane niteligindedir."
+    )
+    description = f"{desc_summary}\n\n{footer}\n\n{hashtags}\n\n#shorts"
 
     body = {
         "snippet": {
             "title": title,
             "description": description,
             "tags": [t.strip("#") for t in story.get("hashtags", [])],
-            "categoryId": "24",
+            "categoryId": "27",
         },
         "status": {
             "privacyStatus": "public",
