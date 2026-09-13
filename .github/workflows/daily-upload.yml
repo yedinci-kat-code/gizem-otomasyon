@@ -12,7 +12,7 @@ permissions:
 jobs:
   create-and-upload-video:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
 
     steps:
       - name: Repo'yu indir
@@ -37,10 +37,11 @@ jobs:
       - name: 2) Seslendirme uret
         run: python scripts/generate_voice.py
 
-      - name: 3) Arkaplan videolari ve muzik cek
+      - name: 3) Arkaplan (AI gorsel - Wiro) ve muzik cek
         env:
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-        run: python scripts/fetch_background.py
+          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
+          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
+        run: python scripts/fetch_ai_background.py
 
       - name: 4) Videoyu render et
         run: python scripts/render_video.py
@@ -50,6 +51,7 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PRIVACY: ${{ secrets.YOUTUBE_PRIVACY }}
         run: python scripts/upload_youtube.py
 
       - name: 6) Hikaye gecmisini kaydet
