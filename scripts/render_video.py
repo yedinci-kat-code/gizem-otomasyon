@@ -79,6 +79,7 @@ def build_caption_groups_from_words(word_timings, story_text: str, group_size=3)
     # Son grubun bitisini son kelimenin gercek bitis zamanina gore ayarla
     last_word = word_timings[-1]
     groups[-1]["end"] = last_word["offset"] + last_word["duration"] + 0.3
+    groups[0]["start"] = 0.0  # ilk altyazi videonun basindan gorunsun
 
     return groups
 
@@ -99,10 +100,15 @@ def build_caption_groups_from_text(story_text: str, duration: float, group_size=
     if current:
         chunks.append(" ".join(current))
 
-    per_chunk = duration / len(chunks)
+    # Her parca, KARAKTER uzunluguyla oranti kadar sure alir (esit bolmek
+    # kaymaya yol aciyordu). Boylece konusma ile daha iyi ortusur.
+    total_chars = sum(len(c) for c in chunks) or 1
     groups = []
-    for i, text in enumerate(chunks):
-        groups.append({"text": text, "start": i * per_chunk, "end": (i + 1) * per_chunk})
+    t = 0.0
+    for text in chunks:
+        dur = duration * (len(text) / total_chars)
+        groups.append({"text": text, "start": t, "end": t + dur})
+        t += dur
     return groups
 
 
@@ -163,7 +169,7 @@ def build_caption_filters(groups):
         y_pos = "h*0.16"
         filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{text}':"
-            f"fontsize=58:fontcolor=white:borderw=5:bordercolor=black@0.85:"
+            f"fontsize=58:fontcolor=0xF5B942:borderw=6:bordercolor=black@0.92:"
             f"x=(w-text_w)/2:y={y_pos}:"
             f"enable='between(t,{g['start']:.2f},{g['end']:.2f})'"
         )
