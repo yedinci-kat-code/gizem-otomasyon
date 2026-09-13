@@ -1,8 +1,10 @@
 """
-Zifiri Saatler - Senaryo Uretici
-Gemini API kullanarak kisa, atmosferik gizem/korku hikayeleri uretir.
-Performans analizine gore: "kisisel esya + IMKANSIZ/MANTIKSIZ detay" kalibi
-en yuksek izlenme suresini (bazen %150+ - tekrar izletme) aliyor.
+Zifiri Saatler - Senaryo Uretici (v2: EFSANE -> GERCEK)
+Nis: Turk/Osmanli/Anadolu efsaneleri, perili mekanlar, karanlik tarihi olaylar.
+Her video bir efsaneyi/karanlik olayi ALIR, atmosferik anlatir ve SONUNDA
+muhtemel GERCEK/tarihsel aciklamaya baglar ("efsane mi, gercek mi").
+Kitap referansi: 2. sahis daldirma, merak acigi, loop kapanisi, Bolum 6 baslik
+formulleri, kaynak-uydurmama kirmizi cizgisi.
 """
 import os
 import json
@@ -19,155 +21,108 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 HISTORY_PATH = "data/history.json"
 MAX_HISTORY_IN_PROMPT = 30
-AVOID_SAME_THEME_LAST_N = 3
-AVOID_SAME_CITY_LAST_N = 5
-AVOID_SAME_DETAIL_TYPE_LAST_N = 4
+AVOID_SAME_CATEGORY_LAST_N = 3
 
-# Imkansiz detayin HANGI duyusal turde olacagini belirler - sadece "renk/leke"
-# kalibina saplanmamak icin dongusel olarak degistirilir (analiz: art arda
-# ayni kalip kullanildiginda izlenme suresi dusuyor, cesitlilik onemli)
-DETAIL_TYPES = [
-    "gorsel bir renk/leke/iz (ornek: bir lekenin rengi, yeri veya sekli degisiyor)",
-    "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)",
-    "bir YAZI/metin/not (ornek: bir mektup, gunlukteki yazinin kendiliginden degismesi)",
-    "SICAKLIK (ornek: bir esyanin aciklanamaz sekilde soguk veya sicak olmasi)",
-    "AGIRLIK/dokunma hissi (ornek: bir esyanin gunden gune agirlasmasi/hafiflemesi)",
-    "IŞIK/golge (ornek: bir golgenin yanlis yonde dusmesi, bir isigin kendiliginden yanip sonmesi)",
-    "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)",
+# Her kategori: bir icerik lane'i (cesitlilik icin donusumlu secilir) + arkaplan
+# gorsel anahtari (_theme olarak fetch_background.py'deki THEME_TO_SEARCH ile
+# birebir eslesir). Hepsi YAYGIN BILINEN efsane/olay turleri - bu, modelin
+# obscure bir sey "uydurma" riskini dusurur.
+CATEGORIES = [
+    {"key": "perili_kosk",
+     "hint": "unlu bir PERILI KOSK / terk edilmis konak efsanesi (eski kosker, yalilar). "
+             "Anlatilan hayalet/ugursuzluk rivayeti + yapinin bilinen gercek tarihi.",
+     "bg": "perili_kosk"},
+    {"key": "lanetli_mekan",
+     "hint": "'ugursuz/lanetli' sayilan bir mekan (cesme, mezarlik, han, kuyu) efsanesi + "
+             "arkasindaki muhtemel gercek tarihsel/sosyal sebep.",
+     "bg": "lanetli_mekan"},
+    {"key": "kayip_yerlesim",
+     "hint": "terk edilmis/bosaltilmis bir koy ya da kasaba efsanesi (neden bosaldigina dair "
+             "rivayetler) + gercek tarihsel/cografi neden.",
+     "bg": "kayip_yerlesim"},
+    {"key": "yapinin_sirri",
+     "hint": "eski bir yapiyla (kopru, kule, sarnic, kale, tunel) ilgili efsane + yapinin "
+             "gercek insa/isleyis hikayesi.",
+     "bg": "yapinin_sirri"},
+    {"key": "saray_golgesi",
+     "hint": "Osmanli sarayi/cevresinde anlatilan karanlik bir rivayet (bir odanin, bir "
+             "esyanin, bir gelenegin sirri) + bilinen genel tarihsel baglam.",
+     "bg": "saray_golgesi"},
+    {"key": "anadolu_efsanesi",
+     "hint": "Anadolu'da nesilden nesile anlatilan bir halk efsanesi (bir dag, gol, magara, "
+             "tas, agac) + efsanenin muhtemel gercek kokeni.",
+     "bg": "anadolu_efsanesi"},
+    {"key": "karanlik_olay",
+     "hint": "tarihte gercekten yasanmis, az bilinen, tuyler urpertici bir olay/gizem - "
+             "abartisiz, 'efsanelesmis' yani + bilinen gercek cerceve.",
+     "bg": "karanlik_olay"},
 ]
-
-# Hikayeye "gercekci hissettirme" katmak icin kullanilan Turkiye sehir/bolge
-# havuzu. GUVENLIK: sadece sehir/bolge adi kullanilir, GERCEK adres, isletme,
-# kurum veya kisi ismi ASLA kullanilmaz (prompt'ta ayrica vurgulanir).
-CITIES = [
-    "Bursa", "Kayseri", "Trabzon", "Mersin", "Konya", "Eskişehir",
-    "Antalya", "Adana", "Samsun", "Gaziantep", "Malatya", "Erzurum",
-    "Denizli", "Sivas", "Van", "Diyarbakır", "Kastamonu", "Rize",
-]
-
-# Performans analizi (16 Temmuz 2026): en yuksek izlenme suresi/tekrar izletme
-# "kisisel esya + FIZIKSEL OLARAK IMKANSIZ/MANTIKSIZ bir detay" kalibinda
-# cikiyor (ornek: aynadaki yansimanin kisiden ONCE hareket etmesi -> %151.8
-# izlenme suresi, yani izleyiciler videoyu birden fazla kez izlemis).
-# Soyut/psikolojik temalar (dejavu gibi) en dusuk performansi verdi (%16.6),
-# bu yuzden havuzdan tamamen cikarildi.
-HIGH_PERFORMING_THEMES = [
-    "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
-    "eski bir fotografta, cekildigi anda orada olmamasi gereken bir seyin gorunmesi",
-    "bir saatin fiziksel olarak imkansiz bir sekilde geri gitmesi ya da durmasi",
-    "bir mektup/gunlukteki yazinin, yazildigi tarihe gore imkansiz bilgiler icermesi",
-    "kalitsal bir esyanin, sahibiyle ayni hareketleri es zamanli tekrarlamasi",
-    "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
-]
-
-STANDARD_THEMES = [
-    "terk edilmis bir evde yasanan aciklanamayan olay",
-    "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi",
-    "cozulmemis esrarengiz bir kayip vakasi",
-    "gece vardiyasinda calisan birinin basina gelen tuhaf olay",
-    "bir ormanda kaybolan grubun basina gelenler",
-    "apartmanda tekrar eden gizemli sesler",
-]
-
-WEIGHTED_THEMES = (HIGH_PERFORMING_THEMES * 3) + STANDARD_THEMES
 
 CTA_PHRASES = [
-    "Sence gerçekten ne oldu? Yorumlara yaz",
-    "Bu sana da olduysa yorumla",
-    "Devamını kaçırma, takip et",
-    "Sen olsan ne yapardın? Yaz",
-    "Benzer bir anın var mı? Anlat",
+    "Sence efsane mi, gerçek mi? Yorumla",
+    "Bu efsaneyi duydun mu? Yaz",
+    "Gerçeğini biliyor musun? Yorumla",
+    "Sıradaki dosya için takip et",
+    "Sen olsan girer miydin? Yaz",
 ]
 
-# Turkce gizem/korku niginde her zaman yuksek aranan, evrensel gecerlilikte
-# anahtar kelimeler - her videoda otomatik karisir, arama/kesfette bulunma
-# sansini artirir
+# Nise ozel, aramada/kesfette yuksek gecerlilikli anahtar kelimeler (otomatik karisir)
 SEO_KEYWORDS = [
-    "gerçek hikaye", "gerçek olay", "esrarengiz olaylar", "çözülemeyen gizem",
-    "paranormal olaylar", "şehir efsanesi", "tüyler ürpertici",
-    "açıklanamayan olaylar", "gerçek yaşanmış", "korkunç gerçek",
-    "gizemli olaylar", "korku hikayesi", "gerçek korku", "esrarengiz olay",
-    "sırrı çözülemedi", "kaybolan insanlar", "tüyler ürperten hikaye",
-    "gece hikayeleri", "ürkütücü olaylar", "açıklanamayan gizem",
-    "gerçek dehşet", "gizem dolu", "korku anıları", "inanılmaz gerçek olay",
+    "gerçek hikaye", "tarihin karanlık yüzü", "osmanlı gizemi", "anadolu efsanesi",
+    "efsane mi gerçek mi", "tarihi gizem", "bilinmeyen tarih", "gerçek olay",
+    "şehir efsanesi", "perili köşk", "lanetli", "tüyler ürpertici",
+    "karanlık tarih", "gizemli olaylar", "tarihi sır", "unutulmuş tarih",
 ]
 
-SYSTEM_PROMPT = """Sen Turkce icerik ureten, viral YouTube Shorts basliklari konusunda uzman bir
-senarist yapay zekasin. Gorevin kisa (45-60 saniye seslendirmeye uygun, yaklasik 110-150 kelime),
-atmosferik, gizemli/urkutucu hikayeler yazmak. Kurallar:
+SYSTEM_PROMPT = """Sen Turkce icerik ureten, atmosferik TARIH & EFSANE anlatimi konusunda uzman bir
+YouTube Shorts senaristisin. Kanal: "Zifiri Saatler" - Turk/Osmanli/Anadolu efsanelerinin ve
+karanlik tarihi olaylarinin "efsane mi, gercek mi" anlatimi. Gorevin 45-60 saniye seslendirmeye
+uygun (yaklasik 110-150 kelime), gerilimli ama GERCEGE dayali kisa bir anlatim yazmak.
 
-- Gercek, yasayan kisilerden veya spesifik gercek olaylardan bahsetme (kurgu/genel senaryo olsun)
-- Ilk cumle MUTLAKA ikinci tekil sahis ("sen") ile kurulan, RAHATSIZ EDICI ve SPESIFIK
-  bir soru olsun (ornek: "Aynaya baktiginda, yansimanin senden bir adim geriden geldigini
-  hic fark ettin mi?"). Genel/duz bir soru DEGIL ("hic bir seyin tuhaf oldugunu hissettin
-  mi?" gibi zayif) - sorunun kendisi imkansiz detayin bir ipucunu tasimali, izleyicinin
-  "bu bende de oluyor mu?" diye dusunup YORUM YAPMA isteği duymasini saglamali (bunu asla
-  acikca "yorum yap" diye SOYLEME, sadece sorunun doğasi bunu tetiklesin)
-- Imkansiz detay STATIK degil, MUMKUNSE ILERLEYEN/ARTAN bir sekilde anlatilsin (ornek:
-  bir leke/iz zamanla buyusun, kaysin, yer degistirsin) - bu, sabit bir detaydan cok
-  daha fazla gerilim yaratir
-- Kapanis cumlesi DUZ bir "sirri cozulemedi" ifadesiyle degil, acilis sorusuna GERI
-  DONEN, urpertici somut bir goruntuyle bitsin (ornek: "O hareket ederken, yansimasi
-  hala ona bakiyordu.")
-- Cumleler KISA ve HIZLI TEMPO'da olsun (konusma hizi artirildi, ona uygun ritim gerekli)
-- COK ONEMLI: Hikayenin merkezinde, somut bir esya/nesne uzerinde FIZIKSEL OLARAK IMKANSIZ
-  veya MANTIKSIZ bir detay olsun (ornek: yansimanin kisiden once hareket etmesi, saatin
-  imkansiz sekilde davranmasi, fotografta olmamasi gereken bir seyin gorunmesi). Bu tarz
-  "imkansiz detay" iceren hikayeler izleyicinin videoyu tekrar tekrar izlemesini sagliyor
-  (analiz verisi: %150+ izlenme suresi elde edildi), bu yuzden mutlaka bu kalibi kullan
-- BU IMKANSIZ DETAYI, sana verilen DUYUSAL TUR'e uygun SOMUT bir sekilde tarif et
-  (asagida "Duyusal tur:" olarak verilecek). Soyut ("garip bir sey oldu") degil,
-  gozle/kulakla/dokunarak algilanabilir somut bir detay olsun. ONEMLI: ART ARDA
-  AYNI TUR (ozellikle sadece "renk/leke") KULLANILDIGINDA IZLENME SURESI DUSUYOR -
-  bu yuzden sana verilen duyusal turu MUTLAKA kullan, farkli turler cesitlilik saglar
-- Hikaye merak uyandirsin, sonunda hafif bir cliffhanger veya rahatsiz edici bir detay birak
-- Duz, akici, seslendirmeye uygun Turkce yaz, KISA VE NET CUMLELER kullan (altyazida okunacak)
-- Cikti SADECE JSON formatinda olsun, baska hicbir metin ekleme
-- Kufur, asiri siddet, gercek kisi ismi kullanma
-- Sana verilen "daha once kullanilan basliklar" listesindeki konularla AYNI veya
-  cok benzer bir hikaye UYDURMA, tamamen ozgun ve farkli bir olay/detay/karakter kullan
-- Sana verilen SEHIR adini hikayeye dogal bir sekilde yedir (ornek: "Kayseri'nin eski
-  bir mahallesinde", "Trabzon'da bir sahil kasabasinda"). COK ONEMLI GUVENLIK KURALI:
-  SADECE genel sehir/bolge/mahalle duzeyinde kal - GERCEK bir adres, sokak ismi,
-  isletme adi, kurum adi (okul, hastane, cami vb. spesifik isimlerle) veya gercek
-  bir kisi ismi ASLA kullanma. Amac hikayeyi "bir yerde geciyormus gibi" hissettirmek,
-  dogrulanabilir/iddia edilebilir gercek bir yer/kurum/kisi ile iliskilendirmek DEGIL.
+YAPI (cok onemli - izleyiciyi sona kadar tutar):
+- ILK CUMLE: bir sahne/an ile ya da 2. tekil sahis ("sen") ile SPESIFIK ac. Klise/soyut giris
+  YASAK ("Bugun size anlatacagim", "Yillardir" gibi). Ornek: "Gece yarisi o kosker penceresinde
+  bir isik yanar - ama iceride kimse yasamaz."
+- Ilk birkac saniyede bir MERAK ACIGI + izleyiciye "sonunda gercegi gorecegin" hissi ver (loop
+  vaadi). Cevabi/gercegi HEMEN verme.
+- GOVDE: once efsaneyi/rivayeti kur (gerilim), ortada kucuk bir "aha" detayi birak, ama asil
+  aciklamayi SONA sakla. Her birkac cumlede bir seyi degistir/ilerlet.
+- KAPANIS: muhtemel GERCEK/tarihsel aciklamayi ver, ve SON CUMLE acilis goruntusune GERI DONSUN
+  (loop - izleyici farkinda olmadan basa sarar). Duz "sirri cozulemedi" ile bitirme.
+- Cumleler KISA, net, seslendirmeye ve altyaziya uygun.
 
-BASLIK kurallari (cok onemli, tiklama oranini belirliyor):
-- 60-90 karakter arasi, MERAK UYANDIRAN, yari aciklayan yari gizleyen bir baslik olsun
-- Somut nesne + imkansiz detay + "sirri cozulemedi" gibi kaliplar en iyi calisiyor
-- Basliga MUMKUNSE somut duyusal detayi (renk/ses/doku kelimesini) DAHIL et
-  (ornek: "Kırmızı Detay", "Islak Çizgi", "Cızırtı Sesi" gibi somut bir ibare basligin
-  icinde gecsin - bu, soyut basliklara gore ONE MISLI daha fazla izlenme aldi)
-- Ornek ton: "Aynadaki Kırmızı Leke Ondan Önce Hareket Etti, Sırrı Hâlâ Çözülemedi"
-- Mumkunse, dogal bir sekilde su anahtar kelimelerden BIRINI baslik veya aciklamaya
-  entegre et (zorla sokusturma, sadece uyuyorsa kullan): gerçek hikaye, gerçek olay,
-  esrarengiz olaylar, çözülemeyen gizem, tüyler ürpertici
+KIRMIZI CIZGILER (ihlal = guven/telif riski):
+- YAYGIN BILINEN efsane/olaylari kullan. UYDURMA spesifik tarih, isim, belge ya da "gizli kanit"
+  URETME. Emin olmadigin kesin iddialari verme.
+- Efsane/rivayet kismini "anlatilir / rivayet edilir / halk arasinda soylenir" gibi cerceve;
+  tarihsel baglami GENEL ve iddiasiz tut. Efsane ile gercegi net ayir.
+- Gercek, yasayan kisi ismi kullanma; gercek bir kisiyi/kurumu karalama. Saygili ol (ozellikle
+  din/olum). Propaganda/tek tarafli carpitma yok. Kufur/asiri siddet yok.
 
-ACIKLAMA (description) kurallari:
-- 2-3 cumlelik, hikayeyi ozetleyen ama sonunu vermeyen, merak birakan bir aciklama yaz
-- Izleyiciyi yorum yapmaya tesvik eden bir soru ile bitir
+BASLIK kurallari (Bolum 6 formulleri - tiklamayi belirler):
+- 45-70 karakter, MERAK ACIGI acan, cevabi vermeyen bir baslik. Su formullerden BIRINI kullan:
+  * Gizli gercek/ortbas: "...nin kimsenin bilmedigi gercek yuzu"
+  * Cevap isteyen soru: "Bu kosk neden 100 yildir bos?"
+  * Nasil + iddia: "Bir kasaba tek gecede nasil bosaldi?"
+  * Beklenmedik sayi: "300 yildir yanan o mumun sirri"
+- Baslik ile thumb_hook AYNI seyi soylemesin, birbirini TAMAMLASIN.
 
-ETIKET (hashtags) kurallari:
-- 10-12 arasi TEMAYA OZEL etiket uret (genel/SEO etiketleri ayrica otomatik eklenecek,
-  onlari sen tekrar yazma)
+thumb_hook (kapak icin - COK ONEMLI):
+- Basligin parcasi/kesilmisi DEGIL; tek basina okununca GRAMER OLARAK TAM, 3-6 kelimelik carpici
+  bir ifade. Ornek: "Gerçeği Kimse Bilmiyor" / "Hâlâ Orada Duruyor" / "Kayıtlarda Yok".
 
-KAPAK HOOK ifadesi kurallari (thumb_hook alani - COK ONEMLI):
-- Bu, basligin bir parcasi/kesilmisi DEGIL, TAMAMEN AYRI, KENDI BASINA
-  GRAMER OLARAK TAM ve anlamli 3-6 kelimelik carpici bir ifade olmali
-- YANLIS ornek (basligi kesmek): "Kilitli Sandiktaki Mor Ipligin" (yarim
-  kalmis, "ipligin" hal eki ile bitiyor, anlamsiz) - BOYLE YAPMA
-- DOGRU ornek: "Kimse Inanmiyor" / "Bu Nasil Mumkun" / "Hala Cozulemedi"
-  / "Gozlerine Inanamadi" gibi, tek basina okundugunda TAM bir anlam
-  ifade eden, baslikla ilgili ama ondan BAGIMSIZ carpici bir vurgu cumlesi
+ACIKLAMA (description): 2-3 cumle, olayi ozetleyen ama gercegi vermeyen, merak birakan; sonu
+izleyiciyi dusunmeye/yorum yapmaya iten bir soru.
 
-JSON formati:
+ETIKET (hashtags): 10-12 arasi TEMAYA OZEL etiket (genel/SEO etiketleri ayrica eklenecek).
+
+Cikti SADECE su JSON olsun, baska metin yok:
 {
-  "title": "Merak uyandiran, 60-90 karakter arasi baslik",
-  "thumb_hook": "Kapak icin 3-6 kelimelik, GRAMER OLARAK TAM, bagimsiz carpici ifade",
-  "description": "2-3 cumlelik ozet + soru ile bitsin",
-  "story": "Hikayenin tam metni (seslendirme icin)",
-  "hashtags": ["#temaya-ozel-etiket1", "#etiket2", "... 10-12 arasi"]
+  "title": "45-70 karakter, merak acigi acan baslik",
+  "thumb_hook": "3-6 kelimelik, bagimsiz, gramer olarak tam carpici ifade",
+  "description": "2-3 cumle ozet + soru ile bitsin",
+  "story": "Anlatimin tam metni (seslendirme icin)",
+  "hashtags": ["#temaya-ozel1", "#etiket2", "... 10-12 arasi"]
 }"""
 
 
@@ -180,7 +135,7 @@ def load_history():
             normalized = []
             for item in data:
                 if isinstance(item, str):
-                    normalized.append({"title": item, "theme": None})
+                    normalized.append({"title": item})
                 else:
                     normalized.append(item)
             return normalized
@@ -188,73 +143,44 @@ def load_history():
         return []
 
 
-def save_history(history, new_title: str, new_theme: str, new_city: str, new_detail_type: str):
-    history.append({
-        "title": new_title, "theme": new_theme, "city": new_city,
-        "detail_type": new_detail_type,
-    })
+def save_history(history, new_title: str, category: str):
+    history.append({"title": new_title, "category": category})
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
-def pick_theme(history):
-    recent_themes = [h["theme"] for h in history[-AVOID_SAME_THEME_LAST_N:] if h.get("theme")]
-    candidates = [t for t in WEIGHTED_THEMES if t not in recent_themes]
+def pick_category(history):
+    recent = [h.get("category") for h in history[-AVOID_SAME_CATEGORY_LAST_N:] if h.get("category")]
+    candidates = [c for c in CATEGORIES if c["key"] not in recent]
     if not candidates:
-        candidates = WEIGHTED_THEMES
-    return random.choice(candidates)
-
-
-def pick_city(history):
-    recent_cities = [h.get("city") for h in history[-AVOID_SAME_CITY_LAST_N:] if h.get("city")]
-    candidates = [c for c in CITIES if c not in recent_cities]
-    if not candidates:
-        candidates = CITIES
-    return random.choice(candidates)
-
-
-def pick_detail_type(history):
-    recent_types = [
-        h.get("detail_type") for h in history[-AVOID_SAME_DETAIL_TYPE_LAST_N:]
-        if h.get("detail_type")
-    ]
-    candidates = [d for d in DETAIL_TYPES if d not in recent_types]
-    if not candidates:
-        candidates = DETAIL_TYPES
+        candidates = CATEGORIES
     return random.choice(candidates)
 
 
 def merge_seo_keywords(hashtags):
-    """SEO havuzundan daha genis bir kismini secip mevcut etiketlere ekler,
-    tekrarlari temizler. YouTube'un toplam etiket karakter limitini (500)
-    asmamak icin guvenli bir sinirda tutar."""
     picked = random.sample(SEO_KEYWORDS, k=min(12, len(SEO_KEYWORDS)))
     seo_tags = ["#" + k.replace(" ", "") for k in picked]
-    combined = list(dict.fromkeys(hashtags + seo_tags + ["#shorts", "#keşfet"]))
+    base = ["#shorts", "#tarih", "#efsane", "#keşfet"]
+    combined = list(dict.fromkeys(hashtags + seo_tags + base))
 
-    # YouTube toplam etiket karakter limiti ~500 - guvenli tarafta kalmak
-    # icin 480 karaktere kadar ekle, 30 etiketi de gecme
     result = []
     total_chars = 0
     for tag in combined:
         if len(result) >= 30:
             break
-        tag_len = len(tag.strip("#")) + 1  # virgul icin +1
+        tag_len = len(tag.strip("#")) + 1
         if total_chars + tag_len > 480:
             break
         result.append(tag)
         total_chars += tag_len
-
     return result
 
 
 def generate_story():
     history = load_history()
-    theme = pick_theme(history)
-    city = pick_city(history)
-    detail_type = pick_detail_type(history)
-    recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:]]
+    category = pick_category(history)
+    recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:] if h.get("title")]
 
     model = genai.GenerativeModel(
         "gemini-3.5-flash",
@@ -264,17 +190,16 @@ def generate_story():
     avoid_text = ""
     if recent_titles:
         avoid_text = (
-            "\n\nDaha once kullanilan basliklar (bunlarla ayni/benzer konu UYDURMA):\n"
+            "\n\nDaha once islenen basliklar (bunlarla ayni/benzer konuyu TEKRARLAMA):\n"
             + "\n".join(f"- {t}" for t in recent_titles)
         )
 
     prompt = (
-        f"Tema: {theme}\n"
-        f"Sehir: {city}\n"
-        f"Duyusal tur: {detail_type}\n\n"
-        f"Bu temaya uygun, {city} sehrinde/bolgesinde gecen yeni ve ozgun bir hikaye uret. "
-        f"Imkansiz detayi verilen DUYUSAL TUR'e gore kur. "
-        f"Sadece genel bir mahalle/bolge atfet, gercek adres/kurum/kisi ismi kullanma."
+        f"Kategori: {category['hint']}\n\n"
+        f"Bu kategoriye uygun, YAYGIN BILINEN bir Turk/Osmanli/Anadolu efsanesi ya da "
+        f"karanlik tarihi olayi sec ve 'efsane -> gercek' yapisinda ozgun bir anlatim uret. "
+        f"Efsane kismini rivayet olarak cerceve, gercek/tarihsel aciklamayi sona sakla ve "
+        f"son cumleyi acilis goruntusune baglayarak (loop) bitir. Uydurma tarih/isim/belge KULLANMA."
         f"{avoid_text}"
     )
 
@@ -288,20 +213,18 @@ def generate_story():
     text = text.strip()
 
     data = json.loads(text)
-    data["_theme"] = theme
+    data["_theme"] = category["bg"]
+    data["_category"] = category["key"]
     data["_cta"] = random.choice(CTA_PHRASES)
     data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
 
-    # Gemini thumb_hook uretmezse (eski/beklenmedik format), basligi kesmek
-    # yerine GUVENLI, gramer olarak tam, genel bir yedek ifade kullan
     if not data.get("thumb_hook"):
         data["thumb_hook"] = random.choice([
-            "Kimse İnanmıyor", "Hâlâ Çözülemedi", "Bu Nasıl Mümkün",
-            "Gözlerine İnanamadı", "Herkes Şaşkın",
+            "Gerçeği Kimse Bilmiyor", "Hâlâ Orada Duruyor", "Kayıtlarda Yok",
+            "Kimse Konuşmuyor", "Efsane mi, Gerçek mi",
         ])
 
-    save_history(history, data["title"], theme, city, detail_type)
-
+    save_history(history, data["title"], category["key"])
     return data
 
 
