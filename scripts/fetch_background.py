@@ -1,9 +1,7 @@
 """
-Zifiri Saatler - Arkaplan Video ve Muzik Cekici
-TEK PANEL: Pexels API'den, hikayenin konusuyla ilgili TEK bir atmosferik
-arkaplan videosu indirir (artik ust/alt panel ayrimi yok).
-Pixabay Audio yerine, senin music/ klasorune ekledigin telifsiz muzikler
-kullanilir.
+Zifiri Saatler - Arkaplan Video ve Muzik Cekici (v2: TARIH/EFSANE atmosferi)
+Pexels'ten, hikaye kategorisine uygun TEK atmosferik (karanlik-belgesel)
+arkaplan videosu indirir. Muzik, music/ klasorundeki telifsiz parcalardan secilir.
 """
 import os
 import random
@@ -19,33 +17,26 @@ if not PEXELS_API_KEY:
 HEADERS = {"Authorization": PEXELS_API_KEY}
 
 BG_HISTORY_PATH = "data/bg_history.json"
-MAX_BG_HISTORY = 15  # son 15 video ID'sini hatirla, tekrarindan kacin
+MAX_BG_HISTORY = 15
 
-# Hikaye temasina gore uygun, atmosferik arama terimleri. Tek panel oldugu
-# icin arkaplan artik SADECE bu tema-bazli havuzdan seciliyor - "hipnotik/
-# oyun tarzi" soyut arkaplan havuzu (eski BOTTOM_SEARCH_TERMS) kaldirildi,
-# cunku artik ekranin tamamini kapladigi icin hikayeyle alakasiz bir gorsel
-# (parkur, lav lambasi vb.) yaninda konusan bir video garip kacardi.
+# _theme (generate_story kategorisinin bg anahtari) -> karanlik/belgesel
+# atmosferli Pexels arama terimleri. Terimler Ingilizce (Pexels'te sonuc daha iyi).
 THEME_TO_SEARCH = {
-    "terk edilmis bir evde yasanan aciklanamayan olay": ["abandoned house interior", "old dark hallway"],
-    "kucuk bir kasabada nesilden nesile anlatilan sehir efsanesi": ["foggy small town night", "empty street fog"],
-    "cozulmemis esrarengiz bir kayip vakasi": ["dark forest night", "flashlight search night"],
-    "bir aile mirasindaki lanetli esya": ["antique attic dark", "old photograph dust"],
-    "gece vardiyasinda calisan birinin basina gelen tuhaf olay": ["empty office night", "hospital corridor night"],
-    "eski bir fotografta ortaya cikan aciklanamayan detay": ["vintage photo album", "old film grain"],
-    "bir ormanda kaybolan grubun basina gelenler": ["dark forest fog", "night camping forest"],
-    "apartmanda tekrar eden gizemli sesler": ["dark apartment hallway", "empty stairwell"],
-    "bir mektupla ortaya cikan eski bir sir": ["old letter candle", "vintage desk night"],
-    "psikolojik olarak aciklanamayan dejavu deneyimi": ["abstract dark clouds", "mirror reflection dark"],
+    "perili_kosk":     ["abandoned mansion night", "old dark mansion interior", "haunted house fog"],
+    "lanetli_mekan":   ["foggy graveyard night", "eerie stone ruins", "dark old fountain"],
+    "kayip_yerlesim":  ["abandoned village fog", "ghost town ruins", "empty old town night"],
+    "yapinin_sirri":   ["ancient cistern water", "old stone bridge fog", "medieval tower night", "underground columns"],
+    "saray_golgesi":   ["old palace corridor", "candlelit hall dark", "ornate dark interior"],
+    "anadolu_efsanesi":["misty mountain landscape", "foggy forest night", "ancient stone ruins fog"],
+    "karanlik_olay":   ["old manuscript candle", "vintage map dark", "foggy old street night"],
 }
+
+DEFAULT_TERMS = ["dark foggy ruins", "dark atmosphere fog"]
 
 MUSIC_FOLDER = "music"
 
 
 def fetch_music(output_path: str = "output/music.mp3"):
-    # SADECE senin music/ klasorune ekledigin, kendi sectigin (telif sorunu olmayan)
-    # muzikleri kullanir. Hicbir "yedek/rastgele internet" muzigi KULLANILMAZ -
-    # bir onceki telif sorunundan sonra bu guvenlik onlemi bilerek eklendi.
     if os.path.isdir(MUSIC_FOLDER):
         local_files = [
             f for f in os.listdir(MUSIC_FOLDER)
@@ -58,7 +49,6 @@ def fetch_music(output_path: str = "output/music.mp3"):
                 fdst.write(fsrc.read())
             print(f"Kendi muzik dosyan kullanildi: {chosen}")
             return
-
     print("music/ klasorunde dosya yok - video muziksiz (sadece seslendirme ile) devam ediyor.")
 
 
@@ -91,7 +81,6 @@ def _download_pexels_video(term: str, output_path: str, avoid_ids=None):
     if not videos:
         return False, None
 
-    # Once daha once kullanilmamis videolari dene, hepsi kullanilmissa herhangi birini sec
     fresh_videos = [v for v in videos if v["id"] not in avoid_ids]
     pool = fresh_videos if fresh_videos else videos
 
@@ -111,19 +100,17 @@ def _download_pexels_video(term: str, output_path: str, avoid_ids=None):
 
 
 def fetch_background(theme: str, output_path: str = "output/background.mp4"):
-    """
-    TEK panel icin, hikaye temasina uygun tek bir arkaplan videosu indirir.
-    Once o temanin arama terimlerinden birini dener, video hic bulunamazsa
-    genel "dark atmosphere fog" terimine duser.
-    """
     history = _load_bg_history()
-    search_options = THEME_TO_SEARCH.get(theme, ["dark atmosphere fog"])
+    search_options = THEME_TO_SEARCH.get(theme, DEFAULT_TERMS)
     term = random.choice(search_options)
 
     ok, video_id = _download_pexels_video(term, output_path, avoid_ids=history)
     if not ok:
-        term = "dark atmosphere fog"
-        ok, video_id = _download_pexels_video(term, output_path, avoid_ids=history)
+        for fallback in DEFAULT_TERMS:
+            ok, video_id = _download_pexels_video(fallback, output_path, avoid_ids=history)
+            if ok:
+                term = fallback
+                break
 
     if ok and video_id:
         _save_bg_history(history, video_id)
@@ -136,7 +123,7 @@ def fetch_background(theme: str, output_path: str = "output/background.mp4"):
 if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
 
-    theme = "dark atmosphere fog"
+    theme = "karanlik_olay"
     if os.path.exists("output/story.json"):
         with open("output/story.json", "r", encoding="utf-8") as f:
             story = json.load(f)
