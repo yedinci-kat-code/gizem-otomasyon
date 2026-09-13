@@ -214,12 +214,20 @@ def render(story_path="output/story.json",
     # --- 1) TEK PANEL: once kaynagi dikissiz loop klibine cevir, sonra o
     #        klibi surekli loop'la (-stream_loop -1), uzerine karartma/hafif
     #        blur + altyazi ---
-    seamless_bg_path = "output/seamless_bg.mp4"
-    make_seamless_loop(background_path, seamless_bg_path)
+    # Arkaplan artik TAM UZUNLUKTA kurgulanmis olabilir (ilk 3sn 3 gorsel +
+    # sonra her 4sn degisen klip). Videoyu tam kapliyorsa loop YAPMA; kisa
+    # gelirse eskisi gibi dikissiz loop uygula.
+    bg_total = get_audio_duration(background_path)
+    if bg_total >= duration - 0.15:
+        panel_input = ["-i", background_path]
+    else:
+        seamless_bg_path = "output/seamless_bg.mp4"
+        make_seamless_loop(background_path, seamless_bg_path)
+        panel_input = ["-stream_loop", "-1", "-i", seamless_bg_path]
 
     panel_cmd = [
         "ffmpeg", "-y",
-        "-stream_loop", "-1", "-i", seamless_bg_path,
+        *panel_input,
         "-t", str(duration),
         "-vf",
         (
