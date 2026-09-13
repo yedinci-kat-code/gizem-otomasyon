@@ -43,6 +43,10 @@ def upload_video(youtube, video_path: str, story: dict):
     )
     description = f"{desc_summary}\n\n{footer}\n\n{hashtags}\n\n#shorts"
 
+    privacy = (os.environ.get("YOUTUBE_PRIVACY") or "public").strip().lower()
+    if privacy not in ("public", "unlisted", "private"):
+        privacy = "public"
+
     body = {
         "snippet": {
             "title": title,
@@ -51,7 +55,7 @@ def upload_video(youtube, video_path: str, story: dict):
             "categoryId": "27",
         },
         "status": {
-            "privacyStatus": "public",
+            "privacyStatus": privacy,
             "selfDeclaredMadeForKids": False,
             "containsSyntheticMedia": True,  # YouTube'un YZ icerik beyani
         },
