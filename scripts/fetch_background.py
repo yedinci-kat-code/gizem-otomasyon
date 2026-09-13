@@ -9,12 +9,12 @@ import sys
 import json
 import requests
 
+# NOT: bu modul artik fetch_ai_background tarafindan da import ediliyor.
+# O yuzden anahtar kontrolu MODUL SEVIYESINDE degil, fetch_background()
+# icinde yapilir - yoksa Pexels anahtari olmayan (sadece Wiro) kurulumda
+# import aninda sys.exit ile pipeline coker.
 PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY")
-if not PEXELS_API_KEY:
-    print("HATA: PEXELS_API_KEY bulunamadi", file=sys.stderr)
-    sys.exit(1)
-
-HEADERS = {"Authorization": PEXELS_API_KEY}
+HEADERS = {"Authorization": PEXELS_API_KEY or ""}
 
 BG_HISTORY_PATH = "data/bg_history.json"
 MAX_BG_HISTORY = 15
@@ -100,6 +100,8 @@ def _download_pexels_video(term: str, output_path: str, avoid_ids=None):
 
 
 def fetch_background(theme: str, output_path: str = "output/background.mp4"):
+    if not PEXELS_API_KEY:
+        raise RuntimeError("PEXELS_API_KEY yok - Pexels yedegi kullanilamiyor")
     history = _load_bg_history()
     search_options = THEME_TO_SEARCH.get(theme, DEFAULT_TERMS)
     term = random.choice(search_options)
