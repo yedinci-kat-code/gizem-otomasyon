@@ -1205,5 +1205,11 @@
     "theme": "eski bir kutu/sandiktaki esyanin zamanla degistigi ama kimsenin dokunmadigi",
     "city": "Kayseri",
     "detail_type": "bir SES/melodi/tıkırtı (ornek: bir muzik kutusu, saat sesi, fisiltinin degismesi)"
+  },
+  {
+    "title": "Mersin'de Saniyeleri Önden Koşan Cep Saatinin Çözülemeyen Gizemi",
+    "theme": "bir aynadaki yansimanin kisiden once hareket etmesi gibi imkansiz bir detay",
+    "city": "Mersin",
+    "detail_type": "ZAMAN/saat davranisi (ornek: bir saatin yanlis calismasi, zamanin farkli akmasi)"
   }
 ]
