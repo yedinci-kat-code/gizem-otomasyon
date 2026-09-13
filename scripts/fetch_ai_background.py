@@ -1,26 +1,24 @@
 """
-Zifiri Saatler - AI Arkaplan Uretici (Wiro) v3
-Arkaplan kurgulanmis bir ZAMAN CIZELGESI (toplam <= ~35 sn):
-  * Ilk 3 sn -> 3 AI GORSEL (1'er sn, Ken Burns)
-  * Sonrasi  -> her 4 sn'de degisen, GERCEGE YAKIN klipler:
-      her parca icin once doneme ozgu bir GORSEL uretilir (nano-banana),
-      sonra o gorsel IMAGE-TO-VIDEO (runway gen4-turbo) ile canlandirilir.
-Dusme sirasi (Pexels YOK):
-  video canlandirma hata verirse -> AYNI gorsel Ken Burns ile kullanilir
-  gorsel de hata verirse         -> koyu/atmosferik klip (son care)
+Zifiri Saatler - AI Arkaplan Uretici (Wiro) v4
+Zaman cizelgesi (toplam <= ~35 sn):
+  * Ilk 3 sn -> 3 AI GORSEL (1'er sn)
+  * Sonrasi  -> her ~4 sn'de GERCEGE YAKIN image-to-video klip (Runway gen4-turbo)
+2 fazli: (1) benzersiz sahne gorselleri paralel uretilir (tekrar kullanilir=ucuz),
+         (2) her parca ya video (gorseli canlandirir) ya da Ken Burns olur.
+Dusme (Pexels YOK): video hata -> ayni gorsel Ken Burns; gorsel hata -> BASKA
+basarili gorseli kullan (SIYAH kalmaz); hic gorsel yoksa koyu klip.
 
-Neden image-to-video: nis tarihi/atmosferik oldugu icin sahneyi bizim uretilen
-gorsel sabitler; boylece hem gercekci hem niş-dogru (anakronik uydurma olmaz).
-
-ENV:
+ENV (onemliler):
   WIRO_API_KEY, WIRO_API_SECRET
-  WIRO_IMAGE_MODEL         (varsayilan "google/nano-banana")
-  WIRO_VIDEO_MODEL         (varsayilan "runway/image-to-video-gen4-turbo")
-  WIRO_VIDEO_IMAGE_PARAM   (varsayilan "inputImage")  # image-to-video giris alani adi
-  WIRO_BODY_MODE           "video" (varsayilan) | "image"
-  WIRO_MAX_VIDEO_CLIPS     (varsayilan "15")   # maliyet tavani
-  WIRO_WORKERS             (varsayilan "3")
-  WIRO_MAX_SECONDS         (varsayilan "36")   # arkaplan ust sinir
+  WIRO_IMAGE_MODEL        (varsayilan "google/nano-banana")
+  WIRO_VIDEO_MODEL        (varsayilan "Runway/image-to-video-gen4-turbo")  # BUYUK R!
+  WIRO_VIDEO_IMAGE_PARAM  (varsayilan "inputImage")
+  WIRO_VIDEO_RATIO        (varsayilan "720:1280")   # dikey
+  WIRO_BODY_MODE          "video" (varsayilan) | "image"
+  WIRO_MAX_VIDEO_CLIPS    (varsayilan "8")   # MALIYET tavani (Runway ~$0.25/klip!)
+  WIRO_SEG_SEC            (varsayilan "4")   # parca suresi (6 yaparsan daha az/ucuz klip)
+  WIRO_WORKERS            (varsayilan "3")
+  WIRO_MAX_SECONDS        (varsayilan "36")
 """
 import os
 import sys
@@ -38,10 +36,12 @@ import requests
 WIRO_API_KEY = os.environ.get("WIRO_API_KEY")
 WIRO_API_SECRET = os.environ.get("WIRO_API_SECRET")
 WIRO_IMAGE_MODEL = os.environ.get("WIRO_IMAGE_MODEL", "google/nano-banana")
-WIRO_VIDEO_MODEL = os.environ.get("WIRO_VIDEO_MODEL", "runway/image-to-video-gen4-turbo")
+WIRO_VIDEO_MODEL = os.environ.get("WIRO_VIDEO_MODEL", "Runway/image-to-video-gen4-turbo")
 WIRO_VIDEO_IMAGE_PARAM = os.environ.get("WIRO_VIDEO_IMAGE_PARAM", "inputImage")
+WIRO_VIDEO_RATIO = os.environ.get("WIRO_VIDEO_RATIO", "720:1280")
 WIRO_BODY_MODE = os.environ.get("WIRO_BODY_MODE", "video").lower()
-MAX_VIDEO_CLIPS = int(os.environ.get("WIRO_MAX_VIDEO_CLIPS", "15"))
+MAX_VIDEO_CLIPS = int(os.environ.get("WIRO_MAX_VIDEO_CLIPS", "8"))
+SEG_SEC = int(os.environ.get("WIRO_SEG_SEC", "4"))
 WORKERS = int(os.environ.get("WIRO_WORKERS", "3"))
 MAX_SECONDS = float(os.environ.get("WIRO_MAX_SECONDS", "36"))
 
@@ -49,8 +49,7 @@ BASE_URL = "https://api.wiro.ai/v1"
 WIDTH, HEIGHT, FPS = 1080, 1920, 30
 INTRO_COUNT = 3
 INTRO_SEC = 1
-SEG_SEC = 4
-REQ_TIMEOUT = 180
+REQ_TIMEOUT = 240
 
 CATEGORY_SCENE = {
     "perili_kosk": "abandoned old ottoman mansion interior at night, single candle, dust",
@@ -66,7 +65,6 @@ STYLE_SUFFIX = (
     "atmospheric, photorealistic, realistic, historically plausible, vertical 9:16 composition, "
     "no text, no watermark, no faces"
 )
-# Image-to-video icin: GERCEKCI, ince hareket - morph/warp olmadan
 MOTION_PROMPT = (
     "slow subtle cinematic camera push-in, gentle drifting fog and candlelight flicker, "
     "realistic natural motion, cohesive, no morphing, no warping, no text"
@@ -119,7 +117,6 @@ def _download(url, out_path, timeout=120):
 
 
 def _wiro_image(prompt, out_jpg):
-    """Gorsel uretir. (yerel_yol, public_url) doner - url image-to-video girisine verilir."""
     data = _run_sync(WIRO_IMAGE_MODEL, {"prompt": prompt})
     urls = [u for u in _find_media_urls(data) if not u.lower().endswith((".mp4", ".mov"))]
     if not urls:
@@ -129,8 +126,8 @@ def _wiro_image(prompt, out_jpg):
 
 
 def _wiro_video_from_image(image_url, out_mp4):
-    """Bir gorseli image-to-video ile canlandirir (gerçekçi ince hareket)."""
-    body = {WIRO_VIDEO_IMAGE_PARAM: image_url, "prompt": MOTION_PROMPT, "duration": SEG_SEC}
+    # Runway gen4-turbo alanlari: prompt + inputImage + ratio (duration YOK!)
+    body = {"prompt": MOTION_PROMPT, WIRO_VIDEO_IMAGE_PARAM: image_url, "ratio": WIRO_VIDEO_RATIO}
     data = _run_sync(WIRO_VIDEO_MODEL, body)
     urls = [u for u in _find_media_urls(data) if u.lower().endswith((".mp4", ".mov"))]
     if not urls:
@@ -161,7 +158,7 @@ def _normalize_video(in_path, out_path, seconds):
 
 def _solid_clip(out_path, seconds):
     subprocess.run(["ffmpeg", "-y", "-f", "lavfi",
-                    "-i", f"color=c=0x111014:s={WIDTH}x{HEIGHT}:r={FPS}:d={seconds}",
+                    "-i", f"color=c=0x14131a:s={WIDTH}x{HEIGHT}:r={FPS}:d={seconds}",
                     "-vf", "vignette=PI/5,format=yuv420p", "-t", str(seconds),
                     "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-an", out_path], check=True)
 
@@ -183,6 +180,127 @@ def _concat(clip_paths, out_path):
 # ---------- timeline ----------
 def _styled(p):
     return f"{p.strip()}. {STYLE_SUFFIX}"
+
+
+def _base_prompts(story):
+    prompts = [p for p in (story.get("scene_prompts") or []) if isinstance(p, str) and p.strip()]
+    if not prompts:
+        one = (story.get("image_prompt") or "").strip() or \
+            CATEGORY_SCENE.get(story.get("_category", "karanlik_olay"), CATEGORY_SCENE["karanlik_olay"])
+        prompts = [one]
+    return prompts
+
+
+def _gen_images(prompts):
+    """Benzersiz her prompt icin 1 gorsel (paralel). prompt -> (yerel, url) | None."""
+    uniq = list(dict.fromkeys(prompts))
+    out = {}
+
+    def one(pi):
+        i, prompt = pi
+        try:
+            local, url = _wiro_image(_styled(prompt), f"output/img_{i:03d}.jpg")
+            print(f"gorsel OK: {prompt[:40]}")
+            return prompt, (local, url)
+        except Exception as e:
+            print(f"gorsel HATA ({prompt[:40]}): {e}", file=sys.stderr)
+            return prompt, None
+
+    with ThreadPoolExecutor(max_workers=max(1, WORKERS)) as ex:
+        for prompt, res in ex.map(one, list(enumerate(uniq))):
+            out[prompt] = res
+    return out
+
+
+def build_background(story, target, out_path="output/background.mp4"):
+    target = min(target, MAX_SECONDS)
+    prompts = _base_prompts(story)
+
+    # FAZ 1: gorselleri uret (tekrar kullanilir)
+    images = _gen_images(prompts)
+    good = [v for v in images.values() if v]
+    if not good:
+        print("Hicbir gorsel uretilemedi - tum arkaplan koyu klip olacak.", file=sys.stderr)
+
+    # segment plani
+    specs = []
+    idx = 0
+    for _ in range(INTRO_COUNT):
+        specs.append((idx, prompts[idx % len(prompts)], INTRO_SEC, "image"))
+        idx += 1
+    covered = INTRO_COUNT * INTRO_SEC
+    body_i = 0
+    while covered < target:
+        kind = "video" if (WIRO_BODY_MODE == "video" and body_i < MAX_VIDEO_CLIPS) else "image"
+        specs.append((idx, prompts[idx % len(prompts)], SEG_SEC, kind))
+        idx += 1
+        body_i += 1
+        covered += SEG_SEC
+
+    print(f"{len(specs)} parca ({INTRO_COUNT} intro + {len(specs)-INTRO_COUNT} govde), "
+          f"video={sum(1 for s in specs if s[3]=='video')}, hedef {target:.1f}s")
+
+    # FAZ 2: her parca -> video ya da Ken Burns (SIYAH yerine baska gorseli kullan)
+    def build_one(spec):
+        i, prompt, seconds, kind = spec
+        clip = f"output/seg_{i:03d}.mp4"
+        pair = images.get(prompt) or (random.choice(good) if good else None)
+        if not pair:
+            _solid_clip(clip, seconds)
+            return i, clip
+        local, url = pair
+        if kind == "video":
+            try:
+                raw = _wiro_video_from_image(url, f"output/seg_{i:03d}_raw.mp4")
+                _normalize_video(raw, clip, seconds)
+                print(f"[{i}] image-to-video OK")
+                return i, clip
+            except Exception as e:
+                print(f"[{i}] video hata -> Ken Burns: {e}", file=sys.stderr)
+        _ken_burns(local, clip, seconds)
+        return i, clip
+
+    results = {}
+    with ThreadPoolExecutor(max_workers=max(1, WORKERS)) as ex:
+        for i, clip in ex.map(build_one, specs):
+            results[i] = clip
+    _concat([results[s[0]] for s in specs], out_path)
+    print(f"Arkaplan kurgulandi: {out_path}")
+
+
+def pick_music(out="output/music.mp3"):
+    if os.path.isdir(MUSIC_FOLDER):
+        files = [f for f in os.listdir(MUSIC_FOLDER) if f.lower().endswith((".mp3", ".m4a", ".wav"))]
+        if files:
+            src = os.path.join(MUSIC_FOLDER, random.choice(files))
+            shutil.copyfile(src, out)
+            print(f"Muzik: {src}")
+            return
+    print("music/ bos - muziksiz devam.")
+
+
+def _voice_duration():
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=noprint_wrappers=1:nokey=1", "output/voice.mp3"],
+                           capture_output=True, text=True, check=True)
+        return float(r.stdout.strip())
+    except Exception:
+        return 32.0
+
+
+def main():
+    os.makedirs("output", exist_ok=True)
+    story = {}
+    if os.path.exists("output/story.json"):
+        with open("output/story.json", "r", encoding="utf-8") as f:
+            story = json.load(f)
+    build_background(story, _voice_duration() + 0.5)
+    pick_music()
+
+
+if __name__ == "__main__":
+    main()
 
 
 def _base_prompts(story):
