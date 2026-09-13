@@ -270,6 +270,10 @@ def render(story_path="output/story.json",
     )
     cta_start = max(duration - 2.0, 0)
 
+    # Kucuk abone chip'i icin kisa pencere (kapanis CTA'sindan once biter)
+    sub_start = min(3.0, max(duration - 4.0, 0.0))
+    sub_end = min(sub_start + 3.0, max(duration - 2.2, sub_start + 0.5))
+
     final_cmd = [
         "ffmpeg", "-y",
         "-i", "output/panel.mp4",
@@ -277,8 +281,8 @@ def render(story_path="output/story.json",
         "-filter_complex",
         (
             # Ust-sol kose: sabit "ABSURT KORKU" etiketi (tum video boyunca)
-            f"[0:v]drawtext=fontfile={FONT_PATH}:text='ABSÜRT KORKU':"
-            f"fontsize=26:fontcolor=0x9be8d0:borderw=2:bordercolor=black@0.8:"
+            f"[0:v]drawtext=fontfile={FONT_PATH}:text='ZİFİRİ SAATLER':"
+            f"fontsize=26:fontcolor=0xc9a84a:borderw=2:bordercolor=black@0.8:"
             f"box=1:boxcolor=black@0.45:boxborderw=10:"
             f"x=24:y=24[labeled];"
             # Acilis hook basligi (ilk 1.5 saniye, ortada, buyuk)
@@ -287,20 +291,19 @@ def render(story_path="output/story.json",
             f"box=1:boxcolor=black@0.55:boxborderw=24:"
             f"x=(w-text_w)/2:y=(h-text_h)/2:"
             f"enable='between(t,0,1.5)'[hooked];"
-            # Kapanis sorusu (son 2 saniye) - ortada, YouTube arayuzunun ustunde kalacak yukseklikte
-            f"[hooked]drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
+            # Kucuk abone hatirlatmasi - ALT-SOL, kisa sureli, ORTAYI KAPATMAZ
+            # (eski tam-ekran-ortasi rozet retention'i dusuruyordu, kaldirildi)
+            f"[hooked]drawtext=fontfile={FONT_PATH}:text='ABONE OL »':"
+            f"fontsize=30:fontcolor=white:borderw=2:bordercolor=black@0.85:"
+            f"box=1:boxcolor=0x14247a@0.85:boxborderw=14:"
+            f"x=40:y=h-360:"
+            f"enable='between(t,{sub_start:.2f},{sub_end:.2f})'[subbed];"
+            # Kapanis sorusu (son 2 saniye) - altta, arayuzun ustunde
+            f"[subbed]drawtext=fontfile={FONT_PATH}:text='{cta_text}':"
             f"fontsize=40:fontcolor=white:borderw=4:bordercolor=black@0.9:"
             f"box=1:boxcolor=black@0.6:boxborderw=16:"
             f"x=(w-text_w)/2:y=h-480:"
-            f"enable='between(t,{cta_start:.2f},{duration:.2f})'[cta_done];"
-            # Abone/begeni hatirlatmasi - EKRANIN TAM ORTASI, profesyonel koyu-lacivert
-            # rozet tasarimi. Hook (0-1.5sn) ve kapanis sorusu (son 2sn) ile CAKISMAMASI
-            # icin sadece aradaki bolumde gosterilir.
-            f"[cta_done]drawtext=fontfile={FONT_PATH}:text='BEĞENDİYSEN ABONE OLMAYI UNUTMA':"
-            f"fontsize=34:fontcolor=white:borderw=2:bordercolor=0x1a3a8f:"
-            f"box=1:boxcolor=0x14247a@0.88:boxborderw=30:"
-            f"x=(w-text_w)/2:y=(h-text_h)/2:"
-            f"enable='between(t,1.7,{max(duration - 2.3, 1.8):.2f})'[outv]"
+            f"enable='between(t,{cta_start:.2f},{duration:.2f})'[outv]"
         ),
         "-map", "[outv]",
         "-map", "1:a",
@@ -470,6 +473,7 @@ def prepend_thumbnail_intro(
 
 
 if __name__ == "__main__":
-    generate_thumbnail()          # once kapagi uret (sadece story.json gerekir)
-    render()                      # sonra ana videoyu uret (main_body.mp4)
-    prepend_thumbnail_intro()     # kapagi videonun basina fiziksel olarak ekle
+    generate_thumbnail()                       # YouTube ozel kapagi (kanal sayfasi/arama icin)
+    render(output_path="output/final.mp4")     # video dogrudan hareket+hook ile aciliyor
+    # NOT: statik kapak introsu (prepend_thumbnail_intro) BILEREK kaldirildi -
+    # Shorts'ta ilk kare statik olursa izleyici aninda kayar (Bolum 5).
