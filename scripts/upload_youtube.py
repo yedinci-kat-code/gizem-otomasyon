@@ -102,3 +102,4 @@ if __name__ == "__main__":
         set_thumbnail(youtube, video_id, "output/thumbnail.jpg")
     except Exception as e:
         print(f"Kapak atanamadi (video yine de yuklendi): {e}")
+        print("IPUCU: Ozel kapak icin YouTube hesabin DOGRULANMIS olmali -> youtube.com/verify")
