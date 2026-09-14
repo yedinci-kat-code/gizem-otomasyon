@@ -24,11 +24,11 @@ RETRY_DELAY_SECONDS = 8
 WIRO_TTS_MODEL = os.environ.get("WIRO_TTS_MODEL", "").strip()  # bos = edge-tts kullan
 WIRO_API_KEY = os.environ.get("WIRO_API_KEY")
 WIRO_API_SECRET = os.environ.get("WIRO_API_SECRET")
-WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE", "Brian - Deep, Resonant and Comforting")  # ElevenLabs ses adi
-WIRO_TTS_TEXT_PARAM = os.environ.get("WIRO_TTS_TEXT_PARAM", "prompt")   # metin alan adi
-WIRO_TTS_VOICE_PARAM = os.environ.get("WIRO_TTS_VOICE_PARAM", "voice")  # ses alan adi
-WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID", "eleven_multilingual_v2")  # TR icin multilingual (hata olursa eleven_flash_v2_5)
-WIRO_TTS_OUTPUT_FORMAT = os.environ.get("WIRO_TTS_OUTPUT_FORMAT", "mp3_44100_128")
+WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE") or "Brian - Deep, Resonant and Comforting"  # bos=varsayilan
+WIRO_TTS_TEXT_PARAM = os.environ.get("WIRO_TTS_TEXT_PARAM") or "prompt"   # metin alan adi
+WIRO_TTS_VOICE_PARAM = os.environ.get("WIRO_TTS_VOICE_PARAM") or "voice"  # ses alan adi
+WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID") or "eleven_multilingual_v2"  # bos=varsayilan (hata olursa eleven_flash_v2_5)
+WIRO_TTS_OUTPUT_FORMAT = os.environ.get("WIRO_TTS_OUTPUT_FORMAT") or "mp3_44100_128"
 AUDIO_URL_RE = re.compile(r'https?://[^\s"\'<>\\]+?\.(?:mp3|wav|m4a|ogg|aac)', re.IGNORECASE)
 
 
@@ -86,6 +86,8 @@ def generate_voice_wiro(text: str, output_path: str):
     r = requests.post(url, headers=_wiro_headers(), json=body, timeout=240)
     r.raise_for_status()
     data = r.json()
+    if isinstance(data, dict) and data.get("result") is False:
+        raise RuntimeError(f"Wiro TTS hata: {data.get('errors')}")
     found = []
     def walk(o):
         if isinstance(o, str):
@@ -96,7 +98,7 @@ def generate_voice_wiro(text: str, output_path: str):
             [walk(v) for v in o]
     walk(data)
     if not found:
-        raise RuntimeError("Wiro TTS ses URL'si bulunamadi")
+        raise RuntimeError("Wiro TTS ses URL'si bulunamadi. Yanit: " + str(data)[:400])
     ar = requests.get(found[0], stream=True, timeout=120)
     ar.raise_for_status()
     with open(output_path, "wb") as f:
