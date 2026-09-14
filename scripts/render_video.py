@@ -408,7 +408,7 @@ def generate_thumbnail(story_path="output/story.json", output_path="output/thumb
         line_escaped = line.replace("'", "\u2019").replace(":", "\\:")
         draw_filters.append(
             f"drawtext=fontfile={FONT_PATH}:text='{line_escaped}':"
-            f"fontsize={HOOK_FONTSIZE}:fontcolor=0xff9d3d:"
+            f"fontsize={HOOK_FONTSIZE}:fontcolor=0xF5B942:"
             f"borderw=2:bordercolor=black@0.6:"
             f"x=(w-text_w)/2:y={y}"
         )
@@ -425,16 +425,19 @@ def generate_thumbnail(story_path="output/story.json", output_path="output/thumb
         )
         y += TITLE_LINE_HEIGHT
 
-    vf_chain = ",".join(draw_filters)
+    # Kapak arka plani: DUZ siyah yerine videonun GERCEK bir karesi (atmosferik),
+    # koyulastirilmis; ustune amber hook + baslik biner -> cok daha tiklanabilir.
+    bg_src = "output/background.mp4"
+    if os.path.exists(bg_src):
+        base_input = ["-ss", "1", "-i", bg_src]
+        pre = (f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+               f"crop={WIDTH}:{HEIGHT},eq=brightness=-0.18:saturation=1.06,")
+    else:
+        base_input = ["-f", "lavfi", "-i", f"color=c=0x0a0a0a:s={WIDTH}x{HEIGHT}:d=1"]
+        pre = ""
 
-    cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi",
-        "-i", f"color=c=0x0a0a0a:s={WIDTH}x{HEIGHT}:d=1",
-        "-vf", vf_chain,
-        "-frames:v", "1",
-        output_path,
-    ]
+    vf_chain = pre + ",".join(draw_filters)
+    cmd = ["ffmpeg", "-y", *base_input, "-vf", vf_chain, "-frames:v", "1", output_path]
     subprocess.run(cmd, check=True)
     print(f"Kapak (thumbnail) uretildi: {output_path}")
 
