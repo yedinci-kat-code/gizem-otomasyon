@@ -35,6 +35,11 @@ jobs:
         run: python scripts/generate_story.py
 
       - name: 2) Seslendirme uret
+        env:
+          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
+          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
+          WIRO_TTS_MODEL: ${{ secrets.WIRO_TTS_MODEL }}
+          WIRO_TTS_VOICE: ${{ secrets.WIRO_TTS_VOICE }}
         run: python scripts/generate_voice.py
 
       - name: 3) Arkaplan (AI gorsel - Wiro) ve muzik cek
