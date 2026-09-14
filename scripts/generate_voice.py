@@ -24,10 +24,11 @@ RETRY_DELAY_SECONDS = 8
 WIRO_TTS_MODEL = os.environ.get("WIRO_TTS_MODEL", "").strip()  # bos = edge-tts kullan
 WIRO_API_KEY = os.environ.get("WIRO_API_KEY")
 WIRO_API_SECRET = os.environ.get("WIRO_API_SECRET")
-WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE", "")            # model'e gore ses id/adi
+WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE", "Brian - Deep, Resonant and Comforting")  # ElevenLabs ses adi
 WIRO_TTS_TEXT_PARAM = os.environ.get("WIRO_TTS_TEXT_PARAM", "prompt")   # metin alan adi
 WIRO_TTS_VOICE_PARAM = os.environ.get("WIRO_TTS_VOICE_PARAM", "voice")  # ses alan adi
-WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID", "eleven_multilingual_v2")  # TR icin multilingual
+WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID", "eleven_multilingual_v2")  # TR icin multilingual (hata olursa eleven_flash_v2_5)
+WIRO_TTS_OUTPUT_FORMAT = os.environ.get("WIRO_TTS_OUTPUT_FORMAT", "mp3_44100_128")
 AUDIO_URL_RE = re.compile(r'https?://[^\s"\'<>\\]+?\.(?:mp3|wav|m4a|ogg|aac)', re.IGNORECASE)
 
 
@@ -69,10 +70,14 @@ def generate_voice_wiro(text: str, output_path: str):
     """Wiro TTS ile ses uretir. word_timings vermez -> [] doner."""
     import requests
     if "elevenlabs" in WIRO_TTS_MODEL.lower():
-        # ElevenLabs standart alanlari (Turkce icin modelId multilingual olmali)
-        body = {"text": text, "modelId": WIRO_TTS_MODEL_ID}
-        if WIRO_TTS_VOICE:
-            body["voice"] = WIRO_TTS_VOICE
+        # Wiro elevenlabs/text-to-speech GERCEK alanlari (playground'dan):
+        # prompt (metin) + model + voice + outputFormat (hepsi zorunlu)
+        body = {
+            "prompt": text,
+            "model": WIRO_TTS_MODEL_ID,
+            "voice": WIRO_TTS_VOICE,
+            "outputFormat": WIRO_TTS_OUTPUT_FORMAT,
+        }
     else:
         body = {WIRO_TTS_TEXT_PARAM: text}
         if WIRO_TTS_VOICE:
