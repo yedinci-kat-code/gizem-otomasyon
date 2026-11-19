@@ -24,6 +24,48 @@ import timing  # noqa: E402  (cizgi-short araci: match / phrases_of / script_wor
 VALID_SHOTS = {"bekci_hook", "bekci", "genis", "karakter", "yakin", "ikili", "kovalamaca", "kalabalik", "obje", "gercek", "bekci_kapanis"}
 
 
+MUSIC_DIR = os.path.join(ROOT, "music")
+MUSIC_HISTORY = os.path.join(ROOT, "data", "music_history.json")
+
+
+def pick_track(story):
+    """music/ kutuphanesinden parca secer; son 2 videoda calani tekrar etmez."""
+    import random
+    files = sorted(f for f in os.listdir(MUSIC_DIR) if f.lower().endswith((".mp3", ".wav", ".m4a"))) if os.path.isdir(MUSIC_DIR) else []
+    if not files:
+        return None
+    hist = json.load(open(MUSIC_HISTORY, encoding="utf-8")) if os.path.exists(MUSIC_HISTORY) else []
+    pool = [f for f in files if f not in hist[-2:]] or files
+    pick = random.Random(story.get("title", "")).choice(pool)
+    os.makedirs(os.path.dirname(MUSIC_HISTORY), exist_ok=True)
+    json.dump((hist + [pick])[-10:], open(MUSIC_HISTORY, "w", encoding="utf-8"), ensure_ascii=False)
+    print("muzik:", pick)
+    return os.path.join(MUSIC_DIR, pick)
+
+
+def mix_music(track, dur, gercek_t):
+    """Tek, kesintisiz fon muzigi: sesin altinda, ses konusurken otomatik kisilir (ducking).
+    Dinamik: gercek aninin 1.2 sn oncesinde muzik neredeyse susar (gerilim), gercekle geri gelir."""
+    voice_mix = os.path.join(PROJ, "out", "mix.wav")      # audio.py: ses + efekt
+    base = os.path.join(PROJ, "work", "voice_sfx.wav")
+    shutil.move(voice_mix, base)
+    if gercek_t:
+        a, b = max(0.0, gercek_t - 1.2), gercek_t
+        env = f"if(between(t,{a:.2f},{b:.2f}),0.25,1)"
+    else:
+        env = "1"
+    flt = (
+        f"[1:a]aloop=loop=-1:size=2e9,atrim=0:{dur:.2f},asetpts=N/SR/TB,"
+        f"volume=-18dB,volume='{env}':eval=frame,afade=t=in:d=0.6,afade=t=out:st={max(0, dur - 1.0):.2f}:d=1.0[m];"
+        f"[0:a]asplit=2[v][sc];"
+        f"[m][sc]sidechaincompress=threshold=0.03:ratio=4:attack=15:release=350[md];"
+        f"[v][md]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[out]"
+    )
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", base, "-i", track, "-filter_complex", flt,
+                    "-map", "[out]", "-ar", "48000", "-ac", "2", voice_mix], check=True)
+    print("muzik miksi tamam:", os.path.basename(track))
+
+
 def words_from_edge(sw, boundaries):
     toks = [(b["text"], b["offset"], b["offset"] + b["duration"]) for b in boundaries if b.get("text")]
     return timing.match(sw, toks)
@@ -126,11 +168,15 @@ def main():
         if b.get("shot") == "gercek":
             sfx.append({"t": max(0, t - 1.0), "kind": "riser", "gain_db": -12})
             sfx.append({"t": t + 0.1, "kind": "magic", "gain_db": -7})
-    sound = {"voice": "work/voice" + ext,
-             "music": {"style": "mystery", "bpm": 84, "start": 0.0, "stop": round(total / FPS, 2), "sting": False, "level_db": -17},
-             "sfx": sorted(sfx, key=lambda s: s["t"])}
+    track = pick_track(story)
+    sound = {"voice": "work/voice" + ext, "duration": round(total / FPS, 2), "sfx": sorted(sfx, key=lambda s: s["t"])}
+    if not track:  # music/ bossa kodla uretilen muzige dus
+        sound["music"] = {"style": "mystery", "bpm": 84, "start": 0.0, "stop": round(total / FPS, 2), "sting": False, "level_db": -17}
     json.dump(sound, open(os.path.join(PROJ, "sound.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    subprocess.run([sys.executable, os.path.join(PROJ, "tools", "audio.py"), PROJ], check=True)
+    subprocess.run([sys.executable, os.path.join(PROJ, "tools", "audio.py"), PROJ], check=True)  # ses + efekt
+    if track:
+        gercek = next((b["f0"] / FPS for b in beats if b["shot"] == "gercek"), None)
+        mix_music(track, total / FPS, gercek)
     print(f"hazir: {total} kare ({total / FPS:.1f} sn)")
 
 

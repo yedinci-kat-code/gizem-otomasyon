@@ -105,7 +105,7 @@ const BUILD = {
     return { light: "zifiri", obj: [3.2, 1.6, -3.0] };
   },
   kopru(E, S, T) {
-    const w = E.plane(300, 300, E.mat("#ffffff", { map: (() => { const t = T.water("#1f3f6a").clone(); t.needsUpdate = true; t.repeat.set(36, 36); return t; })() }), [0, -0.6, -40], { rot: [-Math.PI / 2, 0, 0] }); w.castShadow = false;
+    const w = E.plane(300, 300, E.mat("#ffffff", { map: (() => { const t = T.water("#1f3f6a").clone(); t.needsUpdate = true; t.repeat.set(36, 36); return t; })() }), [0, -0.6, -40], { rot: [-Math.PI / 2, 0, 0] }); w.castShadow = false; w.userData.flow = true;
     E.box(40, 0.6, 7, E.mat("#6a6a4a", { map: T.dirt("#6a6a4a") }), [0, -0.6, 3]); // kıyı (sahne)
     const st = E.mat("#a89a80", { map: T.stone("#a89a80") }), g = E.group(null, [0, 0, -9]);
     for (const x of [-9, 0, 9]) arch(E, x, 0, 7, 3.2, st, g);
@@ -129,6 +129,10 @@ const BUILD = {
     E.box(12.8, 0.6, 0.4, E.mat("#c9a24a"), [0, 5.7, -4.8]);
     E.box(1.6, 1.0, 1.0, E.mat("#8a2a3a"), [0, 0, -3.6]); E.box(1.6, 1.6, 0.25, E.mat("#c9a24a"), [0, 0.9, -4.0]); // taht
     S.rug(0, -0.8, 3, 6.5, "#8a2a3a"); S.hangLamp(-3, 6, -1.8, { col: "#c9a24a", i: 4 }); S.hangLamp(3, 6, -1.8, { col: "#c9a24a", i: 4 });
+    for (const x of [-3.1, 3.1]) { S.window(x, 2.2, -4.95, { w: 1.3, h: 2.0, night: true }); }
+    for (const x of [-5.6, 5.6]) { E.cyl(0.35, 0.22, 1.1, E.mat("#2f5f8a", { map: T.tiles("#2f5f8a", "#e9e2d0", 4) }), [x, 0, -4.2], { seg: 14 }); E.sphere(0.3, E.mat("#2f5f8a"), [x, 1.2, -4.2], { scale: [1, 0.6, 1] }); }
+    E.box(4.2, 0.45, 0.9, E.mat("#8a2a3a"), [-4.0, 0, -2.6], { rot: [0, Math.PI / 2, 0] }); E.box(4.2, 0.45, 0.9, E.mat("#8a2a3a"), [4.0, 0, -2.6], { rot: [0, Math.PI / 2, 0] }); // sedir
+    for (const z of [-3.8, -2.6, -1.4]) { E.box(0.5, 0.5, 0.18, E.mat("#c9a24a"), [-4.3, 0.45, z], { rot: [0, Math.PI / 2, 0] }); E.box(0.5, 0.5, 0.18, E.mat("#c9a24a"), [4.3, 0.45, z], { rot: [0, Math.PI / 2, 0] }); }
     return { light: "icgece", obj: [0, 1.4, -2.8] };
   },
   magara(E, S, T) {
@@ -158,12 +162,21 @@ const BUILD = {
     return { light: "zifiri", obj: [0.4, 1.2, -2.6] };
   },
   sahil(E, S, T) {
-    const w = E.plane(300, 300, E.mat("#ffffff", { map: (() => { const t = T.water("#1f3f6a").clone(); t.needsUpdate = true; t.repeat.set(36, 36); return t; })() }), [0, -0.5, -40], { rot: [-Math.PI / 2, 0, 0] }); w.castShadow = false;
+    const w = E.plane(300, 300, E.mat("#ffffff", { map: (() => { const t = T.water("#1f3f6a").clone(); t.needsUpdate = true; t.repeat.set(36, 36); return t; })() }), [0, -0.5, -40], { rot: [-Math.PI / 2, 0, 0] }); w.castShadow = false; w.userData.flow = true;
     E.box(8, 0.3, 30, E.mat("#8a6a46", { map: T.planks("#8a6a46") }), [0, -0.3, -2]); // iskele
     for (let z = -15; z <= 10; z += 3) for (const x of [-3.8, 3.8]) E.cyl(0.15, 0.15, 1.6, E.mat("#5a4030"), [x, -1.5, z], { seg: 8 });
     S.boat(-7, -6, { s: 0.9, rot: 0.3 });
     const g = E.group(null, [-5, 0, -38]); const wm = E.mat("#e9e2d0", { map: T.plaster("#e9e2d0") }); E.box(7, 3, 7, E.mat("#8a8070", { map: T.stone("#8a8070") }), [0, -0.6, 0], { parent: g });
     tower(E, 0, 0, 1.6, 9, wm, "#5a6b8a", g); glowBox(E, 0.6, 0.8, 0.05, [-5, 6.4, -36.35]);
+    // iskele detayı: direk fenerleri, sandıklar, halat, ikinci kayık
+    for (const [x, z] of [[-3.7, -12], [3.7, -12], [-3.7, -4], [3.7, -4]]) { E.cyl(0.08, 0.1, 1.5, E.mat("#4a3020"), [x, -0.15, z], { seg: 8 }); glowBox(E, 0.22, 0.3, 0.22, [x, 1.35, z], { glow: 2 }); const pl = new E.THREE.PointLight(0xffb860, 1.6, 5, 2); pl.position.set(x, 1.5, z); E.scene.add(pl); }
+    S.crate(2.6, -7.5, 0.8, 0.4); S.crate(2.9, -8.4, 0.6, 0.1); S.barrel(-2.7, -9.2, 0.9);
+    E.cyl(0.42, 0.42, 0.18, E.mat("#b89a6a"), [-2.4, -0.15, -6.4], { seg: 16 }); E.cyl(0.3, 0.3, 0.2, E.mat("#9a7a4a"), [-2.4, -0.05, -6.4], { seg: 16 });
+    S.boat(8, -14, { s: 0.7, rot: -0.5 });
+    // karşı kıyı: tepeler ve yanan pencereler (uzakta bir şehir)
+    S.hills({ col: "#1f2c3a", z: -95, n: 8, y: -2 });
+    let sd = 4; const rr = () => ((sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < 40; i++) { const m = E.box(0.9, 0.7, 0.2, E.flat(rr() > 0.4 ? "#ffd27a" : "#3a4a6a", { fog: false }), [-70 + rr() * 140, 1 + rr() * 6, -78 - rr() * 6]); m.userData.noink = true; m.castShadow = false; }
     moon(E, -18, 40); stars(E);
     return { light: "zifiri", obj: [0, 1.0, -2.6] };
   },
@@ -192,7 +205,48 @@ function buildLoc(E, name, idx) {
   const g = new E.THREE.Group(); g.position.set(idx * GAP, 0, 0);
   for (const c of [...E.scene.children]) if (!before.has(c)) g.add(c);
   E.scene.add(g);
-  LOC[name] = { x: idx * GAP, light: info.light || "zifiri", obj: info.obj || [0, 1.3, -2.4] };
+  const lights = [], water = [];
+  g.traverse((o) => { if (o.isPointLight) { o.userData.base = o.intensity; lights.push(o); } if (o.isMesh && o.userData.flow && o.material.map) water.push(o.material.map); });
+  LOC[name] = { x: idx * GAP, light: info.light || "zifiri", obj: info.obj || [0, 1.3, -2.4], lights, water };
+}
+
+// ---------------------------------------------------------------- canlılık (detay katmanı)
+const OUTDOOR = new Set(["kosk_dis", "mezarlik", "koy", "kopru", "kale", "carsi", "orman", "sahil", "avlu"]);
+const BUSY = new Set(["koy", "carsi", "saray", "avlu", "sahil", "kale"]);
+function batTex(E, up) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 128; const g = c.getContext("2d");
+  g.fillStyle = "#0b0b16"; g.beginPath(); g.ellipse(128, 70, 16, 22, 0, 0, 7); g.fill();
+  const wy = up ? 20 : 100;
+  for (const sd of [-1, 1]) { g.beginPath(); g.moveTo(128, 62); g.quadraticCurveTo(128 + sd * 60, wy, 128 + sd * 120, up ? 30 : 80); g.lineTo(128 + sd * 96, 74); g.lineTo(128 + sd * 70, 66); g.lineTo(128 + sd * 44, 80); g.closePath(); g.fill(); }
+  g.beginPath(); g.moveTo(118, 52); g.lineTo(122, 38); g.lineTo(128, 50); g.lineTo(134, 38); g.lineTo(138, 52); g.fill();
+  const t = new E.THREE.CanvasTexture(c); t.colorSpace = E.THREE.SRGBColorSpace; return t;
+}
+function buildAmbient(E) {
+  const A = { bats: [], flies: [] };
+  A.batUp = E.flat("#ffffff", { map: batTex(E, true), transparent: true, fog: false }); A.batDn = E.flat("#ffffff", { map: batTex(E, false), transparent: true, fog: false });
+  for (let i = 0; i < 4; i++) { const m = E.plane(2.4, 1.2, A.batUp, [0, -80, 0], { noink: true, noShadow: true }); m.material.alphaTest = 0.3; A.bats.push(m); }
+  for (let i = 0; i < 14; i++) { const m = E.sphere(0.035, E.mat("#fff2a0", { emissive: "#ffe070", glow: 2.6 }), [0, -80, 0], { seg: 6 }); m.userData.noink = true; m.castShadow = false; A.flies.push(m); }
+  return A;
+}
+function ambient(E, f, ox, loc, shot) {
+  const A = R.amb; if (!A) return;
+  const out = OUTDOOR.has(loc), s = f / 30;
+  A.bats.forEach((m, i) => {
+    if (!out || i >= 3) { m.position.y = -80; return; }
+    const per = 7 + i * 2.3, ph = ((s + i * 3.1) % per) / per; // ekranı boydan boya geçen yarasalar
+    m.position.set(ox - 40 + ph * 80, 16 + i * 4 + 2 * Math.sin(s * 2 + i), -40 - i * 12);
+    m.material = Math.floor(f / 3 + i) % 2 ? A.batUp : A.batDn; m.scale.setScalar(1.2 + i * 0.3); m.lookAt(ox, m.position.y, 20);
+  });
+  const fl = out && ["orman", "mezarlik", "koy", "kosk_dis", "avlu"].includes(loc);
+  A.flies.forEach((m, i) => {
+    if (!fl) { m.position.y = -80; return; }
+    const a = i * 2.4, r = 1.2 + (i % 5) * 0.8;
+    m.position.set(ox + Math.sin(a + s * 0.35) * r * 1.6, 0.6 + (i % 4) * 0.45 + 0.25 * Math.sin(s * 1.3 + i), -1.5 - (i % 6) * 0.9 + Math.cos(a + s * 0.3) * 0.6);
+    m.scale.setScalar(0.6 + 0.6 * Math.abs(Math.sin(s * 3 + i * 1.7)));
+  });
+  // titreyen lambalar/meşaleler, akan su
+  for (const L of (LOC[loc]?.lights || [])) L.intensity = L.userData.base * (0.86 + 0.1 * Math.sin(s * 9 + L.id) + 0.06 * Math.sin(s * 23 + L.id * 3));
+  for (const t of (LOC[loc]?.water || [])) { t.offset.x = s * 0.02; t.offset.y = s * 0.035; }
 }
 
 // ---------------------------------------------------------------- insert objesi (parşömen / tabela)
@@ -226,6 +280,7 @@ export async function build(E) {
   for (let i = 0; i < 6; i++) E.actor("k" + i, { ...(i % 3 === 1 ? PRESET.koylu_kadin : PRESET.koylu_erkek), shirt: crowdCols[i], dress: i % 3 === 1 ? crowdCols[i] : undefined, seed: 70 + i * 9 });
   // insert kartları
   P.beats.forEach((b, i) => { if (b.shot === "obje") R["ins" + i] = insertCard(E, b.label || "", b.obj === "gazete" ? "gazete" : "parsomen"); });
+  R.amb = buildAmbient(E);
   // fener ışığı (bekçi)
   R.lamp = new E.THREE.PointLight(0xffc870, 0, 5, 2); E.scene.add(R.lamp);
   R.glow = E.sphere(0.09, E.mat("#ffe7a0", { emissive: "#ffc860", glow: 2.4 }), [0, -50, 0]); R.glow.userData.noink = true; R.glow.castShadow = false;
@@ -240,7 +295,8 @@ export async function build(E) {
 
 // ---------------------------------------------------------------- kare
 const nameCard = (title, sub) => (g, w, h) => {
-  const k = w / 1080, x = 70 * k, y = 1360 * k, pw = Math.max(420, 60 + Math.max(title.length * 30, sub.length * 19)) * k;
+  // sol üst: altyazının ve alt arayüzün üstünde
+  const k = w / 1080, x = 56 * k, y = 190 * k, pw = Math.max(420, 60 + Math.max(title.length * 30, sub.length * 19)) * k;
   g.save(); g.fillStyle = "rgba(10,12,28,.86)"; g.beginPath(); g.roundRect(x, y, pw, 112 * k, 22 * k); g.fill();
   g.fillStyle = "#ffcf6a"; g.fillRect(x, y, 10 * k, 112 * k);
   g.font = `900 ${44 * k}px CizgiFont, Nunito, sans-serif`; g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(title, x + 34 * k, y + 40 * k);
@@ -291,10 +347,11 @@ export function frame(f, E) {
   };
   const ck = (a, b, fov = 40, fov2 = fov - 2) => E.camAt(f, [{ f: sh.f0, pos: W(...a[0]), look: W(...a[1]), fov }, { f: sh.f1, pos: W(...b[0]), look: W(...b[1]), fov: fov2 }]);
 
+  ambient(E, f, ox, sh.loc, sh.shot);
   let shot = sh.shot;
   const nParts = SH.filter((x) => x.i === sh.i).length;
   if (shot === "bekci_kapanis") shot = sh.part === nParts - 1 ? "bekci_kapanis" : "bekci";  // son parça = açılış kadrajı (loop)
-  else if (shot === "bekci_hook" && sh.part >= 1) shot = "genis";
+  else if (shot === "bekci_hook" && sh.part >= 1) shot = "bekci";  // kanca bölünürse anlatıcı yakın plana geçer
   else if (sh.part >= 1 && shot === "gercek") shot = "gercek2";
   else if (sh.part >= 1) {
     const alt = shot === "genis" || shot === "kalabalik" ? ["karakter", "yakin"] : shot === "bekci" ? ["bekci", "bekci"] : ["yakin", "genis"];
@@ -320,7 +377,8 @@ export function frame(f, E) {
     case "genis": {
       who.forEach((id, j) => A.push(actorState(id, 10 + j, (j - (who.length - 1) / 2) * 1.3, -0.6 - j * 0.3)));
       const lx = who.length ? 0 : -1.2 * side;
-      cam = ck([[-2.4 * side, 3.6, 9.5], [lx, 2.6, -5]], [[-1.2 * side, 2.7, 7.6], [lx, 2.3, -5]], 50, 47);
+      cam = who.length ? ck([[-1.6 * side, 2.9, 7.4], [0, 1.8, -3]], [[-0.8 * side, 2.4, 6.0], [0, 1.6, -3]], 48, 46)
+        : ck([[-2.4 * side, 3.6, 9.5], [lx, 2.6, -5]], [[-1.2 * side, 2.7, 7.6], [lx, 2.3, -5]], 50, 47);
       dof = { focus: 8, amount: 3, range: 6 }; fx(W(0, 3.0, -1), 0.8);
       break;
     }
@@ -391,6 +449,12 @@ export function frame(f, E) {
     default: {
       cam = ck([[0, 2.4, 7], [0, 2, -5]], [[0, 2.2, 6], [0, 2, -5]], 48, 46);
     }
+  }
+  // arka plan figüranları: kalabalık mekânlarda geniş çekimler boş kalmasın
+  if (BUSY.has(sh.loc) && (shot === "genis" || shot === "karakter" || shot === "ikili") && !A.some((a) => a.id.startsWith("k"))) {
+    const walk = (t / 24), dx = ((f * 0.025) % 8) - 4;
+    A.push({ id: "k4", pos: W(-1.6 + dx * 0.25, 0, -6.0), st: st(44, { legs: "walk", phase: walk, face: "talk", talk: 0.3 * Math.abs(Math.sin(f / 5)) }), flip: true });
+    A.push({ id: "k5", pos: W(1.9, 0, -6.8), st: st(45, { face: "think", arms: "cross" }) });
   }
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "");
   // kare 0 boş açılış olmasın; son kare yumuşak
