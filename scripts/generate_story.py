@@ -79,7 +79,7 @@ senaristi VE cizgi film yonetmenisin. Kanal: "Zifiri Saatler" - Turk/Osmanli/Ana
 karanlik tarihi olaylarin "efsane mi, gercek mi" anlatimi. Video formati: SEVIMLI CIZGI FILM Short.
 Her videoyu kanalin SABIT MASKOT ANLATICISI "Zifiri Bekci" (elinde fenerli, fesli, beyaz biyikli yasli
 gece bekcisi) anlatir: videoyu o acar, arada izleyiciye doner, gercegi o aciklar, videoyu o kapatir.
-Hikayedeki kisiler cizgi karakter olarak canlandirilir. Toplam EN FAZLA 35 saniye (75-95 kelime).
+Hikayedeki kisiler cizgi karakter olarak canlandirilir. Toplam 30-38 saniye: 60-75 kelime (anlatici yavas ve duygulu okur, 75 kelimeyi ASLA gecme).
 
 YAPI (cok onemli - izleyiciyi sona kadar tutar):
 - ILK CUMLE (kanca): girissiz, gercek gibi soylenen bir paradoks/sahne. Klise giris YASAK
@@ -111,12 +111,15 @@ birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Ala
 - text: okunacak cumle(ler).
 - shot: su listeden biri:
   bekci_hook (SADECE ilk beat: bekci mekanda fenerle anlatir), bekci (bekci izleyiciye doner; orta
-  bolumde 1 kez), genis (mekanin genis acisi, kisiler kucuk), karakter (tek kisi orta plan),
+  bolumde EN FAZLA 1 kez), genis (mekanin genis acisi, kisiler kucuk), karakter (tek kisi orta plan),
   yakin (tek kisinin yuz tepkisi), ikili (iki kisi), kovalamaca (biri kacar biri kovalar),
   kalabalik (halk/kalabalik), obje (bir yazi/obje yakin plani: label ile), gercek (SADECE sondan
   bir onceki beat: isik zifiriden altina doner, bekci parsomen acar), bekci_kapanis (SADECE son
   beat: bekci acilistaki ayni yerde; loop).
-- loc: su mekanlardan biri (en fazla 3 farkli mekan kullan; ilk ve son beat AYNI mekan):
+- loc: su mekanlardan biri. 2 YA DA 3 FARKLI mekan kullan (tek mekanli video YASAK); ayni mekanda arka arkaya
+  en fazla 3 beat. Hikayenin ana nesnesini en iyi GOSTEREN mekani sec: cesme/fiskiye/kuyu -> avlu,
+  kule/deniz -> sahil, kopru -> kopru, sur/hisar -> kale, saray odasi -> saray, belge/kayit -> arsiv.
+  Ilk ve son beat AYNI mekan:
   kosk_ic, kosk_dis, mezarlik, koy, kopru, kale, saray, magara, carsi, orman, sahil, avlu, arsiv.
 - who: bu beat'te gorunen hikaye karakterlerinin cast anahtarlari (orn. ["A"] ya da ["A","B"]).
   bekci_hook/bekci/bekci_kapanis/obje icin bos birak.
@@ -127,6 +130,7 @@ birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Ala
   kalp, kizginlik, zzz, para, toz.
 - prop (istege bagli, who[0] elinde tutar): fener, mektup, anahtar, altin, para, parsomen, kitap, buyutec.
 - label: SADECE shot=obje icin, 1-3 kelimelik BUYUK HARF yazi (orn. "FERMAN", "1453", "KAYIP").
+  Her videoda EN AZ 1 obje beat'i olsun. Arka arkaya iki beat'te ayni shot tipini kullanma.
 - card (istege bagli, ilk efsane beat'inde 1 kez): {"title": "Yer/Olay adi", "sub": "Rivayete gore · Sehir"}.
 - light (istege bagli): zifiri, gece, dramatik, altin, gunduz, ic. Varsayilani mekan belirler.
 
@@ -173,6 +177,15 @@ def normalize_plan(data):
         b["who"] = [w for w in (b.get("who") or []) if w in cast]
         if b["shot"] in ("bekci_hook", "bekci_kapanis") and b is not beats[0] and b is not beats[-1]:
             b["shot"] = "bekci"
+    # anlatici ortada en fazla 1 kez; fazlasi hikaye cekimine doner
+    mids = [b for b in beats[1:-1] if b["shot"] == "bekci"]
+    for b in mids[1:]:
+        b["shot"] = "karakter" if b["who"] else "genis"
+    # ayni shot arka arkaya gelmesin
+    for prev, b in zip(beats, beats[1:]):
+        if b["shot"] == prev["shot"] and b["shot"] in ("genis", "karakter", "yakin", "ikili", "kalabalik"):
+            alt = {"genis": "karakter", "karakter": "yakin", "yakin": "karakter", "ikili": "yakin", "kalabalik": "karakter"}[b["shot"]]
+            b["shot"] = alt if (b["who"] or alt == "genis") else "genis"
     beats[0]["shot"] = "bekci_hook"
     beats[-1]["shot"] = "bekci_kapanis"
     beats[-1]["loc"] = beats[0]["loc"]          # loop: son kare = ilk kare
@@ -180,6 +193,11 @@ def normalize_plan(data):
         beats[-2]["shot"] = "gercek"
     data["beats"], data["cast"] = beats, cast
     data["story"] = " ".join(b["text"] for b in beats)
+    n = len(data["story"].split())
+    if n > 85:
+        raise ValueError(f"Metin cok uzun ({n} kelime, en fazla 75)")
+    if len({b["loc"] for b in beats}) < 2:
+        raise ValueError("Tek mekanli plan: en az 2 farkli mekan gerekli")
     return data
 
 
@@ -264,9 +282,10 @@ def generate_story():
     )
 
     last_err = None
-    for attempt in range(1, 4):
+    for attempt in range(1, 5):
         try:
-            response = model.generate_content(prompt)
+            ask = prompt if not last_err else prompt + f"\n\nONCEKI DENEME REDDEDILDI: {last_err}. Bu kurala kesin uy."
+            response = model.generate_content(ask)
             text = response.text.strip()
             if text.startswith("```"):
                 text = text.split("```")[1]
@@ -276,7 +295,7 @@ def generate_story():
             break
         except Exception as e:  # bozuk JSON / eksik plan -> tekrar dene
             last_err = e
-            print(f"Plan denemesi {attempt}/3 basarisiz: {e}")
+            print(f"Plan denemesi {attempt}/4 basarisiz: {e}")
     else:
         raise RuntimeError(f"Gemini gecerli cekim plani uretemedi: {last_err}")
     data["_theme"] = category["bg"]
