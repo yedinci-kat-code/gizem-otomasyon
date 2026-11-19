@@ -1,57 +1,128 @@
 name: Zifiri Saatler - Otomatik Video Uretimi
 
+# Format: Zifiri Bekci anlatimli CIZGI FILM Short (cizgi-short motoru, MIT - Burak Ozer).
+# Akis: senaryo + cekim plani (Gemini) -> seslendirme (edge-tts, kelime zamanli)
+#       -> kareler 4 paralel isde render -> birlestir -> YouTube.
+# Cekimlerin suresi SABIT DEGIL: her cekim seslendirmedeki cumlesi kadar surer.
+
 on:
-  # NOT: GitHub'in kendi 'schedule' cron'u guvenilmez cikti (sik sik gecikiyor),
-  # bu yuzden kaldirildi. Zamanlama artik cron-job.org uzerinden, disaridan
-  # bu workflow'u tetikleyerek yapiliyor (workflow_dispatch).
-  workflow_dispatch: {}
+  # Zamanlama cron-job.org uzerinden disaridan tetikleniyor (workflow_dispatch).
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "YouTube'a yuklensin mi? (false = sadece video uret, Artifacts'tan indir)"
+        required: false
+        default: "true"
 
 permissions:
   contents: write
 
+concurrency:
+  group: zifiri-video
+  cancel-in-progress: false
+
+env:
+  SHARDS: "4"
+
 jobs:
-  create-and-upload-video:
+  hazirla:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-
+    timeout-minutes: 20
     steps:
-      - name: Repo'yu indir
-        uses: actions/checkout@v4
-
-      - name: Python kur
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: FFmpeg kur
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu
-
-      - name: Bağımlılıkları kur
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Bagimliliklari kur
         run: pip install -r requirements.txt
 
-      - name: 1) Senaryo uret
+      - name: 1) Senaryo + cekim plani uret
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/generate_story.py
 
-      - name: 2) Seslendirme uret
-        env:
-          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
-          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
-          WIRO_TTS_MODEL: ${{ secrets.WIRO_TTS_MODEL }}
-          WIRO_TTS_VOICE: ${{ secrets.WIRO_TTS_VOICE }}
+      - name: 2) Seslendirme (edge-tts, kelime zamanli)
         run: python scripts/generate_voice.py
 
-      - name: 3) Arkaplan (AI gorsel - Wiro) ve muzik cek
-        env:
-          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
-          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
-        run: python scripts/fetch_ai_background.py
+      - name: 3) Cizgi projesini kur (zamanlama, plan, muzik + efekt)
+        run: python scripts/cizgi_build.py
 
-      - name: 4) Videoyu render et
-        run: python scripts/render_video.py
+      - name: Projeyi sonraki islere aktar
+        uses: actions/upload-artifact@v4
+        with:
+          name: proje-${{ github.run_number }}
+          retention-days: 3
+          path: |
+            output/
+            data/
+            cizgi/work/
+            cizgi/out/mix.wav
+            cizgi/sound.json
+            cizgi/script.txt
+
+  render:
+    needs: hazirla
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          name: proje-${{ github.run_number }}
+      - name: Playwright + Chromium kur
+        run: |
+          pip install playwright numpy pillow
+          python -m playwright install --with-deps chromium
+      - name: Kareleri render et (parca ${{ matrix.shard }})
+        run: |
+          RANGE=$(python -c "import json;n=json.load(open('cizgi/work/plan.json'))['frames'];k=${{ matrix.shard }};s=int(n*k/${SHARDS});e=int(n*(k+1)/${SHARDS})-1;print(f'{s}-{e}')")
+          echo "Kare araligi: $RANGE"
+          python cizgi/tools/render.py cizgi frames "$RANGE" --cpu
+          if [ "${{ matrix.shard }}" = "0" ]; then
+            python cizgi/tools/render.py cizgi stills 40 --cpu --query nocap --out cizgi/frames/kapak
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kareler-${{ github.run_number }}-${{ matrix.shard }}
+          retention-days: 1
+          path: cizgi/frames/
+
+  bitir:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: FFmpeg kur
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Bagimliliklari kur
+        run: pip install -r requirements.txt pillow
+      - uses: actions/download-artifact@v4
+        with:
+          name: proje-${{ github.run_number }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: kareler-${{ github.run_number }}-*
+          path: cizgi/frames
+          merge-multiple: true
+
+      - name: 4) Videoyu birlestir + kalite kontrol
+        run: python scripts/cizgi_finish.py
 
       - name: 5) YouTube'a yukle
+        if: ${{ github.event.inputs.upload != 'false' }}
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -60,17 +131,23 @@ jobs:
         run: python scripts/upload_youtube.py
 
       - name: 6) Hikaye gecmisini kaydet
+        if: ${{ github.event.inputs.upload != 'false' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/history.json data/bg_history.json
+          git add data/history.json
           git diff --staged --quiet || git commit -m "Hikaye gecmisi guncellendi [otomatik]"
-          git push
+          git pull --rebase && git push
 
       - name: Ciktilari sakla (hata ayiklama icin)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ github.run_number }}
-          path: output/
+          name: video-${{ github.run_number }}
           retention-days: 3
+          path: |
+            output/final.mp4
+            output/thumbnail.jpg
+            output/qa_sheet.jpg
+            output/story.json
+            cizgi/work/plan.json

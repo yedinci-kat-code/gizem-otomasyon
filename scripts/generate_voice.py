@@ -37,7 +37,7 @@ async def generate_voice_edge(text: str, output_path: str):
     last_error = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            communicate = edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH)
+            communicate = edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH, boundary="WordBoundary")  # kelime kelime zamanlama (cizgi senkronu)
             word_boundaries = []
             with open(output_path, "wb") as audio_file:
                 async for chunk in communicate.stream():
