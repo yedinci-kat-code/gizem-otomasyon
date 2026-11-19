@@ -3,7 +3,7 @@ import hashlib, hmac, json, os, re, time, requests
 TEXT = ("Bir baba, kızını bir yılandan korumak için denizin ortasına kule yaptırdı. "
         "Ama sepetin dibinde bir yılan saklanıyordu! Peki gerçekten böyle mi oldu?")
 os.makedirs("ses_ornek/out", exist_ok=True)
-log = []
+log = []  # deneme 2
 async def edge(name, voice, rate, pitch):
     c = edge_tts.Communicate(TEXT, voice, rate=rate, pitch=pitch)
     await c.save(f"ses_ornek/out/{name}.mp3")
