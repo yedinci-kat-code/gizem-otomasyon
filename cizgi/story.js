@@ -303,6 +303,15 @@ const nameCard = (title, sub) => (g, w, h) => {
   g.font = `700 ${29 * k}px CizgiFont, Nunito, sans-serif`; g.fillStyle = "#ffcf6a"; g.fillText(sub, x + 34 * k, y + 82 * k); g.restore();
 };
 
+const ctaCard = (text, k0) => (g, w, h) => {
+  if (k0 <= 0.01) return;
+  const k = w / 1080, x = 56 * k, y = 190 * k, ph = 104 * k, pw = (150 + text.length * 25) * k;
+  g.save(); g.translate(x, y + ph / 2); g.scale(k0, k0); g.translate(0, -ph / 2);
+  g.fillStyle = "#c4302b"; g.beginPath(); g.roundRect(0, 0, pw, ph, 52 * k); g.fill();
+  g.fillStyle = "#fff"; g.beginPath(); g.moveTo(40 * k, 30 * k); g.lineTo(40 * k, 74 * k); g.lineTo(78 * k, 52 * k); g.closePath(); g.fill();
+  g.font = `900 ${40 * k}px CizgiFont, Nunito, sans-serif`; g.textBaseline = "middle"; g.fillText(text, 100 * k, ph / 2 + 2 * k); g.restore();
+};
+
 export function frame(f, E) {
   const X = E.X;
   let k = 0; while (k < SH.length - 1 && f >= SH[k + 1].f0) k++;
@@ -455,6 +464,12 @@ export function frame(f, E) {
     const walk = (t / 24), dx = ((f * 0.025) % 8) - 4;
     A.push({ id: "k4", pos: W(-1.6 + dx * 0.25, 0, -6.0), st: st(44, { legs: "walk", phase: walk, face: "talk", talk: 0.3 * Math.abs(Math.sin(f / 5)) }), flip: true });
     A.push({ id: "k5", pos: W(1.9, 0, -6.8), st: st(45, { face: "think", arms: "cross" }) });
+  }
+  // CTA: kapanışta takip çağrısı (sol üst, altyazının üstünde); son 0,8 sn temiz kalır ki loop bozulmasın
+  const lastF = SH.length ? SH[SH.length - 1].f1 : 0;
+  if (sh.shot === "bekci_kapanis" && f < lastF - 24) {
+    const p0 = SH.find((x) => x.i === sh.i).f0;
+    overlay = ctaCard(P.cta || "Sıradaki efsane için takip et", X.back(X.span(f, p0 + 6, p0 + 18)));
   }
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "");
   // kare 0 boş açılış olmasın; son kare yumuşak

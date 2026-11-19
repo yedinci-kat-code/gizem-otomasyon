@@ -282,6 +282,7 @@ def generate_story():
     data["_theme"] = category["bg"]
     data["_category"] = category["key"]
     data["_cta"] = random.choice(CTA_PHRASES)
+    data["_cta_screen"] = random.choice(["Sıradaki efsane için takip et", "Yeni dosyalar için takip et", "Efsaneyi sevdiysen takip et"])
     data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
 
     if not data.get("thumb_hook"):

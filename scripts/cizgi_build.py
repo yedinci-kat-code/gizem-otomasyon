@@ -137,7 +137,8 @@ def main():
             pick = (max(pause) if pause else min(ok, key=lambda c: abs((c[0] - last) - 80)))[0]
             b["cuts"].append(pick)
             last = pick
-    plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total}
+    plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total,
+            "cta": story.get("_cta_screen") or "Sıradaki efsane için takip et"}
     json.dump(plan, open(os.path.join(PROJ, "work", "plan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     for b in beats:
         print(f"  {b['f0']:5d}-{b['f1']:5d} kes{b['cuts']!s:12s} {b['shot']:13s} {b.get('loc',''):9s} {b['text'][:60]}")
