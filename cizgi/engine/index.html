@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><title>cizgi-short</title>
+<script type="importmap">{"imports":{"three":"../vendor/three.module.min.js"}}</script>
+<style>html,body{margin:0;background:#111;color:#ddd;font:14px sans-serif}canvas{display:block;max-height:100vh;margin:auto}</style></head><body>
+<script type="module">
+import * as ENG from "./engine.js";
+import { makeSets } from "./sets.js";
+import * as CAST from "./cast.js";
+const q = new URLSearchParams(location.search);
+const scale = parseFloat(q.get("scale") || "1");
+try {
+  const font = new FontFace("CizgiFont", "url(../fonts/Nunito.ttf)", { weight: "200 1000" }); await font.load(); document.fonts.add(font);
+} catch (e) { console.log("font yok:", e); }
+const story = await import("../story.js?v=" + Date.now());
+let words = [];
+try { const r = await fetch("../work/words.json?v=" + Date.now()); if (r.ok) words = await r.json(); } catch (e) {}
+const meta = story.meta || {};
+const E = new ENG.Engine({ w: 1080, h: 1920, fps: meta.fps || 30, scale });
+E.words = words; E.S = makeSets(E); E.X = ENG; E.CAST = CAST;
+if (meta.captions === false) E.captions = false;
+if (meta.capStyle) E.capStyle = meta.capStyle;
+await story.build(E);
+const last = words.length ? words[words.length - 1].e : 10;
+const frames = meta.frames || Math.ceil((last + (meta.tail ?? 0.7)) * E.fps);
+window.META = { frames, fps: E.fps, w: E.rw, h: E.rh };
+window.renderFrame = (f) => { const S = story.frame(f, E); E.render(f, S); return E.out.toDataURL("image/jpeg", 0.93); };
+document.body.appendChild(E.out); E.out.style.height = "96vh";
+if (q.has("f")) { const S = story.frame(+q.get("f"), E); E.render(+q.get("f"), S); }
+window.ready = true;
+</script></body></html>

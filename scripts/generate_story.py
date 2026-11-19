@@ -74,66 +74,131 @@ SEO_KEYWORDS = [
     "karanlık tarih", "gizemli olaylar", "tarihi sır", "unutulmuş tarih",
 ]
 
-SYSTEM_PROMPT = """Sen Turkce icerik ureten, atmosferik TARIH & EFSANE anlatimi konusunda uzman bir
-YouTube Shorts senaristisin. Kanal: "Zifiri Saatler" - Turk/Osmanli/Anadolu efsanelerinin ve
-karanlik tarihi olaylarinin "efsane mi, gercek mi" anlatimi. Gorevin EN FAZLA 35 saniye seslendirmeye
-uygun (yaklasik 75-95 kelime), gerilimli ama GERCEGE dayali kisa bir anlatim yazmak.
+SYSTEM_PROMPT = """Sen Turkce icerik ureten, TARIH & EFSANE anlatimi konusunda uzman bir YouTube Shorts
+senaristi VE cizgi film yonetmenisin. Kanal: "Zifiri Saatler" - Turk/Osmanli/Anadolu efsanelerinin ve
+karanlik tarihi olaylarin "efsane mi, gercek mi" anlatimi. Video formati: SEVIMLI CIZGI FILM Short.
+Her videoyu kanalin SABIT MASKOT ANLATICISI "Zifiri Bekci" (elinde fenerli, fesli, beyaz biyikli yasli
+gece bekcisi) anlatir: videoyu o acar, arada izleyiciye doner, gercegi o aciklar, videoyu o kapatir.
+Hikayedeki kisiler cizgi karakter olarak canlandirilir. Toplam 30-38 saniye: 60-75 kelime (anlatici yavas ve duygulu okur, 75 kelimeyi ASLA gecme).
 
 YAPI (cok onemli - izleyiciyi sona kadar tutar):
-- ILK CUMLE: bir sahne/an ile ya da 2. tekil sahis ("sen") ile SPESIFIK ac. Klise/soyut giris
-  YASAK ("Bugun size anlatacagim", "Yillardir" gibi). Ornek: "Gece yarisi o kosker penceresinde
-  bir isik yanar - ama iceride kimse yasamaz."
-- Ilk birkac saniyede bir MERAK ACIGI + izleyiciye "sonunda gercegi gorecegin" hissi ver (loop
-  vaadi). Cevabi/gercegi HEMEN verme.
-- GOVDE: once efsaneyi/rivayeti kur (gerilim), ortada kucuk bir "aha" detayi birak, ama asil
-  aciklamayi SONA sakla. Her birkac cumlede bir seyi degistir/ilerlet.
-- KAPANIS: muhtemel GERCEK/tarihsel aciklamayi ver, ve SON CUMLE acilis goruntusune GERI DONSUN
-  (loop - izleyici farkinda olmadan basa sarar). Duz "sirri cozulemedi" ile bitirme.
-- Cumleler KISA, net, seslendirmeye ve altyaziya uygun.
+- ILK CUMLE (kanca): girissiz, gercek gibi soylenen bir paradoks/sahne. Klise giris YASAK
+  ("Bugun size anlatacagim", "Yillardir"). Ornek: "Bir baba, kizini bir yilandan korumak icin
+  denizin ortasina kule yaptirdi."
+- Ilk saniyelerde MERAK ACIGI + "sonunda gercegi goreceksin" vaadi. Cevabi HEMEN verme.
+- GOVDE: efsaneyi/rivayeti kur (gerilim, 2-4 buyuk ve GOSTERILEBILIR vurus), ortada izleyiciye
+  donen kisa bir bekci cumlesi ("Peki gercekten boyle mi oldu?").
+- GERCEK: muhtemel gercek/tarihsel aciklama ("Kayitlara gore..." / "Tarihciler...").
+- KAPANIS: son cumle acilis goruntusune GERI DONSUN (loop) ve kisa bir soru/CTA ile bitsin.
+- Cumleler KISA (6-14 kelime), seslendirmeye uygun. Rakamlari YAZIYLA yaz ("on sekiz", "bin
+  dort yuz elli uc"). Izleyicinin zaten gordugunu tarif etme.
 
 KIRMIZI CIZGILER (ihlal = guven/telif riski):
 - YAYGIN BILINEN efsane/olaylari kullan. UYDURMA spesifik tarih, isim, belge ya da "gizli kanit"
   URETME. Emin olmadigin kesin iddialari verme.
-- Efsane/rivayet kismini "anlatilir / rivayet edilir / halk arasinda soylenir" gibi cerceve;
-  tarihsel baglami GENEL ve iddiasiz tut. Efsane ile gercegi net ayir.
-- Gercek, yasayan kisi ismi kullanma; gercek bir kisiyi/kurumu karalama. Saygili ol (ozellikle
-  din/olum). Propaganda/tek tarafli carpitma yok. Kufur/asiri siddet yok.
+- Efsane kismini "rivayete gore / anlatilir / halk arasinda soylenir" diye cerceve; gercegi GENEL
+  ve iddiasiz tut. Efsane ile gercegi net ayir.
+- Yasayan gercek kisi yok; kimseyi karalama. Din/olum konusunda saygili ol. Kan/vahset/kufur yok;
+  korku "sevimli gerilim" seviyesinde kalsin (cocuklar da izleyebilir).
 
-BASLIK kurallari (Bolum 6 formulleri - tiklamayi belirler):
-- 45-70 karakter, MERAK ACIGI acan, cevabi vermeyen bir baslik. Su formullerden BIRINI kullan:
-  * Gizli gercek/ortbas: "...nin kimsenin bilmedigi gercek yuzu"
-  * Cevap isteyen soru: "Bu kosk neden 100 yildir bos?"
-  * Nasil + iddia: "Bir kasaba tek gecede nasil bosaldi?"
-  * Beklenmedik sayi: "300 yildir yanan o mumun sirri"
-- Baslik ile thumb_hook AYNI seyi soylemesin, birbirini TAMAMLASIN.
+BASLIK (45-70 karakter, merak acigi, cevabi vermeyen): "...nin kimsenin bilmedigi gercek yuzu",
+"Bu kosk neden 100 yildir bos?", "Bir kasaba tek gecede nasil bosaldi?" gibi formuller.
+thumb_hook: basligi TAMAMLAYAN, 3-6 kelimelik, tek basina gramer olarak tam carpici ifade.
+description: 2-3 cumle ozet, gercegi vermesin, soru ile bitsin. hashtags: 10-12 temaya ozel etiket.
 
-thumb_hook (kapak icin - COK ONEMLI):
-- Basligin parcasi/kesilmisi DEGIL; tek basina okununca GRAMER OLARAK TAM, 3-6 kelimelik carpici
-  bir ifade. Ornek: "Gerçeği Kimse Bilmiyor" / "Hâlâ Orada Duruyor" / "Kayıtlarda Yok".
+CEKIM PLANI (beats) - her cumle (ya da kisa cumle cifti) bir "beat"tir. beats[].text'lerin
+birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Alanlar:
+- text: okunacak cumle(ler).
+- shot: su listeden biri:
+  bekci_hook (SADECE ilk beat: bekci mekanda fenerle anlatir), bekci (bekci izleyiciye doner; orta
+  bolumde EN FAZLA 1 kez), genis (mekanin genis acisi, kisiler kucuk), karakter (tek kisi orta plan),
+  yakin (tek kisinin yuz tepkisi), ikili (iki kisi), kovalamaca (biri kacar biri kovalar),
+  kalabalik (halk/kalabalik), obje (bir yazi/obje yakin plani: label ile), gercek (SADECE sondan
+  bir onceki beat: isik zifiriden altina doner, bekci parsomen acar), bekci_kapanis (SADECE son
+  beat: bekci acilistaki ayni yerde; loop).
+- loc: su mekanlardan biri. 2 YA DA 3 FARKLI mekan kullan (tek mekanli video YASAK); ayni mekanda arka arkaya
+  en fazla 3 beat. Hikayenin ana nesnesini en iyi GOSTEREN mekani sec: cesme/fiskiye/kuyu -> avlu,
+  kule/deniz -> sahil, kopru -> kopru, sur/hisar -> kale, saray odasi -> saray, belge/kayit -> arsiv.
+  Ilk ve son beat AYNI mekan:
+  kosk_ic, kosk_dis, mezarlik, koy, kopru, kale, saray, magara, carsi, orman, sahil, avlu, arsiv.
+- who: bu beat'te gorunen hikaye karakterlerinin cast anahtarlari (orn. ["A"] ya da ["A","B"]).
+  bekci_hook/bekci/bekci_kapanis/obje icin bos birak.
+- mood: korku, saskin, merak, sinsi, uzgun, mutlu, kizgin, dusunceli, anlatan, urkek, kararli,
+  gururlu, hayran, uykulu. (ikili/kovalamaca icin ikinci kisi: mood2)
+- action (istege bagli): yuru, kos, kac, dur, isaret, bak, saklan, otur, uyu, el_kaldir, konus.
+- fx (istege bagli, en fazla her 2 beat'te 1): soru, unlem, ter, fikir, duman, kurukafa, yildiz,
+  kalp, kizginlik, zzz, para, toz.
+- prop (istege bagli, who[0] elinde tutar): fener, mektup, anahtar, altin, para, parsomen, kitap, buyutec.
+- label: SADECE shot=obje icin, 1-3 kelimelik BUYUK HARF yazi (orn. "FERMAN", "1453", "KAYIP").
+  Her videoda EN AZ 1 obje beat'i olsun. Arka arkaya iki beat'te ayni shot tipini kullanma.
+- card (istege bagli, ilk efsane beat'inde 1 kez): {"title": "Yer/Olay adi", "sub": "Rivayete gore · Sehir"}.
+- light (istege bagli): zifiri, gece, dramatik, altin, gunduz, ic. Varsayilani mekan belirler.
 
-ACIKLAMA (description): 2-3 cumle, olayi ozetleyen ama gercegi vermeyen, merak birakan; sonu
-izleyiciyi dusunmeye/yorum yapmaya iten bir soru.
-
-ETIKET (hashtags): 10-12 arasi TEMAYA OZEL etiket (genel/SEO etiketleri ayrica eklenecek).
-
-GORSEL PROMPT (image_prompt - AI arkaplan gorseli icin):
-- Anlatimin gectigi mekani betimleyen, INGILIZCE, 1 cumlelik gorsel sahne promptu
-  (ornek: "abandoned ottoman mansion interior at night, single candle, dust").
-  Sadece mekan/atmosfer betimle; gercek kisi/yuz tarif etme; stil/teknik kelime EKLEME.
-- scene_prompts: anlatinin FARKLI anlarini betimleyen 6-8 kisa INGILIZCE gorsel sahne
-  promptu (ilk 3'u ilk saniyeler icin en carpici kareler). Ayni kurallar: sadece
-  mekan/atmosfer, gercek kisi/yuz yok, stil kelimesi yok. Arkaplan bunlardan kurulur.
+CAST: en fazla 3 karakter, anahtarlar A, B, C. preset su listeden: koylu_erkek, koylu_kadin,
+yasli_kadin, yasli_adam, cocuk, pasa, padisah, yeniceri, muhafiz, tuccar, mimar, hanim, balikci,
+asker, gezgin, hayalet. color: istege bagli kiyafet rengi (#hex). Tarihi kisiler temsili karakterdir.
 
 Cikti SADECE su JSON olsun, baska metin yok:
 {
-  "title": "45-70 karakter, merak acigi acan baslik",
-  "thumb_hook": "3-6 kelimelik, bagimsiz, gramer olarak tam carpici ifade",
-  "description": "2-3 cumle ozet + soru ile bitsin",
-  "image_prompt": "Ingilizce, mekani betimleyen kisa gorsel sahne promptu",
-  "scene_prompts": ["ingilizce sahne 1", "sahne 2", "... 6-8 arasi"],
-  "story": "Anlatimin tam metni (seslendirme icin)",
-  "hashtags": ["#temaya-ozel1", "#etiket2", "... 10-12 arasi"]
+  "title": "...", "thumb_hook": "...", "description": "...",
+  "hashtags": ["#...", "... 10-12 arasi"],
+  "cast": {"A": {"preset": "padisah"}, "B": {"preset": "hanim", "color": "#8a3a6a"}},
+  "beats": [
+    {"text": "Ilk cumle (kanca).", "shot": "bekci_hook", "loc": "sahil"},
+    {"text": "...", "shot": "genis", "loc": "saray", "who": ["A"], "mood": "merak", "card": {"title": "...", "sub": "Rivayete gore · ..."}},
+    {"text": "...", "shot": "gercek", "loc": "sahil"},
+    {"text": "... son cumle (loop) + soru", "shot": "bekci_kapanis", "loc": "sahil"}
+  ]
 }"""
+
+
+LOC_HINT = {
+    "perili_kosk": ["kosk_dis", "kosk_ic", "arsiv"], "lanetli_mekan": ["mezarlik", "avlu", "magara", "arsiv"],
+    "kayip_yerlesim": ["koy", "orman", "arsiv"], "yapinin_sirri": ["kopru", "kale", "avlu", "magara"],
+    "saray_golgesi": ["saray", "avlu", "arsiv"], "anadolu_efsanesi": ["koy", "magara", "orman", "sahil"],
+    "karanlik_olay": ["carsi", "kale", "sahil", "koy"],
+}
+VALID_SHOTS = {"bekci_hook", "bekci", "genis", "karakter", "yakin", "ikili", "kovalamaca", "kalabalik", "obje", "gercek", "bekci_kapanis"}
+VALID_LOCS = {"kosk_ic", "kosk_dis", "mezarlik", "koy", "kopru", "kale", "saray", "magara", "carsi", "orman", "sahil", "avlu", "arsiv"}
+
+
+def normalize_plan(data):
+    """Gemini planini motorun bekledigi kurallara oturtur (ilk/son/gercek beat, mekanlar, cast)."""
+    beats = [b for b in data.get("beats", []) if isinstance(b, dict) and str(b.get("text", "")).strip()]
+    if len(beats) < 4:
+        raise ValueError("Plan cok kisa: en az 4 beat gerekli")
+    cast = {k: v for k, v in (data.get("cast") or {}).items() if k in ("A", "B", "C") and isinstance(v, dict)}
+    for b in beats:
+        b["text"] = " ".join(str(b["text"]).split())
+        if b.get("shot") not in VALID_SHOTS:
+            b["shot"] = "genis"
+        if b.get("loc") not in VALID_LOCS:
+            b["loc"] = beats[0].get("loc") if beats[0].get("loc") in VALID_LOCS else "kosk_dis"
+        b["who"] = [w for w in (b.get("who") or []) if w in cast]
+        if b["shot"] in ("bekci_hook", "bekci_kapanis") and b is not beats[0] and b is not beats[-1]:
+            b["shot"] = "bekci"
+    # anlatici ortada en fazla 1 kez; fazlasi hikaye cekimine doner
+    mids = [b for b in beats[1:-1] if b["shot"] == "bekci"]
+    for b in mids[1:]:
+        b["shot"] = "karakter" if b["who"] else "genis"
+    # ayni shot arka arkaya gelmesin
+    for prev, b in zip(beats, beats[1:]):
+        if b["shot"] == prev["shot"] and b["shot"] in ("genis", "karakter", "yakin", "ikili", "kalabalik"):
+            alt = {"genis": "karakter", "karakter": "yakin", "yakin": "karakter", "ikili": "yakin", "kalabalik": "karakter"}[b["shot"]]
+            b["shot"] = alt if (b["who"] or alt == "genis") else "genis"
+    beats[0]["shot"] = "bekci_hook"
+    beats[-1]["shot"] = "bekci_kapanis"
+    beats[-1]["loc"] = beats[0]["loc"]          # loop: son kare = ilk kare
+    if not any(b["shot"] == "gercek" for b in beats):
+        beats[-2]["shot"] = "gercek"
+    data["beats"], data["cast"] = beats, cast
+    data["story"] = " ".join(b["text"] for b in beats)
+    n = len(data["story"].split())
+    if n > 85:
+        raise ValueError(f"Metin cok uzun ({n} kelime, en fazla 75)")
+    if len({b["loc"] for b in beats}) < 2:
+        raise ValueError("Tek mekanli plan: en az 2 farkli mekan gerekli")
+    return data
 
 
 def load_history():
@@ -195,6 +260,7 @@ def generate_story():
     model = genai.GenerativeModel(
         "gemini-3.5-flash",
         system_instruction=SYSTEM_PROMPT,
+        generation_config={"response_mime_type": "application/json", "temperature": 0.9},
     )
 
     avoid_text = ""
@@ -209,23 +275,33 @@ def generate_story():
         f"Bu kategoriye uygun, YAYGIN BILINEN bir Turk/Osmanli/Anadolu efsanesi ya da "
         f"karanlik tarihi olayi sec ve 'efsane -> gercek' yapisinda ozgun bir anlatim uret. "
         f"Efsane kismini rivayet olarak cerceve, gercek/tarihsel aciklamayi sona sakla ve "
-        f"son cumleyi acilis goruntusune baglayarak (loop) bitir. Uydurma tarih/isim/belge KULLANMA."
+        f"son cumleyi acilis goruntusune baglayarak (loop) bitir. Uydurma tarih/isim/belge KULLANMA.\n"
+        f"Bu kategori icin uygun mekanlar: {', '.join(LOC_HINT.get(category['key'], ['kosk_dis']))} "
+        f"(gerekirse listedeki diger mekanlar da olur)."
         f"{avoid_text}"
     )
 
-    response = model.generate_content(prompt)
-    text = response.text.strip()
-
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    text = text.strip()
-
-    data = json.loads(text)
+    last_err = None
+    for attempt in range(1, 5):
+        try:
+            ask = prompt if not last_err else prompt + f"\n\nONCEKI DENEME REDDEDILDI: {last_err}. Bu kurala kesin uy."
+            response = model.generate_content(ask)
+            text = response.text.strip()
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
+            data = normalize_plan(json.loads(text.strip()))
+            break
+        except Exception as e:  # bozuk JSON / eksik plan -> tekrar dene
+            last_err = e
+            print(f"Plan denemesi {attempt}/4 basarisiz: {e}")
+    else:
+        raise RuntimeError(f"Gemini gecerli cekim plani uretemedi: {last_err}")
     data["_theme"] = category["bg"]
     data["_category"] = category["key"]
     data["_cta"] = random.choice(CTA_PHRASES)
+    data["_cta_screen"] = random.choice(["Sıradaki efsane için takip et", "Yeni dosyalar için takip et", "Efsaneyi sevdiysen takip et"])
     data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
 
     if not data.get("thumb_hook"):
