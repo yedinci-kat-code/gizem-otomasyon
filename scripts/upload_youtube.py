@@ -41,7 +41,8 @@ def upload_video(youtube, video_path: str, story: dict):
         "Zifiri Saatler - Turk/Osmanli/Anadolu efsanelerinin ve karanlik tarihin "
         "'efsane mi, gercek mi' anlatimi. Anlatilanlar rivayet/efsane niteligindedir."
     )
-    description = f"{desc_summary}\n\n{footer}\n\n{hashtags}\n\n#shorts"
+    cta = story.get("_cta", "Sence efsane mi, gerçek mi? Yorumla")
+    description = f"{desc_summary}\n\n👉 {cta} | Sıradaki efsane için kanala abone ol.\n\n{footer}\n\n{hashtags}\n\n#shorts"
 
     privacy = (os.environ.get("YOUTUBE_PRIVACY") or "public").strip().lower()
     if privacy not in ("public", "unlisted", "private"):
