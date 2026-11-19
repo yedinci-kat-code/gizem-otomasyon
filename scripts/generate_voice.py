@@ -1,8 +1,8 @@
 """
 Zifiri Saatler - Seslendirme Uretici
-Varsayilan: edge-tts (ucretsiz). WIRO_TTS_MODEL secret'i verilirse Wiro uzerinden
-daha DOGAL bir TTS (or. ElevenLabs) kullanilir. Wiro TTS kelime-zamani vermedigi
-icin word_timings bos doner -> render karakter-agirlikli altyaziya duser.
+Varsayilan: Wiro uzerinden ElevenLabs v3, ses "Callum" (Zifiri Bekci). Wiro 3 denemede
+basarisiz olursa ucretsiz edge-tts'e duser. Wiro TTS kelime-zamani vermedigi
+icin word_timings bos doner -> cizgi_build kelime zamanlarini faster-whisper ile cikarir.
 """
 import asyncio
 import json
@@ -21,13 +21,13 @@ MAX_RETRIES = 4
 RETRY_DELAY_SECONDS = 8
 
 # --- Wiro TTS (opsiyonel) ---
-WIRO_TTS_MODEL = os.environ.get("WIRO_TTS_MODEL", "").strip()  # bos = edge-tts kullan
+WIRO_TTS_MODEL = (os.environ.get("WIRO_TTS_MODEL") or "elevenlabs/text-to-speech").strip()  # varsayilan: ElevenLabs (Wiro)
 WIRO_API_KEY = os.environ.get("WIRO_API_KEY")
 WIRO_API_SECRET = os.environ.get("WIRO_API_SECRET")
-WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE") or "Brian - Deep, Resonant and Comforting"  # bos=varsayilan
+WIRO_TTS_VOICE = os.environ.get("WIRO_TTS_VOICE") or "N2lVS1w4EtoT3dr4eOWO"  # Zifiri Bekci sesi: Callum (ElevenLabs)
 WIRO_TTS_TEXT_PARAM = os.environ.get("WIRO_TTS_TEXT_PARAM") or "prompt"   # metin alan adi
 WIRO_TTS_VOICE_PARAM = os.environ.get("WIRO_TTS_VOICE_PARAM") or "voice"  # ses alan adi
-WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID") or "eleven_multilingual_v2"  # bos=varsayilan (hata olursa eleven_flash_v2_5)
+WIRO_TTS_MODEL_ID = os.environ.get("WIRO_TTS_MODEL_ID") or "eleven_v3"  # en canli/duygulu ElevenLabs modeli
 WIRO_TTS_OUTPUT_FORMAT = os.environ.get("WIRO_TTS_OUTPUT_FORMAT") or "mp3_44100_128"
 AUDIO_URL_RE = re.compile(r'https?://[^\s"\'<>\\]+?\.(?:mp3|wav|m4a|ogg|aac)', re.IGNORECASE)
 
@@ -114,10 +114,18 @@ if __name__ == "__main__":
     text = story["story"]
 
     if WIRO_TTS_MODEL and WIRO_API_KEY:
-        try:
-            boundaries = generate_voice_wiro(text, "output/voice.mp3")
-        except Exception as e:
-            print(f"Wiro TTS basarisiz, edge-tts'e dusuluyor: {e}")
+        boundaries = None
+        for attempt in range(1, 4):
+            try:
+                boundaries = generate_voice_wiro(text, "output/voice.mp3")
+                if os.path.getsize("output/voice.mp3") < 20000:
+                    raise RuntimeError("ses dosyasi cok kucuk")
+                break
+            except Exception as e:
+                print(f"Wiro TTS denemesi {attempt}/3 basarisiz: {e}")
+                time.sleep(10 * attempt)
+        if boundaries is None:
+            print("Wiro TTS kullanilamadi, edge-tts'e dusuluyor")
             boundaries = asyncio.run(generate_voice_edge(text, "output/voice.mp3"))
     else:
         boundaries = asyncio.run(generate_voice_edge(text, "output/voice.mp3"))

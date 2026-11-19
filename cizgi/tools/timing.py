@@ -61,10 +61,11 @@ def from_whisper(path):
     try:
         from faster_whisper import WhisperModel
         m = WhisperModel(os.environ.get("WHISPER_MODEL", "small"), compute_type="int8")
-        segs, _ = m.transcribe(path, word_timestamps=True, language=os.environ.get("LANG_CODE"))
+        audio, _sr = load_audio(path)  # ffmpeg ile çöz (PyAV sürüm sorunlarından bağımsız)
+        segs, _ = m.transcribe(audio, word_timestamps=True, language=os.environ.get("LANG_CODE"))
         return [(w.word.strip(), w.start, w.end) for s in segs for w in s.words]
-    except Exception:
-        pass
+    except Exception as e:
+        print("faster-whisper kullanılamadı:", e)
     try:
         import whisper
         m = whisper.load_model(os.environ.get("WHISPER_MODEL", "small"))

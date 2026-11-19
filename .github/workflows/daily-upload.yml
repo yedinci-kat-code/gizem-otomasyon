@@ -1,7 +1,7 @@
 name: Zifiri Saatler - Otomatik Video Uretimi
 
 # Format: Zifiri Bekci anlatimli CIZGI FILM Short (cizgi-short motoru, MIT - Burak Ozer).
-# Akis: senaryo + cekim plani (Gemini) -> seslendirme (edge-tts, kelime zamanli)
+# Akis: senaryo + cekim plani (Gemini) -> seslendirme (ElevenLabs/Wiro, Callum) + whisper zamanlama
 #       -> kareler 4 paralel isde render -> birlestir -> YouTube.
 # Cekimlerin suresi SABIT DEGIL: her cekim seslendirmedeki cumlesi kadar surer.
 
@@ -13,6 +13,10 @@ on:
         description: "YouTube'a yuklensin mi? (false = sadece video uret, Artifacts'tan indir)"
         required: false
         default: "true"
+
+  # Test: 'cizgi-test' dalina push -> video uretilir, YAYINLANMAZ, sonuc dala test_cikti/ olarak yazilir
+  push:
+    branches: [cizgi-test]
 
 permissions:
   contents: write
@@ -43,11 +47,19 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/generate_story.py
 
-      - name: 2) Seslendirme (edge-tts, kelime zamanli)
+      - name: 2) Seslendirme (Wiro ElevenLabs v3 - Callum; yedek edge-tts)
+        env:
+          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
+          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
         run: python scripts/generate_voice.py
 
-      - name: 3) Cizgi projesini kur (zamanlama, plan, muzik + efekt)
-        run: python scripts/cizgi_build.py
+      - name: 3) Cizgi projesini kur (whisper kelime zamani, plan, muzik + efekt)
+        env:
+          LANG_CODE: tr
+          WHISPER_MODEL: small
+        run: |
+          pip install faster-whisper
+          python scripts/cizgi_build.py
 
       - name: Projeyi sonraki islere aktar
         uses: actions/upload-artifact@v4
@@ -122,7 +134,7 @@ jobs:
         run: python scripts/cizgi_finish.py
 
       - name: 5) YouTube'a yukle
-        if: ${{ github.event.inputs.upload != 'false' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload != 'false' }}
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -131,13 +143,20 @@ jobs:
         run: python scripts/upload_youtube.py
 
       - name: 6) Hikaye gecmisini kaydet
-        if: ${{ github.event.inputs.upload != 'false' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload != 'false' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/history.json data/music_history.json
           git diff --staged --quiet || git commit -m "Hikaye gecmisi guncellendi [otomatik]"
           git pull --rebase && git push
+
+      - name: Test ciktisini dala yaz (sadece cizgi-test)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          mkdir -p test_cikti && cp output/final.mp4 output/thumbnail.jpg output/story.json test_cikti/ && cp output/qa_sheet.jpg test_cikti/ || true
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f test_cikti && git commit -m "test ciktisi [skip ci]" && git push
 
       - name: Ciktilari sakla (hata ayiklama icin)
         if: always()
