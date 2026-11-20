@@ -4,7 +4,7 @@
 // Motor: cizgi-short — Burak Özer (@burakozerweb), MIT.
 export const meta = { fps: 30, tail: 0.6, capStyle: { y: 0.74 } };
 
-const NOCAP = typeof location !== "undefined" && location.search.includes("nocap");  // kapak karesi: yazısız
+const NOCAP = typeof location !== "undefined" && location.search.includes("nocap");  // kapak karesi: altyazısız, sadece başlık
 let P = null;          // plan
 let SH = [];           // çekim tablosu (alt çekimler dahil)
 const LOC = {};        // kurulan mekânlar: ad -> { x, light, ... }
@@ -494,6 +494,7 @@ export function frame(f, E) {
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "");
   // kare 0 boş açılış olmasın; son kare yumuşak
   const hE = P.hook_end || 105;
-  if (P.hook && f < hE) overlay = both(hookTitle(P.hook, f < hE - 8 ? 1 : (hE - f) / 8, 1), overlay);
-  return { cam, light: Array.isArray(light) ? light : L(light), dof, actors: A, fx: FX, flash, overlay: NOCAP ? null : overlay, focusPt, ...(NOCAP ? { caption: false } : {}) };
+  if (NOCAP) overlay = P.hook ? hookTitle(P.hook, 1, 1) : null;  // kapak: sadece vurucu başlık, altyazı/kart yok
+  else if (P.hook && f < hE) overlay = both(hookTitle(P.hook, f < hE - 8 ? 1 : (hE - f) / 8, 1), overlay);
+  return { cam, light: Array.isArray(light) ? light : L(light), dof, actors: A, fx: FX, flash, overlay, focusPt, ...(NOCAP ? { caption: false } : {}) };
 }
