@@ -1,0 +1,107 @@
+{
+  "title": "Kız Kulesi'nin Yıllardır Gizlenen Gerçek Yüzü",
+  "thumb_hook": "Kızını Korumak İçin Denize Kule Yaptı",
+  "description": "Denizin ortasındaki Kız Kulesi gerçekten kehanetten kaçan bir prenses için mi yapıldı? Yoksa arkasında çok başka bir tarihi gerçek mi yatıyor? Peki siz bu kulenin sırrını biliyor muydunuz?",
+  "hashtags": [
+    "#KızKulesi",
+    "#Tarih",
+    "#Efsaneler",
+    "#ZifiriSaatler",
+    "#GizemliTarih",
+    "#İstanbulEfsaneleri",
+    "#OsmanlıTarihi",
+    "#KaranlıkTarih",
+    "#TarihiGerçekler",
+    "#Shorts",
+    "#gerçekhikaye",
+    "#karanlıktarih",
+    "#periliköşk",
+    "#tarihinkaranlıkyüzü",
+    "#tarihisır",
+    "#osmanlıgizemi",
+    "#şehirefsanesi",
+    "#tüylerürpertici",
+    "#lanetli",
+    "#tarihigizem",
+    "#anadoluefsanesi",
+    "#unutulmuştarih",
+    "#shorts",
+    "#tarih",
+    "#efsane",
+    "#keşfet"
+  ],
+  "cast": {
+    "A": {
+      "preset": "padisah",
+      "color": "#4a1525"
+    },
+    "B": {
+      "preset": "hanim",
+      "color": "#8a3a6a"
+    }
+  },
+  "beats": [
+    {
+      "text": "Bir hükümdar, kızını bir yılandan korumak için denizin ortasına kule yaptırdı.",
+      "shot": "bekci_hook",
+      "loc": "sahil",
+      "who": []
+    },
+    {
+      "text": "Anlatılanlara göre kehanetten kaçamadı, bir meyve sepetinden çıkan yılan prensesin sonu oldu.",
+      "shot": "genis",
+      "loc": "kale",
+      "who": [
+        "A",
+        "B"
+      ],
+      "mood": "korku",
+      "card": {
+        "title": "Kız Kulesi Efsanesi",
+        "sub": "Rivayete göre · İstanbul"
+      }
+    },
+    {
+      "text": "Prenses gözlerini yummadan önce kule fısıltılarla doldu.",
+      "shot": "yakin",
+      "loc": "kale",
+      "who": [
+        "B"
+      ],
+      "mood": "uzgun",
+      "fx": "duman"
+    },
+    {
+      "text": "Peki bu hikaye gerçekten yaşandı mı?",
+      "shot": "bekci",
+      "loc": "kale",
+      "mood": "merak",
+      "who": []
+    },
+    {
+      "text": "Tarihi belgelere göre bu kule prenses için değil, gemileri denetleyen bir gümrük noktasıydı.",
+      "shot": "obje",
+      "loc": "arsiv",
+      "label": "GÜMRÜK KAYDI",
+      "prop": "parsomen",
+      "who": []
+    },
+    {
+      "text": "Salgın dönemlerinde ise şehri koruyan bir karantina kalesi olarak kullanıldı.",
+      "shot": "gercek",
+      "loc": "arsiv",
+      "who": []
+    },
+    {
+      "text": "Denizin ortasındaki o yapıya bakınca siz de gizemini hissediyor musunuz?",
+      "shot": "bekci_kapanis",
+      "loc": "sahil",
+      "who": []
+    }
+  ],
+  "story": "Bir hükümdar, kızını bir yılandan korumak için denizin ortasına kule yaptırdı. Anlatılanlara göre kehanetten kaçamadı, bir meyve sepetinden çıkan yılan prensesin sonu oldu. Prenses gözlerini yummadan önce kule fısıltılarla doldu. Peki bu hikaye gerçekten yaşandı mı? Tarihi belgelere göre bu kule prenses için değil, gemileri denetleyen bir gümrük noktasıydı. Salgın dönemlerinde ise şehri koruyan bir karantina kalesi olarak kullanıldı. Denizin ortasındaki o yapıya bakınca siz de gizemini hissediyor musunuz?",
+  "_theme": "karanlik_olay",
+  "_category": "karanlik_olay",
+  "_cta": "Bu efsaneyi duydun mu? Yaz",
+  "_cta_screen": "Yeni dosyalar için takip et"
+}
