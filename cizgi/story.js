@@ -303,6 +303,26 @@ const nameCard = (title, sub) => (g, w, h) => {
   g.font = `700 ${29 * k}px CizgiFont, Nunito, sans-serif`; g.fillStyle = "#ffcf6a"; g.fillText(sub, x + 34 * k, y + 82 * k); g.restore();
 };
 
+// açılış başlığı: ortanın biraz üstünde, büyük ve vurucu; ilk cümle bitene kadar sabit kalır
+const hookTitle = (text, a, s) => (g, w, h) => {
+  if (a <= 0.01 || !text) return;
+  const k = w / 1080, maxW = 900 * k;
+  let size = 96 * k; g.font = `900 ${size}px CizgiFont, Nunito, sans-serif`;
+  const words = text.toLocaleUpperCase("tr-TR").split(/\s+/);
+  const wrap = () => { const L = []; let cur = ""; for (const wd of words) { const t = cur ? cur + " " + wd : wd; if (g.measureText(t).width > maxW && cur) { L.push(cur); cur = wd; } else cur = t; } if (cur) L.push(cur); return L; };
+  let lines = wrap(); while (lines.length > 3 && size > 60 * k) { size -= 6 * k; g.font = `900 ${size}px CizgiFont, Nunito, sans-serif`; lines = wrap(); }
+  const lh = size * 1.08, y0 = 0.30 * h - (lines.length * lh) / 2;
+  g.save(); g.globalAlpha = a; g.translate(w / 2, y0 + (lines.length * lh) / 2); g.scale(s, s); g.translate(-w / 2, -(y0 + (lines.length * lh) / 2));
+  g.textAlign = "center"; g.textBaseline = "top"; g.lineJoin = "round";
+  lines.forEach((ln, i) => {
+    const y = y0 + i * lh;
+    g.lineWidth = 18 * k; g.strokeStyle = "#0b0d1e"; g.strokeText(ln, w / 2, y);
+    g.fillStyle = i === lines.length - 1 ? "#ffcf3a" : "#ffffff"; g.fillText(ln, w / 2, y);
+  });
+  g.restore();
+};
+const both = (a, b) => (a && b ? (g, w, h) => { a(g, w, h); b(g, w, h); } : a || b);
+
 const ctaCard = (text, k0) => (g, w, h) => {
   if (k0 <= 0.01) return;
   const k = w / 1080, x = 56 * k, y = 190 * k, ph = 104 * k, pw = (150 + text.length * 25) * k;
@@ -473,5 +493,7 @@ export function frame(f, E) {
   }
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "");
   // kare 0 boş açılış olmasın; son kare yumuşak
+  const hE = P.hook_end || 105;
+  if (P.hook && f < hE) overlay = both(hookTitle(P.hook, f < hE - 8 ? 1 : (hE - f) / 8, 1), overlay);
   return { cam, light: Array.isArray(light) ? light : L(light), dof, actors: A, fx: FX, flash, overlay: NOCAP ? null : overlay, focusPt, ...(NOCAP ? { caption: false } : {}) };
 }

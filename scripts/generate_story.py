@@ -103,7 +103,8 @@ KIRMIZI CIZGILER (ihlal = guven/telif riski):
 
 BASLIK (45-70 karakter, merak acigi, cevabi vermeyen): "...nin kimsenin bilmedigi gercek yuzu",
 "Bu kosk neden 100 yildir bos?", "Bir kasaba tek gecede nasil bosaldi?" gibi formuller.
-thumb_hook: basligi TAMAMLAYAN, 3-6 kelimelik, tek basina gramer olarak tam carpici ifade.
+thumb_hook: videonun ILK 3-4 SANIYESINDE ekranin ortasinda BUYUK yazilacak vurucu baslik. 3-6 kelime, tek basina
+gramer olarak tam, merak uyandiran, cevabi vermeyen (orn. "Kizini Kurtarmak Icin Denize Kule Yapti"). Emoji yok.
 description: 2-3 cumle ozet, gercegi vermesin, soru ile bitsin. hashtags: 10-12 temaya ozel etiket.
 
 CEKIM PLANI (beats) - her cumle (ya da kisa cumle cifti) bir "beat"tir. beats[].text'lerin

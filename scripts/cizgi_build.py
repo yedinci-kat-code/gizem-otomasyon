@@ -66,6 +66,18 @@ def mix_music(track, dur, gercek_t):
     print("muzik miksi tamam:", os.path.basename(track))
 
 
+def hook_end(words):
+    """Acilis basliginin ekranda kalacagi son kare: ilk cumlenin bittigi an (seslendirmeye bagli),
+    3-4.5 sn araliginda tutulur."""
+    end = None
+    for w in words:
+        if re.search(r"[.!?…]$", w["w"]):
+            end = w["e"]
+            break
+    end = end if end is not None else 3.5
+    return int(round(min(4.5, max(3.0, end + 0.2)) * FPS))
+
+
 def words_from_edge(sw, boundaries):
     toks = [(b["text"], b["offset"], b["offset"] + b["duration"]) for b in boundaries if b.get("text")]
     return timing.match(sw, toks)
@@ -138,7 +150,8 @@ def main():
             b["cuts"].append(pick)
             last = pick
     plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total,
-            "cta": story.get("_cta_screen") or "Sıradaki efsane için takip et"}
+            "cta": story.get("_cta_screen") or "Sıradaki efsane için takip et",
+            "hook": (story.get("thumb_hook") or "").strip(), "hook_end": hook_end(words)}
     json.dump(plan, open(os.path.join(PROJ, "work", "plan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     for b in beats:
         print(f"  {b['f0']:5d}-{b['f1']:5d} kes{b['cuts']!s:12s} {b['shot']:13s} {b.get('loc',''):9s} {b['text'][:60]}")
