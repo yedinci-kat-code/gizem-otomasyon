@@ -311,7 +311,7 @@ const hookTitle = (text, a, s) => (g, w, h) => {
   const words = text.toLocaleUpperCase("tr-TR").split(/\s+/);
   const wrap = () => { const L = []; let cur = ""; for (const wd of words) { const t = cur ? cur + " " + wd : wd; if (g.measureText(t).width > maxW && cur) { L.push(cur); cur = wd; } else cur = t; } if (cur) L.push(cur); return L; };
   let lines = wrap(); while (lines.length > 3 && size > 60 * k) { size -= 6 * k; g.font = `900 ${size}px CizgiFont, Nunito, sans-serif`; lines = wrap(); }
-  const lh = size * 1.08, y0 = 0.30 * h - (lines.length * lh) / 2;
+  const lh = size * 1.08, y0 = 0.21 * h - (lines.length * lh) / 2;
   g.save(); g.globalAlpha = a; g.translate(w / 2, y0 + (lines.length * lh) / 2); g.scale(s, s); g.translate(-w / 2, -(y0 + (lines.length * lh) / 2));
   g.textAlign = "center"; g.textBaseline = "top"; g.lineJoin = "round";
   lines.forEach((ln, i) => {
