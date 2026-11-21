@@ -20,7 +20,7 @@ if not GEMINI_API_KEY:
 genai.configure(api_key=GEMINI_API_KEY)
 
 HISTORY_PATH = "data/history.json"
-MAX_HISTORY_IN_PROMPT = 30
+MAX_HISTORY_IN_PROMPT = 120
 AVOID_SAME_CATEGORY_LAST_N = 3
 
 # Her kategori: bir icerik lane'i (cesitlilik icin donusumlu secilir) + arkaplan
@@ -141,6 +141,7 @@ asker, gezgin, hayalet. color: istege bagli kiyafet rengi (#hex). Tarihi kisiler
 
 Cikti SADECE su JSON olsun, baska metin yok:
 {
+  "topic": "Efsanenin/olayin KISA kanonik adi (orn. Kiz Kulesi, Yerebatan Medusa)", "place": "Sehir/yer",
   "title": "...", "thumb_hook": "...", "description": "...",
   "hashtags": ["#...", "... 10-12 arasi"],
   "cast": {"A": {"preset": "padisah"}, "B": {"preset": "hanim", "color": "#8a3a6a"}},
@@ -219,11 +220,40 @@ def load_history():
         return []
 
 
-def save_history(history, new_title: str, category: str):
-    history.append({"title": new_title, "category": category})
+def save_history(history, new_title: str, category: str, topic: str = "", hook: str = ""):
+    history.append({"title": new_title, "category": category, "topic": topic, "hook": hook})
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
+
+
+def _norm(t):
+    t = (t or "").lower()
+    for a, b in (("ı", "i"), ("ğ", "g"), ("ü", "u"), ("ş", "s"), ("ö", "o"), ("ç", "c"), ("â", "a"), ("î", "i"), ("û", "u")):
+        t = t.replace(a, b)
+    return " ".join("".join(ch if ch.isalnum() else " " for ch in t).split())
+
+
+def check_duplicate(data, history):
+    """Tekrari engeller: ayni konu/efsane TUM gecmiste bir kez islenir; baslik ve acilis cumlesi eskilere benzemez."""
+    import difflib
+    topic = _norm(data.get("topic"))
+    if not topic:
+        raise ValueError("topic alani bos: efsanenin kisa adini yaz")
+    for h in history:
+        ht = _norm(h.get("topic"))
+        old = _norm(h.get("title"))
+        if ht and (topic == ht or topic in ht or ht in topic):
+            raise ValueError(f"'{data.get('topic')}' daha once islendi, BASKA bir efsane sec")
+        if not ht and topic:  # eski kayitlarda topic yok: konu kelimeleri basliktaysa ayni konu say
+            tw = [w[:5] for w in topic.split() if len(w) > 2]
+            ow = {w[:5] for w in old.split()}
+            if tw and all(w in ow for w in tw):
+                raise ValueError(f"'{data.get('topic')}' daha once islendi (baslikta var), BASKA bir efsane sec")
+        if old and difflib.SequenceMatcher(None, _norm(data.get("title")), old).ratio() > 0.72:
+            raise ValueError(f"Baslik eski bir basliga cok benziyor ({h.get('title')}), farkli kur")
+        if h.get("hook") and difflib.SequenceMatcher(None, _norm(data.get("thumb_hook")), _norm(h["hook"])).ratio() > 0.8:
+            raise ValueError("Acilis basligi eskisine cok benziyor, farkli yaz")
 
 
 def pick_category(history):
@@ -265,6 +295,9 @@ def generate_story():
     )
 
     avoid_text = ""
+    done_topics = sorted({h["topic"] for h in history if h.get("topic")})
+    if done_topics:
+        avoid_text += "\n\nBU EFSANELER ISLENDI, ASLA TEKRAR SECME: " + ", ".join(done_topics)
     if recent_titles:
         avoid_text = (
             "\n\nDaha once islenen basliklar (bunlarla ayni/benzer konuyu TEKRARLAMA):\n"
@@ -283,7 +316,7 @@ def generate_story():
     )
 
     last_err = None
-    for attempt in range(1, 5):
+    for attempt in range(1, 6):
         try:
             ask = prompt if not last_err else prompt + f"\n\nONCEKI DENEME REDDEDILDI: {last_err}. Bu kurala kesin uy."
             response = model.generate_content(ask)
@@ -293,10 +326,11 @@ def generate_story():
                 if text.startswith("json"):
                     text = text[4:]
             data = normalize_plan(json.loads(text.strip()))
+            check_duplicate(data, history)
             break
         except Exception as e:  # bozuk JSON / eksik plan -> tekrar dene
             last_err = e
-            print(f"Plan denemesi {attempt}/4 basarisiz: {e}")
+            print(f"Plan denemesi {attempt}/5 basarisiz: {e}")
     else:
         raise RuntimeError(f"Gemini gecerli cekim plani uretemedi: {last_err}")
     data["_theme"] = category["bg"]
@@ -311,7 +345,7 @@ def generate_story():
             "Kimse Konuşmuyor", "Efsane mi, Gerçek mi",
         ])
 
-    save_history(history, data["title"], category["key"])
+    save_history(history, data["title"], category["key"], data.get("topic", ""), data.get("thumb_hook", ""))
     return data
 
 
