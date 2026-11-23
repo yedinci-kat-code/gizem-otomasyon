@@ -203,10 +203,11 @@ Empty list if none."""
 
 def fact_check(d, topic):
     """Ikinci Gemini gecisi: tarih/kronoloji/tutarlilik/isim denetimi; hatali beat'ler duzeltilmis metinle degisir."""
-    names = [os.environ.get("GEMINI_CHECK_MODEL", "gemini-3.5-pro"), os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")]
+    names = [n for n in dict.fromkeys([os.environ.get("GEMINI_CHECK_MODEL", ""), os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")]) if n]
     log = []
-    for rnd in range(1, 4):
-        script = "\n".join(f"{i} [{b['loc']}, {b.get('season', 'winter')}]: {b['text']}" for i, b in enumerate(d["beats"]))
+    for rnd in range(1, 6):
+        script = "\n".join(f"{i} [{'NARRATOR AT STOVE (any text is fine here, never report its picture)' if b['shot'].startswith('host') else b['loc'] + ', ' + b.get('season', 'winter')}]: {b['text']}"
+                            for i, b in enumerate(d["beats"]))
         res = None
         for name in names:
             try:
@@ -224,6 +225,14 @@ def fact_check(d, topic):
             raise RuntimeError("tarih denetcisi calismadi")
         res = [x for x in res if isinstance(x, dict) and isinstance(x.get("beat"), int) and 0 <= x["beat"] < len(d["beats"])
                and str(x.get("fix", "")).strip()]
+        # anlatici (soba basi) cekimlerinde resim itirazi gecersiz; metin degismiyorsa ve mekan/mevsim de degismiyorsa sorun degil
+        def real(x):
+            b = d["beats"][x["beat"]]
+            same = " ".join(str(x["fix"]).split()) == b["text"]
+            if b["shot"].startswith("host"):
+                return not same
+            return not (same and x.get("loc") in (None, "", b["loc"]) and x.get("season") in (None, "", b.get("season")))
+        res = [x for x in res if real(x)]
         print(f"tarih denetimi tur {rnd}: {len(res)} sorun")
         if not res:
             break
@@ -239,7 +248,7 @@ def fact_check(d, topic):
             if b["loc"] in ("rapids", "boats"):
                 b["season"] = "thaw"
     else:
-        raise RuntimeError("3 turda da tarih hatasi kaldi")
+        raise RuntimeError("5 turda da tarih hatasi kaldi")
     d["fact_check"] = log
     d["story"] = " ".join(b["text"] for b in d["beats"])
     d["word_count"] = sum(len(b["text"].split()) for b in d["beats"])
