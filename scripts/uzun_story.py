@@ -269,7 +269,17 @@ def fact_check(d, topic):
     return d
 
 
+OVERRIDE = os.path.join(ROOT, "uzun", "story_override.json")
+
+
 def main():
+    # elle denetlenmis senaryo varsa (uzun/story_override.json) Gemini atlanir; metin oldugu gibi kullanilir
+    if os.path.exists(OVERRIDE) and os.environ.get("GITHUB_EVENT_NAME") != "workflow_dispatch":  # yalnizca push testleri
+        d = normalize(json.load(open(OVERRIDE, encoding="utf-8")))
+        os.makedirs(OUT, exist_ok=True)
+        json.dump(d, open(os.path.join(OUT, "story.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        print(f"plan (elle denetlenmis): {d['title']} · {len(d['beats'])} beat · {d['word_count']} kelime")
+        return
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
         sys.exit("HATA: GEMINI_API_KEY yok")

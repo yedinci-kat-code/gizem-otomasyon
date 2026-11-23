@@ -1,0 +1,1464 @@
+{
+ "topic": "The Klondike Gold Rush (1897-1898)",
+ "narrator_name": "Walt Becker",
+ "title": "The Klondike Gold Rush: How Ordinary Men Survived the Frozen Trail",
+ "title_alt": "1897 Klondike Gold Rush: The Brutal Truth of the Chilkoot Pass",
+ "thumb_hook": "ONE TON OF GEAR",
+ "description": "In July 1897, news reached Seattle that a ton of gold had been pulled from the frozen Yukon ground. Some one hundred thousand people packed up their lives and rushed north into the freezing wilderness, unprepared for the brutal winter ahead.\n\nJoin old prospector Walt Becker by the cabin wood stove as he recalls the grueling climb up the Chilkoot Pass, the strict Mounted Police laws, the roaring rapids of Miles Canyon, and the harsh reality waiting at Dawson City.\n\nDid your own ancestors ever join a historic gold rush or wilderness migration? Tell us your family stories in the comments below!",
+ "tags": [
+  "klondike gold rush",
+  "chilkoot pass",
+  "dawson city 1898",
+  "yukon history",
+  "sam steele mounties",
+  "miles canyon rapids",
+  "gold rush history",
+  "history documentary",
+  "alaska history",
+  "1897 gold rush",
+  "unfrozen history",
+  "american history"
+ ],
+ "pinned_comment": "If you had been twenty years old in 1897, would you have risked everything to climb the Chilkoot Pass for gold? Let me know in the comments!",
+ "sources": [
+  "Pierre Berton - Klondike: The Last Great Gold Rush, 1896-1899 (1958)",
+  "T.A. Rickard - Through the Yukon and Alaska (1909)",
+  "Sam Steele - Forty Years in Canada (1915)",
+  "Library and Archives Canada - Klondike Gold Rush Records (1897-1898)"
+ ],
+ "crowd": "prospector",
+ "cast": {
+  "A": {
+   "preset": "prospector",
+   "name": "Walt (young)"
+  },
+  "B": {
+   "preset": "prospector",
+   "name": "Frank"
+  }
+ },
+ "beats": [
+  {
+   "text": "It is July eighteen ninety-seven. You are twenty-two, standing on a noisy Seattle dock, staring at a wooden steamship named the Portland.",
+   "shot": "wide",
+   "loc": "harbor",
+   "who": [],
+   "mood": "amazed",
+   "season": "thaw",
+   "light": "snowday",
+   "w0": 0,
+   "w1": 21,
+   "f0": 0,
+   "f1": 259,
+   "cuts": [
+    70,
+    170
+   ]
+  },
+  {
+   "text": "The morning headline on every street corner reads like a fairy tale: a ton of solid gold just arrived from the far north.",
+   "shot": "object",
+   "loc": "harbor",
+   "who": [],
+   "mood": "shocked",
+   "label": "TON OF GOLD",
+   "obj": "newspaper",
+   "season": "thaw",
+   "w0": 22,
+   "w1": 44,
+   "f0": 259,
+   "f1": 498,
+   "cuts": [
+    381
+   ]
+  },
+  {
+   "text": "That wide-eyed boy on the pier was me. My name is Walt Becker, and I thought I would be a rich man before winter.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "telling",
+   "light": "stove",
+   "season": "winter",
+   "w0": 45,
+   "w1": 68,
+   "f0": 498,
+   "f1": 699,
+   "cuts": [
+    578
+   ]
+  },
+  {
+   "text": "My friend Frank and I spent our life savings on two boat tickets up the coast to the tiny muddy port of Dyea, Alaska.",
+   "shot": "two",
+   "loc": "harbor",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "hopeful",
+   "mood2": "excited",
+   "action": "talk",
+   "season": "thaw",
+   "w0": 69,
+   "w1": 92,
+   "f0": 699,
+   "f1": 922,
+   "cuts": [
+    812
+   ]
+  },
+  {
+   "text": "When our steamer dropped anchor in August, there were no wharves. We had to haul our wooden crates through ice-cold salt water at low tide.",
+   "shot": "march",
+   "loc": "harbor",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "cold",
+   "action": "walk",
+   "season": "thaw",
+   "w0": 93,
+   "w1": 117,
+   "f0": 922,
+   "f1": 1156,
+   "cuts": [
+    983,
+    1078
+   ]
+  },
+  {
+   "text": "Thousands of men were stranded on the beach among piles of bacon, flour, and rusty picks, realizing the real trail had not even begun.",
+   "shot": "crowd",
+   "loc": "harbor",
+   "who": [],
+   "mood": "nervous",
+   "season": "thaw",
+   "w0": 118,
+   "w1": 141,
+   "f0": 1156,
+   "f1": 1393,
+   "cuts": [
+    1275
+   ]
+  },
+  {
+   "text": "We bought a broken-down mule for eighty dollars, packed our sacks, and marched into the dark rainforest toward the mountains.",
+   "shot": "character",
+   "loc": "forest",
+   "who": [
+    "A"
+   ],
+   "mood": "determined",
+   "action": "walk",
+   "season": "thaw",
+   "w0": 142,
+   "w1": 161,
+   "f0": 1393,
+   "f1": 1602,
+   "cuts": [
+    1470
+   ]
+  },
+  {
+   "text": "The trail was a knee-deep bog of black mud and sharp boulders. Within three days, our poor pack animal collapsed and died.",
+   "shot": "two",
+   "loc": "forest",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "sad",
+   "mood2": "tired",
+   "season": "thaw",
+   "w0": 162,
+   "w1": 183,
+   "f0": 1602,
+   "f1": 1848,
+   "cuts": [
+    1727
+   ]
+  },
+  {
+   "text": "Frank and I took up our straps, carrying seventy pounds each on our backs. But we had no idea how much weight lay ahead.",
+   "shot": "march",
+   "loc": "forest",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "action": "march",
+   "season": "thaw",
+   "w0": 184,
+   "w1": 207,
+   "f0": 1848,
+   "f1": 2055,
+   "cuts": [
+    1898,
+    1972
+   ]
+  },
+  {
+   "text": "By late September, the first frosts had come, and we reached the foot of the deadly Chilkoot Pass.",
+   "shot": "wide",
+   "loc": "pass",
+   "who": [],
+   "mood": "cold",
+   "card": {
+    "title": "The One-Ton Law",
+    "sub": "Chapter 1 · Canadian Border, 1897"
+   },
+   "season": "thaw",
+   "light": "snowday",
+   "w0": 208,
+   "w1": 227,
+   "f0": 2055,
+   "f1": 2276,
+   "cuts": [
+    2176
+   ]
+  },
+  {
+   "text": "Later that winter, the North-West Mounted Police established a strict post at the summit, commanded by Superintendent Sam Steele.",
+   "shot": "character",
+   "loc": "pass",
+   "who": [
+    "A"
+   ],
+   "light": "snowday",
+   "season": "winter",
+   "w0": 228,
+   "w1": 246,
+   "f0": 2276,
+   "f1": 2492,
+   "cuts": [
+    2413
+   ]
+  },
+  {
+   "text": "The Mounties had seen starving prospectors before, and they made a hard law that saved thousands of lives that winter.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "thoughtful",
+   "light": "stove",
+   "season": "winter",
+   "w0": 247,
+   "w1": 266,
+   "f0": 2492,
+   "f1": 2690,
+   "cuts": [
+    2575
+   ]
+  },
+  {
+   "text": "No man was allowed into Canada unless he brought one full ton of supplies—enough food and gear to survive one full year.",
+   "shot": "object",
+   "loc": "pass",
+   "who": [],
+   "mood": "shocked",
+   "label": "2000 LBS GEAR",
+   "obj": "sign",
+   "season": "winter",
+   "w0": 267,
+   "w1": 288,
+   "f0": 2690,
+   "f1": 2903,
+   "cuts": [
+    2751
+   ]
+  },
+  {
+   "text": "That meant hundreds of pounds of flour, bacon and dried beans, plus tents, stoves, and dozens of tools.",
+   "shot": "huddle",
+   "loc": "camp",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "season": "winter",
+   "w0": 289,
+   "w1": 311,
+   "f0": 2903,
+   "f1": 3145,
+   "cuts": [
+    3017
+   ]
+  },
+  {
+   "text": "You could not carry two thousand pounds in one trip. You had to shuttle fifty-pound loads up the mountain, forty times over.",
+   "shot": "march",
+   "loc": "pass",
+   "who": [
+    "A"
+   ],
+   "mood": "tired",
+   "action": "march",
+   "season": "winter",
+   "w0": 312,
+   "w1": 333,
+   "f0": 3145,
+   "f1": 3353,
+   "cuts": [
+    3238
+   ]
+  },
+  {
+   "text": "A man would walk five miles up with a pack, dump it in the snow, and walk five miles back down for the next load.",
+   "shot": "two",
+   "loc": "pass",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "cold",
+   "mood2": "tired",
+   "action": "walk",
+   "season": "winter",
+   "w0": 334,
+   "w1": 358,
+   "f0": 3353,
+   "f1": 3579,
+   "cuts": [
+    3447
+   ]
+  },
+  {
+   "text": "By the time you moved your whole outfit across the border, you had walked over four hundred miles on the same short trail.",
+   "shot": "wide",
+   "loc": "pass",
+   "who": [],
+   "mood": "amazed",
+   "season": "winter",
+   "w0": 359,
+   "w1": 381,
+   "f0": 3579,
+   "f1": 3758,
+   "cuts": [
+    3658
+   ]
+  },
+  {
+   "text": "As November brought fierce blizzards, the prices for basic supplies doubled at the staging camp called The Scales.",
+   "shot": "crowd",
+   "loc": "camp",
+   "who": [],
+   "mood": "angry",
+   "season": "winter",
+   "w0": 382,
+   "w1": 399,
+   "f0": 3758,
+   "f1": 3955,
+   "cuts": [
+    3817
+   ]
+  },
+  {
+   "text": "Prices at the camps climbed with every mile up the trail. If your money ran out, you worked as a packer for others or went home.",
+   "shot": "object",
+   "loc": "camp",
+   "who": [],
+   "mood": "sad",
+   "label": "PRICES DOUBLED",
+   "obj": "sign",
+   "season": "winter",
+   "w0": 400,
+   "w1": 425,
+   "f0": 3955,
+   "f1": 4215,
+   "cuts": [
+    4090
+   ]
+  },
+  {
+   "text": "Frank and I had twenty dollars left between us. If we could not scale the great white wall before us, we would starve in the snow.",
+   "shot": "two",
+   "loc": "pass",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "nervous",
+   "mood2": "determined",
+   "season": "winter",
+   "w0": 426,
+   "w1": 451,
+   "f0": 4215,
+   "f1": 4442,
+   "cuts": [
+    4296
+   ]
+  },
+  {
+   "text": "In December eighteen ninety-seven, we reached the base of the final climb: the terrifying Golden Stairs.",
+   "shot": "wide",
+   "loc": "pass",
+   "who": [],
+   "mood": "scared",
+   "card": {
+    "title": "The Golden Stairs",
+    "sub": "Chapter 2 · Chilkoot Pass, Winter 1897"
+   },
+   "season": "winter",
+   "light": "blizzard",
+   "w0": 452,
+   "w1": 467,
+   "f0": 4442,
+   "f1": 4643,
+   "cuts": [
+    4503
+   ]
+  },
+  {
+   "text": "It was a brutally steep wall of snow and ice, the last thousand feet climbing into the blinding mist.",
+   "shot": "march",
+   "loc": "pass",
+   "who": [],
+   "mood": "scared",
+   "season": "winter",
+   "light": "blizzard",
+   "w0": 468,
+   "w1": 486,
+   "f0": 4643,
+   "f1": 4834,
+   "cuts": [
+    4740
+   ]
+  },
+  {
+   "text": "Men chopped fifteen hundred steps directly into the snow. A single file line of thousands stretched from bottom to top.",
+   "shot": "march",
+   "loc": "pass",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "action": "march",
+   "season": "winter",
+   "light": "blizzard",
+   "w0": 487,
+   "w1": 506,
+   "f0": 4834,
+   "f1": 5067,
+   "cuts": [
+    4948
+   ]
+  },
+  {
+   "text": "You could not stop or rest. If you stepped out of line to catch your breath, you might wait three hours to get back in.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "telling",
+   "light": "stove",
+   "season": "winter",
+   "w0": 507,
+   "w1": 531,
+   "f0": 5067,
+   "f1": 5274,
+   "cuts": [
+    5199
+   ]
+  },
+  {
+   "text": "Every man carried a seventy-pound canvas sack bound to his forehead and shoulders by leather straps.",
+   "shot": "character",
+   "loc": "pass",
+   "who": [
+    "A"
+   ],
+   "mood": "tired",
+   "action": "march",
+   "fx": "sweat",
+   "season": "winter",
+   "w0": 532,
+   "w1": 547,
+   "f0": 5274,
+   "f1": 5462,
+   "cuts": [
+    5403
+   ]
+  },
+  {
+   "text": "The wind at the top blew so hard it could knock a grown man off his feet into the gulch below.",
+   "shot": "close",
+   "loc": "pass",
+   "who": [
+    "B"
+   ],
+   "mood": "scared",
+   "season": "winter",
+   "light": "blizzard",
+   "w0": 548,
+   "w1": 568,
+   "f0": 5462,
+   "f1": 5615,
+   "cuts": []
+  },
+  {
+   "text": "We buried our flour sacks in deep snow trenches at the summit, marking our stash with long wooden sticks.",
+   "shot": "two",
+   "loc": "pass",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "cold",
+   "mood2": "tired",
+   "season": "winter",
+   "w0": 569,
+   "w1": 587,
+   "f0": 5615,
+   "f1": 5800,
+   "cuts": [
+    5723
+   ]
+  },
+  {
+   "text": "Then we slid back down the mountain on our boots in six minutes, only to begin the six-hour climb all over again.",
+   "shot": "run",
+   "loc": "pass",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "happy",
+   "mood2": "relieved",
+   "action": "flee",
+   "season": "winter",
+   "w0": 588,
+   "w1": 609,
+   "f0": 5800,
+   "f1": 5998,
+   "cuts": [
+    5902
+   ]
+  },
+  {
+   "text": "On April third, eighteen ninety-eight, disaster struck. A massive avalanche roared down the slopes near Sheep Camp.",
+   "shot": "wide",
+   "loc": "pass",
+   "who": [],
+   "mood": "shocked",
+   "season": "winter",
+   "light": "blizzard",
+   "w0": 610,
+   "w1": 626,
+   "f0": 5998,
+   "f1": 6213,
+   "cuts": [
+    6063
+   ]
+  },
+  {
+   "text": "Over sixty men and women were buried under thirty feet of snow. We spent two sleepless days digging with wooden shovels.",
+   "shot": "crowd",
+   "loc": "pass",
+   "who": [],
+   "mood": "sad",
+   "season": "winter",
+   "w0": 627,
+   "w1": 647,
+   "f0": 6213,
+   "f1": 6417,
+   "cuts": [
+    6317
+   ]
+  },
+  {
+   "text": "We saved a few, but dozens perished. It was a dark reminder that the Klondike took its price before you ever saw gold.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "sad",
+   "light": "stove",
+   "season": "winter",
+   "w0": 648,
+   "w1": 670,
+   "f0": 6417,
+   "f1": 6627,
+   "cuts": [
+    6509
+   ]
+  },
+  {
+   "text": "If you were standing on that frozen mountain with the long trail to Lake Bennett still ahead, would you have turned back or kept going?",
+   "shot": "close",
+   "loc": "pass",
+   "who": [
+    "A"
+   ],
+   "mood": "thoughtful",
+   "fx": "question",
+   "season": "winter",
+   "w0": 671,
+   "w1": 692,
+   "f0": 6627,
+   "f1": 6850,
+   "cuts": [
+    6770
+   ]
+  },
+  {
+   "text": "Frank and I pushed on. By May, all four thousand pounds of our gear sat on the icy shore of Lake Bennett.",
+   "shot": "wide",
+   "loc": "camp",
+   "who": [],
+   "mood": "hopeful",
+   "card": {
+    "title": "The Sawmills of Lake Bennett",
+    "sub": "Chapter 3 · Lake Bennett, Spring 1898"
+   },
+   "season": "winter",
+   "light": "dawn",
+   "w0": 693,
+   "w1": 714,
+   "f0": 6850,
+   "f1": 7042,
+   "cuts": [
+    6920
+   ]
+  },
+  {
+   "text": "The frozen lake stretched more than twenty miles, and thousands of stampeders camped along it, waiting for the spring ice to break.",
+   "shot": "crowd",
+   "loc": "camp",
+   "who": [],
+   "mood": "amazed",
+   "season": "winter",
+   "w0": 715,
+   "w1": 731,
+   "f0": 7042,
+   "f1": 7225,
+   "cuts": [
+    7112
+   ]
+  },
+  {
+   "text": "There were no steamers here. Every man had to cut down pine trees and build his own boat from raw timber.",
+   "shot": "two",
+   "loc": "forest",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "determined",
+   "mood2": "tired",
+   "action": "walk",
+   "season": "thaw",
+   "w0": 732,
+   "w1": 752,
+   "f0": 7225,
+   "f1": 7418,
+   "cuts": [
+    7277
+   ]
+  },
+  {
+   "text": "We dug a deep saw-pit. I stood inside the pit covered in blinding sawdust, while Frank pulled the long blade from above.",
+   "shot": "two",
+   "loc": "forest",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "mood2": "tired",
+   "fx": "dust",
+   "season": "thaw",
+   "w0": 753,
+   "w1": 774,
+   "f0": 7418,
+   "f1": 7635,
+   "cuts": [
+    7556
+   ]
+  },
+  {
+   "text": "It took ten exhausting days to saw three hundred pine planks by hand, our palms blistered and bleeding.",
+   "shot": "close",
+   "loc": "forest",
+   "who": [
+    "A"
+   ],
+   "mood": "tired",
+   "season": "thaw",
+   "w0": 775,
+   "w1": 792,
+   "f0": 7635,
+   "f1": 7822,
+   "cuts": [
+    7760
+   ]
+  },
+  {
+   "text": "We caulked the seams with old wool rags soaked in hot pine tar to make our wooden scow watertight.",
+   "shot": "character",
+   "loc": "camp",
+   "who": [
+    "B"
+   ],
+   "mood": "thoughtful",
+   "season": "thaw",
+   "w0": 793,
+   "w1": 811,
+   "f0": 7822,
+   "f1": 8006,
+   "cuts": [
+    7934
+   ]
+  },
+  {
+   "text": "We named her The Lucky Duck, painted the name with soot, and loaded our precious supplies aboard.",
+   "shot": "two",
+   "loc": "camp",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "proud",
+   "mood2": "happy",
+   "prop": "pen",
+   "season": "thaw",
+   "w0": 812,
+   "w1": 828,
+   "f0": 8006,
+   "f1": 8188,
+   "cuts": [
+    8066
+   ]
+  },
+  {
+   "text": "On May twenty-ninth, eighteen ninety-eight, the ice on Lake Bennett cracked with a roar like thunder.",
+   "shot": "wide",
+   "loc": "boats",
+   "who": [],
+   "mood": "amazed",
+   "season": "thaw",
+   "light": "spring",
+   "w0": 829,
+   "w1": 844,
+   "f0": 8188,
+   "f1": 8361,
+   "cuts": [
+    8257
+   ]
+  },
+  {
+   "text": "Over seven thousand handmade wooden boats pushed off into the water at the exact same hour.",
+   "shot": "wide",
+   "loc": "boats",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood2": "excited",
+   "season": "thaw",
+   "w0": 845,
+   "w1": 860,
+   "f0": 8361,
+   "f1": 8537,
+   "cuts": [
+    8488
+   ]
+  },
+  {
+   "text": "It was an armada of fools, floating down five hundred miles of unknown rivers toward the Yukon.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "telling",
+   "light": "stove",
+   "season": "winter",
+   "w0": 861,
+   "w1": 877,
+   "f0": 8537,
+   "f1": 8712,
+   "cuts": [
+    8618
+   ]
+  },
+  {
+   "text": "But between Lake Bennett and Dawson City lay the most treacherous waters in the Northern territory.",
+   "shot": "wide",
+   "loc": "boats",
+   "who": [
+    "A"
+   ],
+   "mood": "nervous",
+   "season": "thaw",
+   "w0": 878,
+   "w1": 893,
+   "f0": 8712,
+   "f1": 8877,
+   "cuts": [
+    8828
+   ]
+  },
+  {
+   "text": "In June, the river narrowed into a roaring white wall of foam: Miles Canyon and the White Horse Rapids.",
+   "shot": "wide",
+   "loc": "rapids",
+   "who": [],
+   "mood": "scared",
+   "card": {
+    "title": "Shooting the White Horse",
+    "sub": "Chapter 4 · Miles Canyon, June 1898"
+   },
+   "season": "thaw",
+   "w0": 894,
+   "w1": 912,
+   "f0": 8877,
+   "f1": 9090,
+   "cuts": [
+    9003
+   ]
+  },
+  {
+   "text": "The canyon was barely a hundred feet wide, framed by towering basalt cliffs that squeezed the wild Yukon River.",
+   "shot": "wide",
+   "loc": "rapids",
+   "who": [],
+   "mood": "scared",
+   "season": "thaw",
+   "w0": 913,
+   "w1": 932,
+   "f0": 9090,
+   "f1": 9296,
+   "cuts": [
+    9166
+   ]
+  },
+  {
+   "text": "Waves smashed against the rock walls, creating whirlpools capable of sucking a fully loaded barge to the bottom.",
+   "shot": "wide",
+   "loc": "rapids",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "scared",
+   "mood2": "scared",
+   "season": "thaw",
+   "w0": 933,
+   "w1": 950,
+   "f0": 9296,
+   "f1": 9485,
+   "cuts": [
+    9362
+   ]
+  },
+  {
+   "text": "In the first days after the ice broke, about one hundred and fifty boats were wrecked, and several men drowned.",
+   "shot": "object",
+   "loc": "rapids",
+   "who": [],
+   "mood": "shocked",
+   "label": "150 BOATS WRECKED",
+   "obj": "sign",
+   "season": "thaw",
+   "w0": 951,
+   "w1": 969,
+   "f0": 9485,
+   "f1": 9677,
+   "cuts": [
+    9535
+   ]
+  },
+  {
+   "text": "Superintendent Steele stepped in again, stopping all boats at the canyon entrance.",
+   "shot": "character",
+   "loc": "rapids",
+   "who": [
+    "A"
+   ],
+   "season": "thaw",
+   "w0": 970,
+   "w1": 981,
+   "f0": 9677,
+   "f1": 9810,
+   "cuts": []
+  },
+  {
+   "text": "No boat was allowed through unless guided by an experienced river pilot, while women and children were required to walk around the canyon on foot.",
+   "shot": "two",
+   "loc": "rapids",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "thoughtful",
+   "mood2": "nervous",
+   "season": "thaw",
+   "w0": 982,
+   "w1": 1006,
+   "f0": 9810,
+   "f1": 10034,
+   "cuts": [
+    9920
+   ]
+  },
+  {
+   "text": "Experienced local pilots charged twenty-five dollars per trip to steer heavy boats safely through the roaring rapids.",
+   "shot": "character",
+   "loc": "rapids",
+   "who": [
+    "B"
+   ],
+   "mood": "determined",
+   "season": "thaw",
+   "w0": 1007,
+   "w1": 1023,
+   "f0": 10034,
+   "f1": 10226,
+   "cuts": [
+    10094
+   ]
+  },
+  {
+   "text": "Frank and I managed to hire a licensed pilot with our remaining cash. We gripped the wooden gunwales, clenched our teeth, and plunged into the roaring gorge.",
+   "shot": "wide",
+   "loc": "rapids",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "scared",
+   "mood2": "determined",
+   "action": "stand",
+   "season": "thaw",
+   "w0": 1024,
+   "w1": 1050,
+   "f0": 10226,
+   "f1": 10502,
+   "cuts": [
+    10343,
+    10426
+   ]
+  },
+  {
+   "text": "The current seized us like a wooden toy. Water splashed over our flour barrels as we narrowly dodged a submerged rock.",
+   "shot": "wide",
+   "loc": "rapids",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "shocked",
+   "mood2": "scared",
+   "season": "thaw",
+   "w0": 1051,
+   "w1": 1071,
+   "f0": 10502,
+   "f1": 10714,
+   "cuts": [
+    10576
+   ]
+  },
+  {
+   "text": "For two terrifying minutes, the river roared in our ears, until finally the canyon opened into calm water.",
+   "shot": "wide",
+   "loc": "boats",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "relieved",
+   "mood2": "relieved",
+   "season": "thaw",
+   "w0": 1072,
+   "w1": 1089,
+   "f0": 10714,
+   "f1": 10931,
+   "cuts": [
+    10816
+   ]
+  },
+  {
+   "text": "We were drenched, exhausted, but alive. Our boat was whole, and the golden city still lay more than four hundred miles downstream.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "relieved",
+   "light": "stove",
+   "season": "winter",
+   "w0": 1090,
+   "w1": 1109,
+   "f0": 10931,
+   "f1": 11174,
+   "cuts": [
+    10994,
+    11069
+   ]
+  },
+  {
+   "text": "On June sixteenth, eighteen ninety-eight, our boat rounded the bend of the Yukon River and docked at Dawson City.",
+   "shot": "wide",
+   "loc": "frontier",
+   "who": [],
+   "mood": "amazed",
+   "card": {
+    "title": "The City of Broken Dreams",
+    "sub": "Chapter 5 · Dawson City, Summer 1898"
+   },
+   "season": "thaw",
+   "w0": 1110,
+   "w1": 1128,
+   "f0": 11174,
+   "f1": 11379,
+   "cuts": [
+    11254
+   ]
+  },
+  {
+   "text": "Two years earlier, Dawson had been little more than a fishing camp on the river flats. Now it was a bursting boomtown of tens of thousands.",
+   "shot": "crowd",
+   "loc": "frontier",
+   "who": [],
+   "mood": "amazed",
+   "season": "thaw",
+   "w0": 1129,
+   "w1": 1148,
+   "f0": 11379,
+   "f1": 11604,
+   "cuts": [
+    11482
+   ]
+  },
+  {
+   "text": "Wooden saloons, gambling halls, and canvas tents lined dirt streets turned into deep, foul-smelling mud.",
+   "shot": "character",
+   "loc": "frontier",
+   "who": [
+    "A"
+   ],
+   "mood": "shocked",
+   "action": "walk",
+   "season": "thaw",
+   "w0": 1149,
+   "w1": 1163,
+   "f0": 11604,
+   "f1": 11806,
+   "cuts": [
+    11750
+   ]
+  },
+  {
+   "text": "The prices in Dawson were staggering. Fresh food cost many times what it did in Seattle, and men paid for everything in gold dust.",
+   "shot": "object",
+   "loc": "frontier",
+   "who": [],
+   "mood": "shocked",
+   "label": "PAID IN GOLD DUST",
+   "obj": "sign",
+   "season": "thaw",
+   "w0": 1164,
+   "w1": 1186,
+   "f0": 11806,
+   "f1": 12060,
+   "cuts": [
+    11879,
+    11955
+   ]
+  },
+  {
+   "text": "A single fresh apple could cost a dollar, bought by men still weak and bleeding at the gums from the scurvy of the winter.",
+   "shot": "close",
+   "loc": "frontier",
+   "who": [
+    "B"
+   ],
+   "mood": "sad",
+   "season": "thaw",
+   "w0": 1187,
+   "w1": 1206,
+   "f0": 12060,
+   "f1": 12276,
+   "cuts": [
+    12165
+   ]
+  },
+  {
+   "text": "Frank and I grabbed our shovels and rushed out to Bonanza Creek and Eldorado Creek, eager to stake our claim.",
+   "shot": "two",
+   "loc": "forest",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "hopeful",
+   "mood2": "hopeful",
+   "action": "walk",
+   "season": "thaw",
+   "w0": 1207,
+   "w1": 1226,
+   "f0": 12276,
+   "f1": 12453,
+   "cuts": [
+    12401
+   ]
+  },
+  {
+   "text": "But when we arrived at the creeks, we faced a crushing truth that hit us harder than the winter cold.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "sad",
+   "light": "stove",
+   "season": "winter",
+   "w0": 1227,
+   "w1": 1246,
+   "f0": 12453,
+   "f1": 12615,
+   "cuts": [
+    12503
+   ]
+  },
+  {
+   "text": "Every rich foot of gold-bearing creek had already been staked by the old-timers back in eighteen ninety-six and ninety-seven.",
+   "shot": "wide",
+   "loc": "frontier",
+   "who": [],
+   "mood": "sad",
+   "season": "thaw",
+   "w0": 1247,
+   "w1": 1264,
+   "f0": 12615,
+   "f1": 12823,
+   "cuts": [
+    12678
+   ]
+  },
+  {
+   "text": "The rich claims were owned by a handful of men called the Klondike Kings, who were pulling thousands of dollars from the dirt daily.",
+   "shot": "character",
+   "loc": "frontier",
+   "who": [
+    "A"
+   ],
+   "mood": "sad",
+   "season": "thaw",
+   "w0": 1265,
+   "w1": 1288,
+   "f0": 12823,
+   "f1": 13036,
+   "cuts": [
+    12940
+   ]
+  },
+  {
+   "text": "Out of one hundred thousand people who left their homes for the Klondike, only thirty to forty thousand ever reached Dawson City.",
+   "shot": "crowd",
+   "loc": "frontier",
+   "who": [],
+   "mood": "thoughtful",
+   "season": "thaw",
+   "w0": 1289,
+   "w1": 1308,
+   "f0": 13036,
+   "f1": 13246,
+   "cuts": [
+    13152
+   ]
+  },
+  {
+   "text": "Of those, only four thousand ever found any gold at all. And fewer than several hundred became wealthy.",
+   "shot": "object",
+   "loc": "frontier",
+   "who": [],
+   "mood": "sad",
+   "label": "FEW FOUND GOLD",
+   "obj": "sign",
+   "season": "thaw",
+   "w0": 1309,
+   "w1": 1328,
+   "f0": 13246,
+   "f1": 13470,
+   "cuts": [
+    13388
+   ]
+  },
+  {
+   "text": "Most stampeders worked for wages, digging gravel and hauling wood just to pay for their ticket home.",
+   "shot": "march",
+   "loc": "frontier",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "action": "march",
+   "season": "thaw",
+   "w0": 1329,
+   "w1": 1348,
+   "f0": 13470,
+   "f1": 13664,
+   "cuts": [
+    13534
+   ]
+  },
+  {
+   "text": "Frank worked in a sawmill, while I spent three months hauling timber for saloon floors until we had enough cash for steamship passage.",
+   "shot": "two",
+   "loc": "frontier",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "tired",
+   "mood2": "tired",
+   "season": "thaw",
+   "w0": 1349,
+   "w1": 1371,
+   "f0": 13664,
+   "f1": 13864,
+   "cuts": [
+    13726
+   ]
+  },
+  {
+   "text": "In August eighteen ninety-nine, news arrived that gold was discovered on the sandy beaches of Nome, Alaska.",
+   "shot": "crowd",
+   "loc": "frontier",
+   "who": [],
+   "season": "thaw",
+   "w0": 1372,
+   "w1": 1388,
+   "f0": 13864,
+   "f1": 14075,
+   "cuts": [
+    13943
+   ]
+  },
+  {
+   "text": "Within a single week, thousands of people left Dawson City, chasing the next golden dream.",
+   "shot": "wide",
+   "loc": "frontier",
+   "who": [],
+   "mood": "thoughtful",
+   "season": "thaw",
+   "w0": 1389,
+   "w1": 1406,
+   "f0": 14075,
+   "f1": 14318,
+   "cuts": [
+    14182
+   ]
+  },
+  {
+   "text": "Frank and I did not follow them. We sold our tent, packed our woolen blankets, and boarded a boat back down the river.",
+   "shot": "two",
+   "loc": "harbor",
+   "who": [
+    "A",
+    "B"
+   ],
+   "mood": "relieved",
+   "mood2": "thoughtful",
+   "season": "thaw",
+   "w0": 1407,
+   "w1": 1429,
+   "f0": 14318,
+   "f1": 14505,
+   "cuts": [
+    14418
+   ]
+  },
+  {
+   "text": "We returned home to Seattle with no gold in our pockets, but with stories that would last us a lifetime.",
+   "shot": "host",
+   "loc": "cabin",
+   "who": [],
+   "mood": "thoughtful",
+   "light": "stove",
+   "season": "winter",
+   "w0": 1430,
+   "w1": 1449,
+   "f0": 14505,
+   "f1": 14704,
+   "cuts": [
+    14619
+   ]
+  },
+  {
+   "text": "If you have stayed with me this far by the fire, leave a like and subscribe; that is how I know you want more stories like this one.",
+   "shot": "wide",
+   "loc": "harbor",
+   "who": [],
+   "mood": "happy",
+   "light": "stove",
+   "cta": true,
+   "season": "thaw",
+   "w0": 1450,
+   "w1": 1477,
+   "f0": 14704,
+   "f1": 14942,
+   "cuts": [
+    14782,
+    14847
+   ]
+  },
+  {
+   "text": "I never found gold on the Yukon, but whenever the winter wind howls outside my cabin, I am twenty-two again, standing on top of the world.",
+   "shot": "host_close",
+   "loc": "cabin",
+   "who": [],
+   "mood": "thoughtful",
+   "light": "stove",
+   "season": "winter",
+   "w0": 1478,
+   "w1": 1503,
+   "f0": 14942,
+   "f1": 15204,
+   "cuts": [
+    15094
+   ]
+  }
+ ],
+ "fact_check": [
+  {
+   "round": 1,
+   "beat": 9,
+   "problem": "Season mismatch: September with falling yellow leaves precedes the winter snows, but the tag is set to winter.",
+   "old": "(resim)",
+   "new": "mevsim winter->thaw"
+  },
+  {
+   "round": 1,
+   "beat": 39,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes the spring ice breakup on Lake Bennett where boats are readying to launch.",
+   "old": "(resim)",
+   "new": "mekan river->boats"
+  },
+  {
+   "round": 1,
+   "beat": 47,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes open water boat traffic at the canyon entrance.",
+   "old": "(resim)",
+   "new": "mekan river->rapids"
+  },
+  {
+   "round": 1,
+   "beat": 48,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes boats traversing the open rapids.",
+   "old": "(resim)",
+   "new": "mekan river->rapids"
+  },
+  {
+   "round": 1,
+   "beat": 52,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the scene describes exiting the whitewater canyon into open calm water.",
+   "old": "(resim)",
+   "new": "mekan river->boats"
+  },
+  {
+   "round": 1,
+   "beat": 61,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes summer mining claims along creek beds.",
+   "old": "(resim)",
+   "new": "mekan river->frontier"
+  },
+  {
+   "round": 1,
+   "beat": 62,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes working land claims.",
+   "old": "(resim)",
+   "new": "mekan river->frontier"
+  },
+  {
+   "round": 1,
+   "beat": 65,
+   "problem": "Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes laborers digging ditches on land.",
+   "old": "(resim)",
+   "new": "mekan river->frontier"
+  },
+  {
+   "round": 1,
+   "beat": 10,
+   "problem": "Chronological error: Superintendent Sam Steele was not in command at the Chilkoot summit in autumn 1897; he arrived to take charge of the pass posts in February 1898.",
+   "old": "At the summit stood the North-West Mounted Police, led by a strict, quiet officer named Superintendent Sam Steele.",
+   "new": "At the summit stood the North-West Mounted Police, establishing a strict post that would later be commanded by Superintendent Sam Steele."
+  },
+  {
+   "round": 1,
+   "beat": 67,
+   "problem": "Wrong date: News of the gold strike in Nome reached Dawson City in August 1899, not August 1898.",
+   "old": "In August eighteen ninety-eight, news arrived that gold was discovered on the sandy beaches of Nome, Alaska.",
+   "new": "In August eighteen ninety-nine, news arrived that gold was discovered on the sandy beaches of Nome, Alaska."
+  },
+  {
+   "round": 2,
+   "beat": 10,
+   "problem": "In September 1897, there was no Mounted Police post at the summit of Chilkoot Pass. Superintendent Sam Steele arrived and established the summit customs posts in February 1898.",
+   "old": "At the summit stood the North-West Mounted Police, establishing a strict post that would later be commanded by Superintendent Sam Steele.",
+   "new": "Later that winter, the North-West Mounted Police established a strict post at the summit, commanded by Superintendent Sam Steele."
+  },
+  {
+   "round": 2,
+   "beat": 49,
+   "problem": "Jack London piloted boats through the rapids in October 1897, not June 1898. By June 1898 he had developed scurvy and was leaving the Klondike.",
+   "old": "A young, skilled pilot named Jack London charged twenty-five dollars per trip to steer boats through the rapids.",
+   "new": "Experienced local pilots charged twenty-five dollars per trip to steer heavy boats safely through the roaring rapids."
+  },
+  {
+   "round": 3,
+   "beat": 32,
+   "problem": "The narration describes the icy shore of Lake Bennett in May before the thaw, but the image tag is set to thaw instead of winter.",
+   "old": "(resim)",
+   "new": "mevsim thaw->winter"
+  },
+  {
+   "round": 3,
+   "beat": 33,
+   "problem": "The narration describes Lake Bennett as frozen while stampeders wait for spring, but the image tag is set to thaw instead of winter.",
+   "old": "(resim)",
+   "new": "mevsim thaw->winter"
+  },
+  {
+   "round": 3,
+   "beat": 48,
+   "problem": "Superintendent Steele's order strictly prohibited women and children from riding in boats through the canyon rapids (requiring them to walk around on foot); they were not allowed to man the boats.",
+   "old": "No boat was allowed through unless guided by an experienced river pilot, or manned by women and children who walked around.",
+   "new": "No boat was allowed through unless guided by an experienced river pilot, while women and children were required to walk around the canyon on foot."
+  },
+  {
+   "round": 4,
+   "beat": 16,
+   "problem": "Internal contradiction: beat 14 states forty trips and beat 15 defines each shuttle as five miles up and five miles back (ten miles round trip), which totals four hundred miles, contradicting the claim of over one thousand miles.",
+   "old": "By the time you moved your whole outfit across the border, you had walked over one thousand miles on the same short trail.",
+   "new": "By the time you moved your whole outfit across the border, you had walked over four hundred miles on the same short trail."
+  },
+  {
+   "round": 4,
+   "beat": 50,
+   "problem": "Historical contradiction and internal contradiction with beat 48: Superintendent Steele strictly enforced that no boat was allowed to enter Miles Canyon without a licensed pilot, and Mounties stationed at the entrance prevented unpiloted boats from proceeding.",
+   "old": "Frank and I could not afford a pilot. We gripped our heavy oak oars, gripped our teeth, and steered into the gorge ourselves.",
+   "new": "Frank and I managed to hire a licensed pilot with our remaining cash. We gripped the wooden gunwales, clenched our teeth, and plunged into the roaring gorge."
+  },
+  {
+   "round": 4,
+   "beat": 55,
+   "problem": "Chronology error: one year earlier (June 1897), Dawson was already a busy boomtown of thousands following the 1896 gold strike, not a quiet fishing camp. It was a fishing camp two years earlier, before August 1896.",
+   "old": "A year earlier, Dawson had been a quiet fishing camp. Now it was a bursting boomtown of forty thousand souls.",
+   "new": "Two years earlier, Dawson had been a quiet fishing camp. Now it was a bursting boomtown of forty thousand souls."
+  },
+  {
+   "round": 5,
+   "beat": 44,
+   "problem": "Miles Canyon is approximately one hundred and fifty feet wide (fifty yards), not fifty feet wide.",
+   "old": "The canyon was fifty feet wide, framed by towering basalt cliffs that squeezed the wild Yukon River.",
+   "new": "The canyon was one hundred and fifty feet wide, framed by towering basalt cliffs that squeezed the wild Yukon River."
+  },
+  {
+   "round": "el",
+   "beat": -1,
+   "problem": "Claude el kontrolu: mesafe/sayi/fiyat duzeltmeleri (beat 9,13,21,31,32,33,44,46,53,55,57,58,61,63,65,68)",
+   "old": "",
+   "new": ""
+  }
+ ]
+}
