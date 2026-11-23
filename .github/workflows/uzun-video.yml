@@ -147,10 +147,20 @@ jobs:
             output_uzun/youtube.txt
             output_uzun/qa_sheet.jpg
             output_uzun/story.json
+            output_uzun/fact_check.txt
+
+      - name: Tekrar korumasi (yalnizca elle baslatilan uretimde; push testleri konuyu harcamaz)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cp output_uzun/uzun_history.json data/uzun_history.json
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/uzun_history.json data/uzun_music.json
+          git commit -m "uzun video gecmisi #${{ github.run_number }} [skip ci]" && git push origin HEAD:${{ github.ref_name }} || echo "gecmis yazilamadi"
+          git stash -u >/dev/null 2>&1 || true
 
       - name: Onizlemeyi 'uzun-cikti' dalina yaz (indirmesi kolay)
         run: |
-          mkdir -p /tmp/c && cp output_uzun/preview_720p.mp4 output_uzun/thumbnail.jpg output_uzun/subtitles_en.srt output_uzun/youtube.txt output_uzun/qa_sheet.jpg output_uzun/story.json /tmp/c/
+          mkdir -p /tmp/c && cp output_uzun/preview_720p.mp4 output_uzun/thumbnail.jpg output_uzun/subtitles_en.srt output_uzun/youtube.txt output_uzun/qa_sheet.jpg output_uzun/story.json output_uzun/fact_check.txt /tmp/c/
           SZ=$(stat -c%s /tmp/c/preview_720p.mp4); if [ "$SZ" -gt 95000000 ]; then echo "onizleme 95 MB ustu, dala yazilmadi"; rm /tmp/c/preview_720p.mp4; fi
           git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin uzun-cikti && git checkout uzun-cikti || git checkout --orphan uzun-cikti

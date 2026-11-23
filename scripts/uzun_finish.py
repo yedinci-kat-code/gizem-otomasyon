@@ -97,6 +97,16 @@ def main():
            "=== NOTES ===", f"length: {n / FPS / 60:.2f} min · beats: {len(plan['beats'])} · words: {story.get('word_count')}",
            "upload as UNLISTED; Altered or synthetic content: No (cartoon); Made for kids: No"]
     open(os.path.join(OUT, "youtube.txt"), "w", encoding="utf-8").write("\n".join(txt))
+    fc = story.get("fact_check", [])
+    open(os.path.join(OUT, "fact_check.txt"), "w", encoding="utf-8").write(
+        "\n\n".join(f"[tur {x['round']}] beat {x['beat']}: {x['problem']}\n  eski: {x['old']}\n  yeni: {x['new']}" for x in fc)
+        or "tarih denetcisi sorun bulmadi")
+    # tekrar korumasi kaydi (yalnizca elle baslatilan uretim calismalarinda is akisi bunu dala yazar)
+    hist_p = os.path.join(ROOT, "data", "uzun_history.json")
+    hist = json.load(open(hist_p, encoding="utf-8")) if os.path.exists(hist_p) else []
+    hist.append({"topic": story.get("topic", ""), "title": story.get("title", ""), "music": music})
+    os.makedirs(os.path.dirname(hist_p), exist_ok=True)
+    json.dump(hist[-100:], open(os.path.join(OUT, "uzun_history.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     for f in ("final.mp4", "preview_720p.mp4"):
         print(f, f"{os.path.getsize(os.path.join(OUT, f)) / 1e6:.1f} MB")
     print("hazir: output_uzun/")

@@ -45,6 +45,12 @@ FORMAT (always):
 
 ACCURACY (red lines):
 - Only well documented facts: dates, places, numbers, prices, distances, weather. If unsure, stay general.
+- STRICT CHRONOLOGY: every real event appears in its true order and season (e.g. an avalanche of April 1898 can
+  never happen before December 1897 in the story). The narrator's personal timeline must fit the real dates.
+- INTERNAL CONSISTENCY: a distance, number or price said twice must be the same both times.
+- NEVER invent a named official, officer or historical figure. A real person may be named only if he really held
+  that role at that place and time (e.g. Superintendent Sam Steele of the North-West Mounted Police); otherwise say
+  "a Mountie", "the officer", "a pilot". Invented characters are only the narrator and his ordinary companions.
 - Real historical people may be mentioned and shown as cartoon characters, but give them NO invented quotes;
   only famous, documented quotes.
 - No gore, no cruelty in detail, no hate symbols, no politics of today. Respectful about death.
@@ -163,6 +169,62 @@ def normalize(d):
     return d
 
 
+FACTCHECK = """You are a strict history fact-checker for a documentary channel. You get a numbered narration script
+written by a fictional first-person narrator about a real event. The narrator and his ordinary companions are fictional
+(that is allowed); everything else must be historically correct.
+Find EVERY problem of these kinds:
+1. Wrong date, place, number, price, distance, temperature, or a claim stronger than the sources support.
+2. Chronology: a real event placed before/after where it really happened relative to the narrator's timeline.
+3. Internal contradictions (same distance/number given differently in two places).
+4. Named real people: wrong role, wrong place, wrong time, or a person who did not exist (invented names of officials).
+5. Invented quotes put in the mouth of a real person.
+6. Anachronisms (objects, words, technology that did not exist then).
+For each problem return a corrected replacement for the WHOLE beat text: same voice, same length (+-20%), numbers
+written as words, keeping the story flowing with the beats before and after. Prefer making a claim general over guessing.
+If an event is in the wrong order, rewrite that beat so it no longer claims the event at that moment (e.g. mention it
+as something that happened later: "That April, an avalanche..." only if the timeline allows, or drop the event).
+Output ONLY JSON: {"issues": [{"beat": 12, "problem": "...", "fix": "full corrected beat text"}]}. Empty list if none."""
+
+
+def fact_check(d, topic):
+    """Ikinci Gemini gecisi: tarih/kronoloji/tutarlilik/isim denetimi; hatali beat'ler duzeltilmis metinle degisir."""
+    names = [os.environ.get("GEMINI_CHECK_MODEL", "gemini-3.5-pro"), os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")]
+    log = []
+    for rnd in range(1, 4):
+        script = "\n".join(f"{i}: {b['text']}" for i, b in enumerate(d["beats"]))
+        res = None
+        for name in names:
+            try:
+                m = genai.GenerativeModel(name, system_instruction=FACTCHECK,
+                                          generation_config={"response_mime_type": "application/json", "temperature": 0.1,
+                                                             "max_output_tokens": 20000})
+                txt = m.generate_content(f"Event: {topic}\n\nSCRIPT:\n{script}").text.strip()
+                if txt.startswith("```"):
+                    txt = txt.split("```")[1].removeprefix("json")
+                res = json.loads(txt).get("issues", [])
+                break
+            except Exception as e:
+                print(f"denetci {name} hata: {e}")
+        if res is None:
+            raise RuntimeError("tarih denetcisi calismadi")
+        res = [x for x in res if isinstance(x, dict) and isinstance(x.get("beat"), int) and 0 <= x["beat"] < len(d["beats"])
+               and str(x.get("fix", "")).strip()]
+        print(f"tarih denetimi tur {rnd}: {len(res)} sorun")
+        if not res:
+            break
+        for x in res:
+            b = d["beats"][x["beat"]]
+            print(f"  beat {x['beat']}: {x.get('problem', '')}\n    eski: {b['text']}\n    yeni: {x['fix']}")
+            log.append({"round": rnd, "beat": x["beat"], "problem": x.get("problem", ""), "old": b["text"], "new": x["fix"]})
+            b["text"] = " ".join(str(x["fix"]).split())
+    else:
+        raise RuntimeError("3 turda da tarih hatasi kaldi")
+    d["fact_check"] = log
+    d["story"] = " ".join(b["text"] for b in d["beats"])
+    d["word_count"] = sum(len(b["text"].split()) for b in d["beats"])
+    return d
+
+
 def main():
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
@@ -194,6 +256,7 @@ def main():
     else:
         sys.exit(f"HATA: gecerli plan uretilemedi: {err}")
     d["topic"] = topic["topic"]
+    d = fact_check(d, topic["topic"])
     os.makedirs(OUT, exist_ok=True)
     json.dump(d, open(os.path.join(OUT, "story.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"plan: {d['title']} · {len(d['beats'])} beat · {d['word_count']} kelime")
