@@ -8,6 +8,7 @@ Konu: TOPIC ortam degiskeni > uzun/topics.json sirasindaki ilk islenmemis konu. 
 """
 import json
 import os
+import re
 import sys
 import difflib
 import google.generativeai as genai
@@ -205,7 +206,7 @@ def fact_check(d, topic):
     """Ikinci Gemini gecisi: tarih/kronoloji/tutarlilik/isim denetimi; hatali beat'ler duzeltilmis metinle degisir."""
     names = [n for n in dict.fromkeys([os.environ.get("GEMINI_CHECK_MODEL", ""), os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")]) if n]
     log = []
-    for rnd in range(1, 6):
+    for rnd in range(1, 7):
         script = "\n".join(f"{i} [{'NARRATOR AT STOVE (any text is fine here, never report its picture)' if b['shot'].startswith('host') else b['loc'] + ', ' + b.get('season', 'winter')}]: {b['text']}"
                             for i, b in enumerate(d["beats"]))
         res = None
@@ -226,29 +227,42 @@ def fact_check(d, topic):
         res = [x for x in res if isinstance(x, dict) and isinstance(x.get("beat"), int) and 0 <= x["beat"] < len(d["beats"])
                and str(x.get("fix", "")).strip()]
         # anlatici (soba basi) cekimlerinde resim itirazi gecersiz; metin degismiyorsa ve mekan/mevsim de degismiyorsa sorun degil
-        def real(x):
+        def visual_only(x):
+            return " ".join(str(x["fix"]).split()) == d["beats"][x["beat"]]["text"]
+        text_issues = [x for x in res if not visual_only(x)]
+        vis = [x for x in res if visual_only(x) and not d["beats"][x["beat"]]["shot"].startswith("host")]
+        print(f"tarih denetimi tur {rnd}: {len(text_issues)} metin sorunu, {len(vis)} resim notu")
+        for x in vis:  # resim notlari: mekan/mevsim uygulanir, akisi durdurmaz
             b = d["beats"][x["beat"]]
-            same = " ".join(str(x["fix"]).split()) == b["text"]
-            if b["shot"].startswith("host"):
-                return not same
-            return not (same and x.get("loc") in (None, "", b["loc"]) and x.get("season") in (None, "", b.get("season")))
-        res = [x for x in res if real(x)]
-        print(f"tarih denetimi tur {rnd}: {len(res)} sorun")
-        if not res:
+            season = x.get("season")
+            if season not in ("winter", "thaw"):
+                pr = str(x.get("problem", "")).lower()
+                season = "thaw" if re.search(r"\b(thaw|spring|summer|autumn|no snow)\b", pr) and b.get("season") != "thaw" else None
+            changed = []
+            if x.get("loc") in LOCS and x["loc"] not in ("cabin", b["loc"]):
+                changed.append(f"mekan {b['loc']}->{x['loc']}"); b["loc"] = x["loc"]
+            if season and season != b.get("season"):
+                changed.append(f"mevsim {b.get('season')}->{season}"); b["season"] = season
+            if b["loc"] in ("rapids", "boats"):
+                b["season"] = "thaw"
+            if changed:
+                print(f"  beat {x['beat']} resim: {', '.join(changed)}")
+                log.append({"round": rnd, "beat": x["beat"], "problem": x.get("problem", ""), "old": "(resim)", "new": ", ".join(changed)})
+        if not text_issues:
             break
-        for x in res:
+        for x in text_issues:
             b = d["beats"][x["beat"]]
             print(f"  beat {x['beat']}: {x.get('problem', '')}\n    eski: {b['text']}\n    yeni: {x['fix']}")
             log.append({"round": rnd, "beat": x["beat"], "problem": x.get("problem", ""), "old": b["text"], "new": x["fix"]})
             b["text"] = " ".join(str(x["fix"]).split())
-            if x.get("loc") in LOCS and b["shot"] not in ("host", "host_close") and x["loc"] != "cabin":
-                print(f"    mekan: {b['loc']} -> {x['loc']}"); b["loc"] = x["loc"]
+            if x.get("loc") in LOCS and not b["shot"].startswith("host") and x["loc"] != "cabin":
+                b["loc"] = x["loc"]
             if x.get("season") in ("winter", "thaw"):
                 b["season"] = x["season"]
             if b["loc"] in ("rapids", "boats"):
                 b["season"] = "thaw"
     else:
-        raise RuntimeError("5 turda da tarih hatasi kaldi")
+        raise RuntimeError("6 turda da tarih hatasi kaldi")
     d["fact_check"] = log
     d["story"] = " ".join(b["text"] for b in d["beats"])
     d["word_count"] = sum(len(b["text"].split()) for b in d["beats"])
