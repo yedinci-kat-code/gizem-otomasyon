@@ -402,6 +402,7 @@ export function frame(f, E) {
     const alt = shot === "wide" || shot === "crowd" || shot === "march" ? ["character", "close"] : shot === "huddle" ? ["close", "wide"] : ["close", "wide"];
     shot = alt[(sh.part - 1) % 2];
   } else if (sh.part >= 1 && shot === "host") shot = sh.part % 2 ? "host_tight" : "host";
+  else if (sh.part >= 1 && shot === "object") shot = sh.part % 2 ? "wide" : "object";  // belge uzun kalmasin: mekâna kes, geri dön
   if (["character", "close", "two", "run"].includes(shot) && !who.length) shot = "wide";
 
   switch (shot) {

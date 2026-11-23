@@ -126,7 +126,7 @@ def main():
     ti = 0
     for b in beats:
         b["cuts"] = []
-        if b["shot"] == "object" or b["f1"] - b["f0"] <= MAX_PART:
+        if b["f1"] - b["f0"] <= MAX_PART:
             continue
         cand = []
         for j in range(b["w0"] + 1, b["w1"] + 1):
