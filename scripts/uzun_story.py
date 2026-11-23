@@ -209,7 +209,7 @@ def fact_check(d, topic):
         script = "\n".join(f"{i} [{'NARRATOR AT STOVE (any text is fine here, never report its picture)' if b['shot'].startswith('host') else b['loc'] + ', ' + b.get('season', 'winter')}]: {b['text']}"
                             for i, b in enumerate(d["beats"]))
         res = None
-        for name in names:
+        for name in [n for n in names for _ in range(3)]:  # her model 3 deneme (bozuk JSON olursa tekrar)
             try:
                 m = genai.GenerativeModel(name, system_instruction=FACTCHECK,
                                           generation_config={"response_mime_type": "application/json", "temperature": 0.1,
@@ -217,7 +217,7 @@ def fact_check(d, topic):
                 txt = m.generate_content(f"Event: {topic}\n\nSCRIPT:\n{script}").text.strip()
                 if txt.startswith("```"):
                     txt = txt.split("```")[1].removeprefix("json")
-                res = json.loads(txt).get("issues", [])
+                res = json.JSONDecoder().raw_decode(txt[txt.find("{"):])[0].get("issues", [])
                 break
             except Exception as e:
                 print(f"denetci {name} hata: {e}")
