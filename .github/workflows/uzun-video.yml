@@ -1,0 +1,159 @@
+name: Unfrozen History - Uzun Cizgi Video (yayinsiz)
+
+# Format: 8-12 dk yatay (1920x1080, 24 fps) cizgi film; soba basindaki yasli anlatici + kanala ozel kis mekanlari.
+# Akis: senaryo + cekim plani (Gemini) -> seslendirme (Wiro ElevenLabs "Bill"; yedek edge-tts) -> faster-whisper kelime zamani
+#       -> kareler 16 paralel isde render -> birlestir + kalite kontrol + SRT + YouTube metni.
+# YOUTUBE'A YUKLEME YOK: video Artifacts'a ve 'uzun-cikti' dalina duser; kullanici kontrol edip elle (Liste disi) yukler.
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Konu (bos = uzun/topics.json sirasindaki ilk islenmemis konu)"
+        required: false
+        default: ""
+  push:
+    branches: [uzun-test, claude/unfrozen-history-pipeline-o8j1pc]
+    paths:
+      - "uzun/**"
+      - "scripts/uzun_*.py"
+      - ".github/workflows/uzun-video.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unfrozen-uzun
+  cancel-in-progress: false
+
+env:
+  SHARDS: "16"
+  FPS: "24"
+
+jobs:
+  hazirla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: FFmpeg kur
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Bagimliliklari kur
+        run: pip install -r requirements.txt faster-whisper
+
+      - name: 1) Senaryo + cekim plani (8-12 dk)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TOPIC: ${{ github.event.inputs.topic }}
+        run: python scripts/uzun_story.py
+
+      - name: 2) Seslendirme (Wiro ElevenLabs; yedek edge-tts)
+        env:
+          WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}
+          WIRO_API_SECRET: ${{ secrets.WIRO_API_SECRET }}
+        run: python scripts/uzun_voice.py
+
+      - name: 3) Proje (kelime zamani, plan, ruzgar + muzik + efekt)
+        env:
+          LANG_CODE: en
+          WHISPER_MODEL: base.en
+        run: python scripts/uzun_build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uzun-proje-${{ github.run_number }}
+          retention-days: 3
+          path: |
+            output_uzun/story.json
+            output_uzun/voice.wav
+            data/uzun_music.json
+            uzun/work/
+            uzun/out/mix.wav
+            uzun/sound.json
+            uzun/script.txt
+
+  render:
+    needs: hazirla
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          name: uzun-proje-${{ github.run_number }}
+      - name: Playwright + Chromium kur
+        run: |
+          pip install playwright numpy pillow
+          python -m playwright install --with-deps chromium
+      - name: Kareleri render et (parca ${{ matrix.shard }})
+        run: |
+          RANGE=$(python -c "import json;n=json.load(open('uzun/work/plan.json'))['frames'];k=${{ matrix.shard }};s=int(n*k/${SHARDS});e=int(n*(k+1)/${SHARDS})-1;print(f'{s}-{e}')")
+          echo "Kare araligi: $RANGE"
+          python uzun/tools/render.py uzun frames "$RANGE" --cpu
+          if [ "${{ matrix.shard }}" = "0" ]; then
+            python uzun/tools/render.py uzun stills 40 --cpu --query nocap --out uzun/frames/kapak
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uzun-kare-${{ github.run_number }}-${{ matrix.shard }}
+          retention-days: 1
+          path: uzun/frames/
+
+  bitir:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: FFmpeg kur
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Bagimliliklari kur
+        run: pip install -r requirements.txt pillow
+      - uses: actions/download-artifact@v4
+        with:
+          name: uzun-proje-${{ github.run_number }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: uzun-kare-${{ github.run_number }}-*
+          path: uzun/frames
+          merge-multiple: true
+
+      - name: 4) Birlestir + kalite kontrol + SRT + YouTube metni
+        run: python scripts/uzun_finish.py
+
+      - name: Ciktilari sakla (tam kalite video burada)
+        uses: actions/upload-artifact@v4
+        with:
+          name: uzun-video-${{ github.run_number }}
+          retention-days: 7
+          path: |
+            output_uzun/final.mp4
+            output_uzun/preview_720p.mp4
+            output_uzun/thumbnail.jpg
+            output_uzun/subtitles_en.srt
+            output_uzun/youtube.txt
+            output_uzun/qa_sheet.jpg
+            output_uzun/story.json
+
+      - name: Onizlemeyi 'uzun-cikti' dalina yaz (indirmesi kolay)
+        run: |
+          mkdir -p /tmp/c && cp output_uzun/preview_720p.mp4 output_uzun/thumbnail.jpg output_uzun/subtitles_en.srt output_uzun/youtube.txt output_uzun/qa_sheet.jpg output_uzun/story.json /tmp/c/
+          SZ=$(stat -c%s /tmp/c/preview_720p.mp4); if [ "$SZ" -gt 95000000 ]; then echo "onizleme 95 MB ustu, dala yazilmadi"; rm /tmp/c/preview_720p.mp4; fi
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin uzun-cikti && git checkout uzun-cikti || git checkout --orphan uzun-cikti
+          git rm -rf --cached . >/dev/null 2>&1 || true; rm -rf ./* 2>/dev/null || true
+          mkdir -p run-${{ github.run_number }} && cp /tmp/c/* run-${{ github.run_number }}/
+          git add run-${{ github.run_number }} && git commit -m "uzun video onizleme #${{ github.run_number }} [skip ci]" && git push origin uzun-cikti

@@ -1,0 +1,203 @@
+"""
+Unfrozen History - uzun video (8-12 dk) senaryo + cekim plani (Gemini).
+Kanal: Ingilizce kis/hayatta kalma tarihi; 55+ erkek izleyici (ABD/UK/Kanada).
+Format: soba basinda oturan yasli KURGUSAL anlatici (olayi yasamis siradan biri) anlatir; acilis 2. tekil sahis
+("It's 1897. You're twenty-two..."), sonra "that young man was me" ile anlatici devralir. Olaylar/tarih/rakamlar gercek.
+Cikti: output_uzun/story.json  (beats = okunacak metnin tamami + her vurusun cekimi)
+Konu: TOPIC ortam degiskeni > uzun/topics.json sirasindaki ilk islenmemis konu. Tekrar korumasi: data/uzun_history.json
+"""
+import json
+import os
+import sys
+import difflib
+import google.generativeai as genai
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, "output_uzun")
+HISTORY = os.path.join(ROOT, "data", "uzun_history.json")
+TOPICS = os.path.join(ROOT, "uzun", "topics.json")
+
+SHOTS = {"host", "host_close", "wide", "character", "close", "two", "run", "march", "huddle", "crowd", "object"}
+LOCS = {"cabin", "forest", "trench", "ice", "camp", "pass", "frontier", "town", "harbor", "prairie", "river", "hq"}
+PRESETS = {"soldier", "officer", "explorer", "sailor", "miner", "prospector", "mountie", "townsman", "worker", "farmer",
+           "doctor", "woman", "teacher", "elder", "elderwoman", "boy", "girl"}
+MOODS = {"scared", "shocked", "curious", "sly", "sad", "happy", "angry", "thoughtful", "telling", "nervous", "determined",
+         "proud", "amazed", "sleepy", "cold", "tired", "hopeful", "relieved"}
+
+SYSTEM = """You are the head writer AND cartoon director of the YouTube channel "Unfrozen History": true stories of
+people who survived the coldest moments in history (winter wars, polar expeditions, blizzards, frozen sieges, gold rushes).
+Audience: men 55+, USA/UK/Canada. They love real history told plainly, with heart, by someone who was there.
+The video is a warm, hand-drawn-looking 2D/3D CARTOON (not realistic), 8 to 11 minutes long.
+
+FORMAT (always):
+- The narrator is a FICTIONAL ordinary person who lived through the event (a private, a miner, a nurse, a sailor),
+  now old, telling the story by a wood stove in his cabin. He is never a real historical person.
+- OPENING (first 1-2 beats, max 25 words): second person, no intro, drop the viewer in:
+  "It's July 1897. You're twenty-two, and you just read a headline: a ton of gold has arrived in Seattle."
+  Then within the first 30 seconds: a clear promise of what they'll see, and the narrator reveals himself
+  ("That young fool was me. My name is ..."). The narrator name is ordinary (e.g. Walt Becker).
+- BODY: chronological, concrete, physical details (cold, food, gear, distances, prices, weather). 5 to 7 chapters.
+  Every chapter opens with a "card" (title + sub). Keep tension: each chapter ends on a small open question.
+- Around 40% of the way in: one beat asks the viewer a simple question to answer in the comments.
+- Near the end: one CTA beat (cta: true) with this exact meaning in your own words: "If you've stayed with me this far,
+  leave a like and subscribe; that's how I know you want more stories like this one." Never use the word "kill".
+- LAST beat: back by the stove (host_close), a quiet reflective line that echoes the opening.
+
+ACCURACY (red lines):
+- Only well documented facts: dates, places, numbers, prices, distances, weather. If unsure, stay general.
+- Real historical people may be mentioned and shown as cartoon characters, but give them NO invented quotes;
+  only famous, documented quotes.
+- No gore, no cruelty in detail, no hate symbols, no politics of today. Respectful about death.
+- Write numbers as words ("eighteen ninety-seven", "two thousand"), for the voice.
+
+LENGTH: 1300 to 1600 words in total (spoken slowly, about 9-11 minutes). 75 to 110 beats.
+Each beat = 1 to 3 short sentences (8 to 30 words). Sentences short and spoken, past tense, "I"/"we".
+
+SHOT PLAN - fields of every beat:
+- text: the narration (the concatenation of all beats is the whole script).
+- shot: one of
+  host (old narrator by the stove, talking to us; use 6-10 times, never twice in a row, never more than 12 beats apart),
+  host_close (ONLY the last beat), wide (place establishing shot, people small), character (one person, medium),
+  close (one person's face reaction), two (two people), run (someone running/fleeing in snow),
+  march (a line of people trudging through snow: columns, treks, climbs, retreats),
+  huddle (people huddled around a fire/stove), crowd (many people in a town/camp),
+  object (a document/map/sign close-up with a 1-3 word label, e.g. "ONE TON", "$1 A POUND", "1897"; use 4-8 times).
+- loc: cabin (only for host beats), forest, trench (foxholes/sandbags), ice (pack ice with a frozen wooden ship),
+  camp (tents + campfire on snow), pass (steep snowy mountain pass), frontier (gold-rush wooden town),
+  town (stone European town in snow), harbor (pier, sheds, icy water, whaling station / port),
+  prairie (open snowy plain, farmhouse, schoolhouse), river (frozen river / ice road), hq (office/command room with map table).
+  Use at least 5 different story locations; never more than 6 beats in a row in the same location.
+- who: cast keys shown in the beat (["A"] or ["A","B"]); empty for host/object/wide-without-people.
+- mood: scared, shocked, curious, sly, sad, happy, angry, thoughtful, telling, nervous, determined, proud, amazed,
+  sleepy, cold, tired, hopeful, relieved.   (two/run may add mood2 for the second person)
+- action (optional): walk, run, flee, stand, point, look, hide, sit, sleep, wave, talk, shiver, march.
+- fx (optional, at most every 3rd beat): question, exclaim, sweat, idea, puff, sparkle, hearts, anger, zzz, money, dust.
+- prop (optional, held by who[0]): lantern, letter, key, gold, coin, scroll, paper, magnifier, pen, cup.
+- label + obj: ONLY for shot=object; obj is "map", "newspaper" or "sign".
+- light (optional): snowday, snownight, blizzard, dawn, polar, stove, lamp. Use blizzard for storms.
+- card (optional): {"title": "Chapter title", "sub": "Chapter 2 · Place, Year"} on the first beat of each chapter.
+- cta: true on the CTA beat only (shot host).
+
+CAST: up to 4 characters A, B, C, D. Each: {"preset": one of soldier, officer, explorer, sailor, miner, prospector,
+mountie, townsman, worker, farmer, doctor, woman, teacher, elder, elderwoman, boy, girl, "name": "...", "color": "#hex optional"}.
+A = the narrator as a young man (pick the preset of his role). host = the narrator old, by the stove (no cast entry).
+crowd: the preset that fits background people (e.g. "miner").
+
+ALSO WRITE (YouTube):
+- title: 50-70 chars, curiosity, answer not given, plain words a 60-year-old would click ("...: How Ordinary Men Survived ...").
+- title_alt: a second, different title for A/B testing.
+- thumb_hook: 2-5 words, huge text on the first seconds and on the thumbnail (e.g. "A TON OF GEAR").
+- description: 3 short paragraphs (hook, what you'll see, question for comments). No chapters, no links.
+- tags: 15-20 search tags.
+- pinned_comment: one question for viewers.
+- sources: 4-6 real, well-known books or archives about the topic (author, title, year).
+
+Output ONLY this JSON:
+{"topic": "...", "narrator_name": "...", "title": "...", "title_alt": "...", "thumb_hook": "...", "description": "...",
+ "tags": ["..."], "pinned_comment": "...", "sources": ["..."], "crowd": "miner",
+ "cast": {"A": {"preset": "miner", "name": "Walt (young)"}},
+ "beats": [{"text": "...", "shot": "wide", "loc": "frontier", "who": ["A"], "mood": "curious", "card": {"title": "...", "sub": "..."}}, ...]}"""
+
+
+def load(path, default):
+    try:
+        return json.load(open(path, encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def pick_topic(history):
+    env = (os.environ.get("TOPIC") or "").strip()
+    if env:
+        return {"topic": env, "hint": ""}
+    done = {h.get("topic", "").lower() for h in history}
+    for t in load(TOPICS, []):
+        if t["topic"].lower() not in done:
+            return t
+    sys.exit("HATA: uzun/topics.json icinde islenmemis konu kalmadi")
+
+
+def normalize(d):
+    beats = [b for b in d.get("beats", []) if isinstance(b, dict) and str(b.get("text", "")).strip()]
+    if len(beats) < 60:
+        raise ValueError(f"cok az beat ({len(beats)}), en az 75 yaz")
+    cast = {k: v for k, v in (d.get("cast") or {}).items() if k in ("A", "B", "C", "D") and isinstance(v, dict)}
+    for v in cast.values():
+        if v.get("preset") not in PRESETS:
+            v["preset"] = "worker"
+    for b in beats:
+        b["text"] = " ".join(str(b["text"]).split())
+        if b.get("shot") not in SHOTS:
+            b["shot"] = "wide"
+        if b["shot"] == "host_close" and b is not beats[-1]:
+            b["shot"] = "host"
+        if b["shot"] == "host":
+            b["loc"] = "cabin"
+        elif b.get("loc") not in LOCS or b.get("loc") == "cabin":
+            b["loc"] = "forest"
+        b["who"] = [w for w in (b.get("who") or []) if w in cast]
+        if b.get("mood") not in MOODS:
+            b.pop("mood", None)
+        if b["shot"] == "object" and not b.get("label"):
+            b["shot"] = "wide"
+    beats[-1]["shot"], beats[-1]["loc"] = "host_close", "cabin"
+    # anlatici arka arkaya gelmesin
+    for prev, b in zip(beats, beats[1:]):
+        if b["shot"] == "host" and prev["shot"] == "host":
+            b["shot"], b["loc"] = "wide", next((x["loc"] for x in beats if x["loc"] != "cabin"), "forest")
+    if not any(b["shot"] == "host" for b in beats[:5]):
+        raise ValueError("anlatici ilk 5 beat icinde kendini tanitmali (shot=host)")
+    if not any(b.get("cta") for b in beats):
+        raise ValueError("cta: true olan abone cagrisi beat'i yok")
+    words = sum(len(b["text"].split()) for b in beats)
+    if not 1150 <= words <= 1850:
+        raise ValueError(f"metin {words} kelime; 1300-1600 olmali")
+    locs = {b["loc"] for b in beats if b["loc"] != "cabin"}
+    if len(locs) < 4:
+        raise ValueError("en az 5 farkli hikaye mekani kullan")
+    if " kill" in " " + " ".join(b["text"].lower() for b in beats if b.get("cta")):
+        raise ValueError("CTA'da 'kill' kelimesi yasak")
+    d["beats"], d["cast"] = beats, cast
+    d["story"] = " ".join(b["text"] for b in beats)
+    d["word_count"] = words
+    return d
+
+
+def main():
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        sys.exit("HATA: GEMINI_API_KEY yok")
+    genai.configure(api_key=key)
+    history = load(HISTORY, [])
+    topic = pick_topic(history)
+    model = genai.GenerativeModel(os.environ.get("GEMINI_MODEL", "gemini-3.5-flash"), system_instruction=SYSTEM,
+                                  generation_config={"response_mime_type": "application/json", "temperature": 0.8,
+                                                     "max_output_tokens": 40000})
+    done = ", ".join(h["topic"] for h in history if h.get("topic")) or "none"
+    prompt = (f"Topic: {topic['topic']}\n{topic.get('hint', '')}\n"
+              f"Already made (do not repeat these stories): {done}\nWrite the full plan now.")
+    err = None
+    for attempt in range(1, 5):
+        try:
+            ask = prompt if not err else prompt + f"\n\nPREVIOUS ATTEMPT REJECTED: {err}. Fix exactly that."
+            txt = model.generate_content(ask).text.strip()
+            if txt.startswith("```"):
+                txt = txt.split("```")[1].removeprefix("json")
+            d = normalize(json.loads(txt))
+            for h in history:
+                if difflib.SequenceMatcher(None, d["title"].lower(), h.get("title", "").lower()).ratio() > 0.75:
+                    raise ValueError("baslik eski bir videoya cok benziyor")
+            break
+        except Exception as e:
+            err = e
+            print(f"deneme {attempt}/4 basarisiz: {e}")
+    else:
+        sys.exit(f"HATA: gecerli plan uretilemedi: {err}")
+    d["topic"] = topic["topic"]
+    os.makedirs(OUT, exist_ok=True)
+    json.dump(d, open(os.path.join(OUT, "story.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print(f"plan: {d['title']} · {len(d['beats'])} beat · {d['word_count']} kelime")
+
+
+if __name__ == "__main__":
+    main()
