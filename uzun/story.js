@@ -203,6 +203,11 @@ const BUILD = {
     snowGround(E);
     const slope = E.box(80, 40, 60, E.mat("#ffffff", { map: (() => { const t = snowTex(E).clone(); t.needsUpdate = true; t.repeat.set(8, 4); return t; })() }), [0, -20, -40], { rot: [0.55, 0, 0] }); slope.castShadow = false;
     for (let i = 0; i < 14; i++) { const m = E.sphere(0.9 + (i % 3) * 0.4, E.mat("#6a6a74"), [-14 + i * 2.2, 2 + i * 0.9, -14 - i * 1.6], { seg: 8 }); m.scale.y = 0.6; }
+    let s = 61; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    // iki yanda kayalık sırtlar + seyrek çam: beyaz boşluk olmasın, dikliği okunsun
+    for (const sd of [-1, 1]) for (let i = 0; i < 8; i++) { const zz = -2 - i * 4.5, yy = Math.max(0, (-zz - 6) * 0.6); const c = E.cone(2.4 + r() * 2, 4 + r() * 5, E.mat(r() < 0.5 ? "#5a5a66" : "#4a4c58"), [sd * (8 + r() * 4), yy - 1, zz], { seg: 6 }); c.castShadow = false; E.cone(1.2 + r(), 1.6, E.mat("#f4f6ff"), [c.position.x, c.position.y + c.geometry.parameters.height * 0.62, zz], { seg: 6 }).castShadow = false; if (i % 2 === 0) snowPine(E, S, sd * (6 + r() * 2), zz + 1, 0.8 + r() * 0.4).position.y = Math.max(0, yy - 0.3); }
+    for (let i = 0; i < 26; i++) { const m = E.box(0.5, 0.06, 0.25, E.mat("#c9d2e2"), [-0.4 + i * 0.03, 0.4 + i * 0.95, -3 - i * 1.55]); m.castShadow = false; } // basamak izi (Golden Stairs)
+    for (let i = 0; i < 6; i++) { const b = E.box(0.8, 0.5, 0.6, E.mat("#8a6a46"), [-2.6 + (i % 3) * 0.9, 0, 1.2 - Math.floor(i / 3) * 0.7]); b.castShadow = true; } // bırakılmış yük yığını
     mountainsSnow(E, -150, 7, "#7f8fb4");
     return { light: "snowday", obj: [0, 1.4, -2.4], slope: true };
   },
@@ -232,7 +237,7 @@ const BUILD = {
     E.cyl(1.0, 1.2, 16, E.mat("#9a5a46", { map: T.brick("#9a5a46") }), [-9, 0, -22], { seg: 14 });
     for (const x of [-4, 0]) E.cyl(1.6, 1.6, 3, E.mat("#7a5a4a"), [x - 6, 0, -14], { seg: 16 });
     S.crate(2.6, -6.5, 0.8, 0.4); S.barrel(-2.6, -8.4, 0.9); S.boat(9, -12, { s: 0.8, rot: -0.4, col: "#5a4030" });
-    for (let i = 0; i < 9; i++) { const m = E.box(1.5 + (i % 3), 0.3, 1.2, E.mat("#e9f2fa"), [-20 + i * 5, -0.45, -26 - (i % 2) * 6]); m.castShadow = false; }
+    if (!THAW) for (let i = 0; i < 9; i++) { const m = E.box(1.5 + (i % 3), 0.3, 1.2, E.mat("#e9f2fa"), [-20 + i * 5, -0.45, -26 - (i % 2) * 6]); m.castShadow = false; }
     mountainsSnow(E, -120, 7, "#7f8fb4");
     return { light: "snowday", obj: [0, 1.0, -2.6] };
   },
