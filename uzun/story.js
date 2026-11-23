@@ -16,9 +16,10 @@ const LIGHT = {
   dawn: { sun: "#ffc79a", sunI: 1.3, az: -75, el: 12, sky: "#f6c9b8", ground: "#7a7090", hemiI: 0.75, amb: 0.17, top: "#7d8fc4", bot: "#ffd9bd", fog: "#f0cdbd", fogNear: 35, fogFar: 160, card: "#ffe9dc", sat: 1.05, warm: 0.05, con: 1.06, vig: 0.34 },
   stove: { sun: "#ffd9a8", sunI: 0.7, az: -40, el: 55, sky: "#4a3028", ground: "#2a1a14", hemiI: 0.62, amb: 0.2, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f6dcc4", sat: 1.06, warm: 0.06, con: 1.08, vig: 0.46 },
   polar: { sun: "#fff4e6", sunI: 1.2, az: -60, el: 18, sky: "#e6ecf6", ground: "#9aa6bd", hemiI: 0.9, amb: 0.22, top: "#8faad4", bot: "#f6e9de", fog: "#e6e9f0", fogNear: 40, fogFar: 170, card: "#fff8f0", sat: 0.95, warm: 0.0, con: 1.05, vig: 0.3 },
+  spring: { sun: "#fff2d8", sunI: 1.25, az: -40, el: 38, sky: "#cfe2ee", ground: "#6f7a52", hemiI: 0.95, amb: 0.24, top: "#7fa8d0", bot: "#e6efe0", fog: "#d6e2e4", fogNear: 35, fogFar: 160, card: "#f6f8ee", sat: 1.0, warm: 0.02, con: 1.04, vig: 0.3 },
   lamp: { sun: "#fff0d0", sunI: 0.85, az: -30, el: 60, sky: "#e8d8bc", ground: "#4a3828", hemiI: 0.85, amb: 0.26, top: "#d8c6a8", bot: "#d8c6a8", fog: "#cdbb9c", fogNear: 25, fogFar: 100, card: "#fff2e0", sat: 1.0, warm: 0.03, con: 1.06, vig: 0.38 },
 };
-const LALIAS = { day: "snowday", gunduz: "snowday", night: "snownight", gece: "snownight", storm: "blizzard", golden: "dawn", sunset: "dawn", interior: "lamp", warm: "stove" };
+const LALIAS = { day: "snowday", gunduz: "snowday", night: "snownight", gece: "snownight", storm: "blizzard", golden: "dawn", sunset: "dawn", interior: "lamp", warm: "stove", summer: "spring", thaw: "spring" };
 const L = (n) => LIGHT[n] || LIGHT[LALIAS[n]] || LIGHT.snowday;
 
 // ---------------------------------------------------------------- oyuncular
@@ -85,15 +86,17 @@ const mapTex = (E, label) => canvasTex(E, "map" + label, (g, r, w, h) => {
 
 // ---------------------------------------------------------------- set yardımcıları
 const GAP = 700;
+let THAW = false;  // bahar/yaz varyantı: kar yok, çamur + çimen, ağaçlarda kar şapkası yok
+const ROOF = () => (THAW ? "#6a5a4a" : "#e9eef6");
 function snowPine(E, S, x, z, s = 1, col = "#2f4a3e") {
   const g = E.group(null, [x, 0, z]);
   E.cyl(0.15 * s, 0.22 * s, 1.2 * s, E.mat("#5a3a24"), [0, 0, 0], { parent: g });
-  for (let i = 0; i < 3; i++) { const r = (1.5 - i * 0.35) * s, y = (1 + i * 1.1) * s; E.cone(r, 1.8 * s, E.mat(col), [0, y, 0], { parent: g, seg: 9 }); E.cone(r * 0.62, 0.75 * s, E.mat("#f4f7fc"), [0, y + 1.08 * s, 0], { parent: g, seg: 9 }); }
+  for (let i = 0; i < 3; i++) { const r = (1.5 - i * 0.35) * s, y = (1 + i * 1.1) * s; E.cone(r, 1.8 * s, E.mat(col), [0, y, 0], { parent: g, seg: 9 }); if (!THAW) E.cone(r * 0.62, 0.75 * s, E.mat("#f4f7fc"), [0, y + 1.08 * s, 0], { parent: g, seg: 9 }); }
   return g;
 }
-function snowGround(E, size = 300, base) { const t = snowTex(E, base).clone(); t.needsUpdate = true; t.repeat.set(size / 12, size / 12); const m = E.plane(size, size, E.mat("#ffffff", { map: t }), [0, 0, 0], { rot: [-Math.PI / 2, 0, 0] }); m.castShadow = false; return m; }
-function drift(E, x, z, w = 3, h = 0.7, d = 1.6) { const m = E.sphere(1, E.mat("#f1f4fa"), [x, 0, z], { seg: 14 }); m.scale.set(w, h, d); return m; }
-function snowHills(E, z = -90, n = 8, seed = 5) { let s = seed; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); for (let i = 0; i < n; i++) { const m = E.sphere(20 + r() * 22, E.mat(r() < 0.5 ? "#e6ecf6" : "#d6deec"), [-150 + (i / (n - 1)) * 300 + r() * 20, -12, z - r() * 30], { seg: 18 }); m.scale.y = 0.42; m.castShadow = false; } }
+function snowGround(E, size = 300, base) { if (THAW) base = "#7b7f55"; const t = snowTex(E, base).clone(); t.needsUpdate = true; t.repeat.set(size / 12, size / 12); const m = E.plane(size, size, E.mat("#ffffff", { map: t }), [0, 0, 0], { rot: [-Math.PI / 2, 0, 0] }); m.castShadow = false; return m; }
+function drift(E, x, z, w = 3, h = 0.7, d = 1.6) { const m = E.sphere(1, E.mat(THAW ? "#6a7348" : "#f1f4fa"), [x, 0, z], { seg: 14 }); m.scale.set(w, h, d); return m; }
+function snowHills(E, z = -90, n = 8, seed = 5) { let s = seed; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); for (let i = 0; i < n; i++) { const m = E.sphere(20 + r() * 22, E.mat(THAW ? (r() < 0.5 ? "#6f7d55" : "#5f6d4a") : (r() < 0.5 ? "#e6ecf6" : "#d6deec")), [-150 + (i / (n - 1)) * 300 + r() * 20, -12, z - r() * 30], { seg: 18 }); m.scale.y = 0.42; m.castShadow = false; } }
 function mountainsSnow(E, z = -170, n = 7, col = "#8f9fc4") { let s = 9; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); for (let i = 0; i < n; i++) { const h = 34 + r() * 34, x = -230 + (i / (n - 1)) * 460, zz = z - r() * 40; const c = E.cone(30 + r() * 18, h, E.mat(col), [x, -2, zz], { seg: 7 }); c.castShadow = false; const cap = E.cone(13, h * 0.42, E.mat("#f4f6ff"), [x, h * 0.58 - 2, zz], { seg: 7 }); cap.castShadow = false; } }
 const glowBox = (E, w, h, d, pos, o = {}) => E.box(w, h, d, E.mat(o.col || "#ffd36a", { emissive: o.em || "#ffb648", glow: o.glow ?? 1.6 }), pos, o);
 function fire(E, x, z, parent) {
@@ -131,6 +134,16 @@ function ship(E, x, z, o = {}) { // üç direkli barkentin: kare yelken sadece �
   for (const mx of [1.2 * s, -6.5 * s]) E.box(3.6 * s, 0.14, 0.14, E.mat("#6b4428"), [mx - 1.8 * s, 4.2 * s, 0], { parent: g }); // gaff bumbaları
   E.box(5 * s, 0.12, 0.12, E.mat("#6b4428"), [12 * s, 3.4 * s, 0], { parent: g, rot: [0, 0, 0.25] }); // cıvadra
   if (o.tilt) g.rotation.z = o.tilt;
+  return g;
+}
+
+function scow(E, x, z) { // el yapımı yassı tekne: oyuncular içinde durur (zemin y=0), kıç küreği + baş küreği
+  const g = E.group(null, [x, 0, z]), c = "#7a5a3a", T = E.T;
+  E.box(8.6, 0.25, 3.4, E.mat("#6b4a30", { map: T.planks("#6b4a30") }), [0, -0.25, 0], { parent: g });
+  for (const zz of [-1.7, 1.7]) E.box(8.6, 0.95, 0.16, E.mat(c, { map: T.planks(c) }), [0, -0.3, zz], { parent: g });
+  for (const xx of [-4.3, 4.3]) E.box(0.16, 0.95, 3.4, E.mat(c, { map: T.planks(c) }), [xx, -0.3, 0], { parent: g });
+  E.box(5.2, 0.08, 0.1, E.mat("#5a4030"), [-6.2, 0.5, 0], { parent: g, rot: [0, 0, 0.12] }); E.box(4.6, 0.08, 0.1, E.mat("#5a4030"), [6.0, 0.45, 0], { parent: g, rot: [0, 0, -0.1] });
+  for (const [xx, zz] of [[-2.6, -1.0], [2.8, -0.9]]) E.box(0.9, 0.6, 0.7, E.mat("#d9cdb0"), [xx, 0, zz], { parent: g }); // un çuvalları
   return g;
 }
 
@@ -197,7 +210,7 @@ const BUILD = {
     snowGround(E, 300, "#e8ecf3");
     E.box(70, 0.25, 3, E.mat("#8a6a46", { map: T.planks("#8a6a46") }), [0, 0, -5.4]);
     const walls = ["#8a6a46", "#a8845a", "#6f5a46", "#9a7a56"];
-    [-15, -7.5, 0, 7.5, 15].forEach((x, i) => { S.building(x, -10.2, { w: 6.6, d: 6, floors: 2, fh: 3, wall: walls[i % 4], roof: "#e9eef6", shutter: null, win: "#ffd88a", cols: 2, flatRoof: true, chimney: false }); E.box(6.6, 1.4, 0.3, E.mat(walls[(i + 1) % 4]), [x, 6, -7.1]); });
+    [-15, -7.5, 0, 7.5, 15].forEach((x, i) => { S.building(x, -10.2, { w: 6.6, d: 6, floors: 2, fh: 3, wall: walls[i % 4], roof: ROOF(), shutter: null, win: "#ffd88a", cols: 2, flatRoof: true, chimney: false }); E.box(6.6, 1.4, 0.3, E.mat(walls[(i + 1) % 4]), [x, 6, -7.1]); });
     for (const x of [-12, 4]) E.label(T.sign(x < 0 ? "GENERAL STORE" : "ASSAY OFFICE", { bg: "#efe0b8", fg: "#3a2a20", border: "#5a3a20", size: 110 }), 4.6, 1.0, [x + 0.5, 6.7, -6.9], { lit: true });
     S.barrel(-3, -4.6); S.crate(3, -4.8, 0.8); sledge(E, -1.2, -2.6, 0.1); S.lamp(-5, -4.4, { on: true });
     mountainsSnow(E, -140, 6, "#8f9fc4");
@@ -205,7 +218,7 @@ const BUILD = {
   },
   town(E, S, T) { // Avrupa kasabası: taş evler karlı çatı, kilise kulesi, enkaz
     S.street({ len: 80, width: 6, z: -3, col: "#b0a898" }); snowGround(E, 300, "#e6ebf2").position.y = -0.08;
-    [-14, -7, 0, 7, 14].forEach((x, i) => S.building(x, -10.5, { w: 6.6, d: 6, floors: 2 + (i % 2), fh: 3, wall: ["#b9b0a0", "#a8a294", "#c4bba8"][i % 3], roof: "#eef2f8", shutter: "#4a4a5a", win: "#3a4a6a", cols: 2, chimney: i % 2 === 0 }));
+    [-14, -7, 0, 7, 14].forEach((x, i) => S.building(x, -10.5, { w: 6.6, d: 6, floors: 2 + (i % 2), fh: 3, wall: ["#b9b0a0", "#a8a294", "#c4bba8"][i % 3], roof: THAW ? "#7a6a5a" : "#eef2f8", shutter: "#4a4a5a", win: "#3a4a6a", cols: 2, chimney: i % 2 === 0 }));
     const tw = E.group(null, [3.5, 0, -22]); E.box(4, 14, 4, E.mat("#a8a294", { map: T.stone("#a8a294") }), [0, 0, 0], { parent: tw }); E.cone(3.2, 6, E.mat("#4a5a6a"), [0, 14, 0], { parent: tw, seg: 4 });
     for (let i = 0; i < 8; i++) E.box(0.6 + (i % 3) * 0.3, 0.35, 0.5, E.mat("#8a8478"), [-5.6 + (i % 4) * 0.5, 0, -5.6 + Math.floor(i / 4) * 0.4], { rot: [0, i, 0.2] });
     drift(E, 5.5, -5.4, 2.4, 0.6); S.lamp(-3, -5.6, { on: false });
@@ -215,7 +228,7 @@ const BUILD = {
     S.water({ size: 320, y: -0.5, col: "#3a5a7a", z: -40 });
     E.box(9, 0.3, 26, E.mat("#8a6a46", { map: T.planks("#8a6a46") }), [0, -0.3, -4]);
     for (let z = -16; z <= 8; z += 3) for (const x of [-4.3, 4.3]) E.cyl(0.16, 0.16, 1.8, E.mat("#5a4030"), [x, -1.5, z], { seg: 8 });
-    const sh = E.group(null, [-14, 0, -18]); S.building(0, 0, { w: 10, d: 7, floors: 1, fh: 4, wall: "#8a5a46", roof: "#eef2f8", shutter: null, win: "#3a4a6a", cols: 3, parent: sh, chimney: false });
+    const sh = E.group(null, [-14, 0, -18]); S.building(0, 0, { w: 10, d: 7, floors: 1, fh: 4, wall: "#8a5a46", roof: ROOF(), shutter: null, win: "#3a4a6a", cols: 3, parent: sh, chimney: false });
     E.cyl(1.0, 1.2, 16, E.mat("#9a5a46", { map: T.brick("#9a5a46") }), [-9, 0, -22], { seg: 14 });
     for (const x of [-4, 0]) E.cyl(1.6, 1.6, 3, E.mat("#7a5a4a"), [x - 6, 0, -14], { seg: 16 });
     S.crate(2.6, -6.5, 0.8, 0.4); S.barrel(-2.6, -8.4, 0.9); S.boat(9, -12, { s: 0.8, rot: -0.4, col: "#5a4030" });
@@ -225,8 +238,8 @@ const BUILD = {
   },
   prairie(E, S, T) { // açık kar ovası: çiftlik evi, okul, çit
     snowGround(E);
-    S.building(-9, -16, { w: 7, d: 6, floors: 2, fh: 2.8, wall: "#c9b48a", roof: "#eef2f8", shutter: "#4a3a2a", win: "#ffd88a", cols: 2, chimney: true });
-    const sc = E.group(null, [9, 0, -18]); S.building(0, 0, { w: 8, d: 6, floors: 1, fh: 3.4, wall: "#b8322e", roof: "#eef2f8", shutter: null, win: "#ffd88a", cols: 3, parent: sc, chimney: false });
+    S.building(-9, -16, { w: 7, d: 6, floors: 2, fh: 2.8, wall: "#c9b48a", roof: ROOF(), shutter: "#4a3a2a", win: "#ffd88a", cols: 2, chimney: true });
+    const sc = E.group(null, [9, 0, -18]); S.building(0, 0, { w: 8, d: 6, floors: 1, fh: 3.4, wall: "#b8322e", roof: ROOF(), shutter: null, win: "#ffd88a", cols: 3, parent: sc, chimney: false });
     E.box(1.2, 2.2, 1.2, E.mat("#efe6d2"), [0, 5.2, 0], { parent: sc }); E.cone(1.0, 1.4, E.mat("#5a4a4a"), [0, 7.4, 0], { parent: sc, seg: 4 });
     S.fence(-14, 14, -7.5, { col: "#6b5a4a" }); for (let i = 0; i < 6; i++) drift(E, -12 + i * 5, -7.2, 1.8, 0.5, 1);
     snowHills(E, -110, 6);
@@ -242,6 +255,24 @@ const BUILD = {
     mountainsSnow(E, -150, 6, "#8f9fc4");
     return { light: "snowday", obj: [0, 1.2, -2.0] };
   },
+  rapids(E, S, T) { // dar kanyonda azgın nehir (Miles Canyon vb.): bazalt duvarlar, köpük, ortada kahramanların sal/teknesi
+    const w = S.water({ size: 320, y: -0.25, col: "#2f5a6a", z: -20 });
+    let s = 41; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (const sd of [-1, 1]) for (let i = 0; i < 9; i++) { const c = E.box(6 + r() * 4, 9 + r() * 7, 7, E.mat(r() < 0.5 ? "#3a3a42" : "#2e2f36"), [sd * (9.5 + r() * 2), 0, 6 - i * 7], { rot: [0, r() * 0.3, 0] }); c.castShadow = false; snowPine(E, S, sd * (10 + r() * 2), 6 - i * 7, 0.9 + r() * 0.5).position.y = 9 + r() * 5; }
+    for (let i = 0; i < 34; i++) { const near = i < 10, zz = near ? 0.5 - r() * 4 : -4 - r() * 36, xx = near ? (i % 2 ? 1 : -1) * (5 + r() * 2.5) : -7 + r() * 14; const m = E.sphere(near ? 0.35 + r() * 0.4 : 0.5 + r() * 0.9, E.mat("#f4f8fa"), [xx, -0.2, zz], { seg: 8 }); m.scale.set(1.6, 0.22, 0.8); m.castShadow = false; m.userData.foam = 1; }
+    for (let i = 0; i < 7; i++) { const m = E.sphere(0.6 + r() * 0.5, E.mat("#2a2a30"), [-6 + r() * 12, -0.3, -4 - r() * 26], { seg: 7 }); m.scale.y = 0.6; }
+    scow(E, 0, -1.0);
+    return { light: "spring", obj: [0, 1.4, -1.6], water: true, season: "thaw", boat: true };
+  },
+  boats(E, S, T) { // buzu çözülmüş göl: yüzlerce el yapımı tekne (Lake Bennett, 1898 baharı)
+    S.water({ size: 320, y: -0.25, col: "#4a7a96", z: -20 });
+    scow(E, 0, -1.0);
+    let s = 52; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < 26; i++) S.boat(-34 + r() * 68, -9 - r() * 40, { s: 0.45 + r() * 0.3, rot: r() * 0.6 - 0.3, col: ["#5a4030", "#6b4a30", "#7a5a3a"][i % 3] });
+    for (let i = 0; i < 30; i++) snowPine(E, S, -80 + r() * 160, -62 - r() * 16, 1.6 + r());
+    mountainsSnow(E, -150, 7, "#7f8fb4");
+    return { light: "spring", obj: [0, 1.4, -1.6], water: true, season: "thaw", boat: true };
+  },
   hq(E, S, T) { // karargâh / ofis: harita masası, lamba
     S.room({ w: 13, d: 9, h: 4.2, wall: T.plaster("#cfc4ae"), floor: T.planks("#6b4428"), floorRep: 0.4, window: true, door: true, night: true });
     S.table(0, -2.2, { w: 3.2, d: 1.6, col: "#5a3420" }); S.paper(0, 0.97, -2.2, mapTex(E, "hq"), { w: 2.6, h: 1.3 });
@@ -250,24 +281,28 @@ const BUILD = {
     return { light: "lamp", obj: [0, 1.3, -1.8], indoor: true };
   },
 };
-const ALIAS = { cabin_ic: "cabin", home: "cabin", woods: "forest", pine: "forest", foxhole: "trench", front: "trench", lines: "trench", sea_ice: "ice", antarctic: "ice", arctic: "ice", ship: "ice", tents: "camp", bivouac: "camp", mountain: "pass", trail: "pass", goldrush: "frontier", boomtown: "frontier", city: "town", village: "town", street: "town", port: "harbor", station: "harbor", pier: "harbor", farm: "prairie", plains: "prairie", school: "prairie", lake: "river", ice_road: "river", office: "hq", command: "hq", room: "hq" };
+const ALIAS = { cabin_ic: "cabin", home: "cabin", woods: "forest", pine: "forest", foxhole: "trench", front: "trench", lines: "trench", sea_ice: "ice", antarctic: "ice", arctic: "ice", ship: "ice", tents: "camp", bivouac: "camp", mountain: "pass", trail: "pass", goldrush: "frontier", boomtown: "frontier", city: "town", village: "town", street: "town", port: "harbor", station: "harbor", pier: "harbor", farm: "prairie", plains: "prairie", school: "prairie", frozen_lake: "river", ice_road: "river", lake: "boats", canyon: "rapids", whitewater: "rapids", rapids_river: "rapids", yukon: "boats", open_water: "boats", office: "hq", command: "hq", room: "hq" };
 const locName = (n) => { n = (n || "").toLowerCase(); return BUILD[n] ? n : ALIAS[n] || "forest"; };
 
-function buildLoc(E, name, idx) {
+function buildLoc(E, key, idx) {
+  const [name, var_] = key.split("~");
   const before = new Set(E.scene.children);
+  THAW = var_ === "thaw";
   const info = BUILD[name](E, E.S, E.T) || {};
+  THAW = false;
   const g = new E.THREE.Group(); g.position.set(idx * GAP, 0, 0);
   for (const c of [...E.scene.children]) if (!before.has(c)) g.add(c);
   E.scene.add(g);
-  const lights = [], water = [];
-  g.traverse((o) => { if (o.isPointLight) { o.userData.base = o.intensity; lights.push(o); } if (o.isMesh && o.userData.water) water.push(o.userData.water); });
-  LOC[name] = { x: idx * GAP, light: info.light || "snowday", obj: info.obj || [0, 1.3, -2.4], indoor: !!info.indoor, slope: !!info.slope, lights, water };
+  const lights = [], water = [], foam = [];
+  g.traverse((o) => { if (o.isPointLight) { o.userData.base = o.intensity; lights.push(o); } if (o.isMesh && o.userData.water) water.push(o.userData.water); if (o.isMesh && o.userData.foam) { o.userData.z0 = o.position.z; foam.push(o); } });
+  const thaw = var_ === "thaw" || info.season === "thaw";
+  LOC[key] = { x: idx * GAP, foam, thaw, boat: !!info.boat, light: thaw && !["lamp", "stove"].includes(info.light) ? "spring" : (info.light || "snowday"), obj: info.obj || [0, 1.3, -2.4], indoor: !!info.indoor, slope: !!info.slope, lights, water };
 }
 
 // ---------------------------------------------------------------- yağan kar
 function buildSnow(E) {
   const m = E.mat("#ffffff", { emissive: "#ffffff", glow: 0.5 }); const out = [];
-  for (let i = 0; i < 170; i++) { const s = E.sphere(0.035 + (i % 5) * 0.008, m, [0, -80, 0], { seg: 5 }); s.userData.noink = true; s.castShadow = false; out.push(s); }
+  for (let i = 0; i < 170; i++) { const s = E.sphere(0.028 + (i % 5) * 0.006, m, [0, -80, 0], { seg: 5 }); s.userData.noink = true; s.castShadow = false; out.push(s); }
   return out;
 }
 function snowFall(f, cam, on, storm) {
@@ -278,7 +313,7 @@ function snowFall(f, cam, on, storm) {
     const a = (i * 0.618034) % 1, b = (i * 0.414214) % 1, c = (i * 0.732051) % 1;
     const sp = storm ? 2.6 : 0.7 + b * 0.5, wx = storm ? 3.4 : 0.35;
     const y = 7 - ((s * sp + c * 7) % 7);
-    const x = ((a * 18 + s * wx + Math.sin(s * 0.8 + i) * 0.3) % 18) - 9, z = -1.5 - b * 11;
+    const x = ((a * 18 + s * wx + Math.sin(s * 0.8 + i) * 0.3) % 18) - 9, z = -3.2 - b * 12;
     m.position.set(cam.pos[0] + x, Math.max(0.05, y + cam.pos[1] - 2), cam.pos[2] + z);
   });
 }
@@ -298,13 +333,25 @@ function insertCard(E, text, kind) {
 // ---------------------------------------------------------------- kur
 export async function build(E) {
   try { const r = await fetch("../work/plan.json?v=" + Date.now()); P = await r.json(); } catch (e) { console.error("plan.json yok", e); P = { beats: [] }; }
-  const used = ["cabin"]; for (const b of P.beats) { const n = b.shot && b.shot.startsWith("host") ? "cabin" : locName(b.loc); b.loc = n; if (!used.includes(n)) used.push(n); }
+  const used = ["cabin"];
+  for (const b of P.beats) {
+    let n = b.shot && b.shot.startsWith("host") ? "cabin" : locName(b.loc);
+    if (n !== "cabin" && n !== "hq" && b.season === "thaw" && !["rapids", "boats"].includes(n)) n += "~thaw";
+    b.loc = n; if (!used.includes(n)) used.push(n);
+  }
   used.forEach((n, i) => buildLoc(E, n, i));
   E.actor("host", { ...PRESET.host, ...(P.host || {}) });
   const cast = P.cast || {};
+  // aynı meslekten iki kişi birbirinin kopyası olmasın: ceket / şapka / sakal sırayla değişir; A (genç anlatıcı) yaşlı hâli gibi kırmızı atkı takar
+  const VAR = [{}, { jacket: "#3a4a5a", hat: "cap", hatCol: "#4a4a4a", beard: "#2a2420", shirt: "#c9b48a" }, { jacket: "#6a3a2a", hat: "beanie", hatCol: "#2f4a3e", beard: "#a85a2a", shirt: "#e8e0cc" }, { jacket: "#4a5a3a", hat: "bowler", hatCol: "#2b2633", beard: null, moustache: "#3a2a20", shirt: "#d8c8a8" }];
+  const seen = {};
   for (const [k, c] of Object.entries(cast)) {
-    const base = PRESET[c.preset] || PRESET.worker;
-    E.actor(k, { ...base, ...(c.color ? { jacket: base.jacket ? c.color : undefined, shirt: base.jacket ? base.shirt : c.color, dress: base.dress ? c.color : undefined } : {}), seed: 11 + k.charCodeAt(0) * 3 });
+    const base = PRESET[c.preset] || PRESET.worker; const n = seen[c.preset] = (seen[c.preset] ?? -1) + 1;
+    const v = n && !base.dress ? VAR[n % VAR.length] : {};
+    const spec = { ...base, ...v, ...(c.color ? { jacket: base.jacket ? c.color : undefined, shirt: base.jacket ? base.shirt : c.color, dress: base.dress ? c.color : undefined } : {}), seed: 11 + k.charCodeAt(0) * 3 };
+    if (k === "A") { spec.scarf = PRESET.host.scarf; spec.beard = spec.beard ? "#8a5a3a" : spec.beard; }
+    if (spec.beard === null) delete spec.beard;
+    E.actor(k, spec);
   }
   const crowdP = ["soldier", "worker", "miner", "woman", "townsman", "farmer", "explorer", "sailor"];
   const crowdBase = (P.crowd && PRESET[P.crowd]) ? P.crowd : null;
@@ -361,7 +408,7 @@ export function frame(f, E) {
   const side = ((sh.i + sh.part) % 2 ? 1 : -1);
   const W = (x, y, z) => [ox + x, y, z];
   const st = (seed, o = {}) => ({ blink: E.blink(f, seed), ...E.idle(f, seed), ...o });
-  const who = (sh.who || []).filter((w) => E.actors.has(w));
+  const who = (sh.who && sh.who.length ? sh.who : LOC[sh.loc]?.boat ? ["A", "B"] : []).filter((w) => E.actors.has(w));  // teknede boş sal olmasın
   const mood = MOOD[sh.mood] || MOOD.curious;
   const A = [], FX = [];
   let light = L(sh.light || lc.light), cam, dof = { focus: 6, amount: 4 }, flash = 0, overlay = null, focusPt = W(0, 0, -1);
@@ -393,7 +440,9 @@ export function frame(f, E) {
   const ck = (a, b, fov = 34, fov2 = fov - 2) => E.camAt(f, [{ f: sh.f0, pos: W(...a[0]), look: W(...a[1]), fov }, { f: sh.f1, pos: W(...b[0]), look: W(...b[1]), fov: fov2 }]);
 
   for (const Lg of (lc.lights || [])) Lg.intensity = Lg.userData.base * (0.86 + 0.1 * Math.sin(f / FPS * 9 + Lg.id) + 0.06 * Math.sin(f / FPS * 23 + Lg.id * 3));
-  for (const tw of (lc.water || [])) { tw.offset.x = f / FPS * 0.015; tw.offset.y = f / FPS * 0.025; }
+  const fast = sh.loc === "rapids";
+  for (const tw of (lc.water || [])) { tw.offset.x = f / FPS * (fast ? 0.02 : 0.015); tw.offset.y = f / FPS * (fast ? 0.35 : 0.025); }
+  for (const m of (lc.foam || [])) m.position.z = m.userData.z0 + ((f / FPS * 6 + m.userData.z0 * 7) % 8) - 4;
 
   let shot = sh.shot;
   const nParts = SH.filter((x) => x.i === sh.i).length;
@@ -404,6 +453,7 @@ export function frame(f, E) {
   } else if (sh.part >= 1 && shot === "host") shot = sh.part % 2 ? "host_tight" : "host";
   else if (sh.part >= 1 && shot === "object") shot = sh.part % 2 ? "wide" : "object";  // belge uzun kalmasin: mekâna kes, geri dön
   if (["character", "close", "two", "run"].includes(shot) && !who.length) shot = "wide";
+  if (lc.boat && ["run", "march", "crowd", "huddle"].includes(shot)) shot = who.length > 1 ? "two" : who.length ? "character" : "wide";
 
   switch (shot) {
     case "host": case "host_close": {
@@ -492,14 +542,15 @@ export function frame(f, E) {
     default: cam = ck([[0, 2.6, 9], [0, 2, -5]], [[0, 2.4, 8], [0, 2, -5]], 38, 36);
   }
   // kalabalık yerlerde geniş çekimde arka plan figüranı
-  if (!lc.indoor && ["wide", "character", "two"].includes(shot) && ["frontier", "town", "camp", "harbor"].includes(sh.loc) && !A.some((a) => a.id.startsWith("k"))) {
+  if (!lc.indoor && ["wide", "character", "two"].includes(shot) && ["frontier", "town", "camp", "harbor"].includes(sh.loc.split("~")[0]) && !A.some((a) => a.id.startsWith("k"))) {
     const dx = ((f * 0.02) % 10) - 5;
     A.push({ id: "k6", pos: W(-2.4 + dx * 0.3, 0, -7.0), st: st(44, { legs: "walk", phase: t / 22, face: "neutral" }), flip: true });
     A.push({ id: "k7", pos: W(2.6, 0, -7.8), st: st(45, { face: "think", arms: "cross" }) });
   }
   // yağan kar: dış mekânda hep; fırtına ışığında yoğun
   const storm = (sh.light === "blizzard" || sh.light === "storm");
-  snowFall(f, cam, !lc.indoor && sh.snow !== false, storm);
+  snowFall(f, cam, !lc.indoor && !lc.thaw && sh.snow !== false, storm);
+  if (sh.loc === "rapids" && cam) { const k2 = Math.sin(f / FPS * 2.3) * 0.12 + Math.sin(f / FPS * 5.1) * 0.05; cam.pos = [cam.pos[0], cam.pos[1] + k2, cam.pos[2]]; cam.roll = (cam.roll || 0) + Math.sin(f / FPS * 1.7) * 0.035; }
   if (storm) dof = { ...dof, amount: Math.max(dof.amount || 0, 3) };
 
   if (sh.cta) { const p0 = SH.find((x) => x.i === sh.i).f0; overlay = ctaCard(P.cta || "Subscribe for more stories", X.back(X.span(f, p0 + 6, p0 + 18))); }

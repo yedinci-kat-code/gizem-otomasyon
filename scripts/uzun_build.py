@@ -71,7 +71,7 @@ def wind_bed(beats, total_s, path):
     env = np.zeros(n, np.float32)
     for b in beats:
         a, e = int(b["f0"] / FPS * SR), int(b["f1"] / FPS * SR)
-        lvl = 0.12 if b["loc"] in ("cabin", "hq") else 1.0
+        lvl = 0.12 if b["loc"] in ("cabin", "hq") else 0.45 if b.get("season") == "thaw" else 1.0
         if b.get("light") in ("blizzard", "storm"):
             lvl = 2.4
         env[a:e] = lvl

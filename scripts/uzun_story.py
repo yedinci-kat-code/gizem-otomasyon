@@ -18,7 +18,7 @@ HISTORY = os.path.join(ROOT, "data", "uzun_history.json")
 TOPICS = os.path.join(ROOT, "uzun", "topics.json")
 
 SHOTS = {"host", "host_close", "wide", "character", "close", "two", "run", "march", "huddle", "crowd", "object"}
-LOCS = {"cabin", "forest", "trench", "ice", "camp", "pass", "frontier", "town", "harbor", "prairie", "river", "hq"}
+LOCS = {"cabin", "forest", "trench", "ice", "camp", "pass", "frontier", "town", "harbor", "prairie", "river", "rapids", "boats", "hq"}
 PRESETS = {"soldier", "officer", "explorer", "sailor", "miner", "prospector", "mountie", "townsman", "worker", "farmer",
            "doctor", "woman", "teacher", "elder", "elderwoman", "boy", "girl"}
 MOODS = {"scared", "shocked", "curious", "sly", "sad", "happy", "angry", "thoughtful", "telling", "nervous", "determined",
@@ -71,7 +71,10 @@ SHOT PLAN - fields of every beat:
 - loc: cabin (only for host beats), forest, trench (foxholes/sandbags), ice (pack ice with a frozen wooden ship),
   camp (tents + campfire on snow), pass (steep snowy mountain pass), frontier (gold-rush wooden town),
   town (stone European town in snow), harbor (pier, sheds, icy water, whaling station / port),
-  prairie (open snowy plain, farmhouse, schoolhouse), river (frozen river / ice road), hq (office/command room with map table).
+  prairie (open snowy plain, farmhouse, schoolhouse), river (FROZEN river / ice road / frozen lake),
+  rapids (OPEN fast water in a narrow rock canyon; our people stand in a wooden scow boat),
+  boats (OPEN thawed lake/river with many small handmade boats; our people stand in their scow), hq (office/command room with map table).
+  The picture must match the words: a beat about boats, rapids or open water uses rapids/boats, never forest.
   Use at least 5 different story locations; never more than 6 beats in a row in the same location.
 - who: cast keys shown in the beat (["A"] or ["A","B"]); empty for host/object/wide-without-people.
 - mood: scared, shocked, curious, sly, sad, happy, angry, thoughtful, telling, nervous, determined, proud, amazed,
@@ -80,7 +83,9 @@ SHOT PLAN - fields of every beat:
 - fx (optional, at most every 3rd beat): question, exclaim, sweat, idea, puff, sparkle, hearts, anger, zzz, money, dust.
 - prop (optional, held by who[0]): lantern, letter, key, gold, coin, scroll, paper, magnifier, pen, cup.
 - label + obj: ONLY for shot=object; obj is "map", "newspaper" or "sign".
-- light (optional): snowday, snownight, blizzard, dawn, polar, stove, lamp. Use blizzard for storms.
+- light (optional): snowday, snownight, blizzard, dawn, polar, stove, lamp, spring. Use blizzard for storms.
+- season: "winter" (snow on the ground, falling snow) or "thaw" (late spring / summer: no snow, mud and grass).
+  Set it from the REAL month of the moment told (e.g. May-September in the Yukon = thaw). Default winter.
 - card (optional): {"title": "Chapter title", "sub": "Chapter 2 · Place, Year"} on the first beat of each chapter.
 - cta: true on the CTA beat only (shot host).
 
@@ -142,6 +147,9 @@ def normalize(d):
         elif b.get("loc") not in LOCS or b.get("loc") == "cabin":
             b["loc"] = "forest"
         b["who"] = [w for w in (b.get("who") or []) if w in cast]
+        b["season"] = "thaw" if str(b.get("season", "")).lower() in ("thaw", "spring", "summer", "autumn") else "winter"
+        if b["loc"] in ("rapids", "boats"):
+            b["season"] = "thaw"
         if b.get("mood") not in MOODS:
             b.pop("mood", None)
         if b["shot"] == "object" and not b.get("label"):
@@ -179,11 +187,18 @@ Find EVERY problem of these kinds:
 4. Named real people: wrong role, wrong place, wrong time, or a person who did not exist (invented names of officials).
 5. Invented quotes put in the mouth of a real person.
 6. Anachronisms (objects, words, technology that did not exist then).
+7. PICTURE vs WORDS: each line shows [loc, season]. Locations: forest, trench, ice (pack ice + frozen ship), camp (tents),
+   pass (steep snowy climb), frontier (wooden gold-rush town), town (European stone town), harbor (pier, ships, port),
+   prairie (snowy plain, farm), river (FROZEN river/lake), rapids (open whitewater canyon, people in a boat),
+   boats (open thawed lake with many boats), hq (office), cabin (narrator by the stove). season: winter = snow, thaw = no snow.
+   If the place or season shown contradicts the narration (boats in a forest, snow in a July scene, open water shown frozen),
+   report it with "loc" and/or "season" set to the right value (the "fix" text may then repeat the original text).
 For each problem return a corrected replacement for the WHOLE beat text: same voice, same length (+-20%), numbers
 written as words, keeping the story flowing with the beats before and after. Prefer making a claim general over guessing.
 If an event is in the wrong order, rewrite that beat so it no longer claims the event at that moment (e.g. mention it
 as something that happened later: "That April, an avalanche..." only if the timeline allows, or drop the event).
-Output ONLY JSON: {"issues": [{"beat": 12, "problem": "...", "fix": "full corrected beat text"}]}. Empty list if none."""
+Output ONLY JSON: {"issues": [{"beat": 12, "problem": "...", "fix": "full corrected beat text", "loc": "optional", "season": "optional"}]}.
+Empty list if none."""
 
 
 def fact_check(d, topic):
@@ -191,7 +206,7 @@ def fact_check(d, topic):
     names = [os.environ.get("GEMINI_CHECK_MODEL", "gemini-3.5-pro"), os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")]
     log = []
     for rnd in range(1, 4):
-        script = "\n".join(f"{i}: {b['text']}" for i, b in enumerate(d["beats"]))
+        script = "\n".join(f"{i} [{b['loc']}, {b.get('season', 'winter')}]: {b['text']}" for i, b in enumerate(d["beats"]))
         res = None
         for name in names:
             try:
@@ -217,6 +232,12 @@ def fact_check(d, topic):
             print(f"  beat {x['beat']}: {x.get('problem', '')}\n    eski: {b['text']}\n    yeni: {x['fix']}")
             log.append({"round": rnd, "beat": x["beat"], "problem": x.get("problem", ""), "old": b["text"], "new": x["fix"]})
             b["text"] = " ".join(str(x["fix"]).split())
+            if x.get("loc") in LOCS and b["shot"] not in ("host", "host_close") and x["loc"] != "cabin":
+                print(f"    mekan: {b['loc']} -> {x['loc']}"); b["loc"] = x["loc"]
+            if x.get("season") in ("winter", "thaw"):
+                b["season"] = x["season"]
+            if b["loc"] in ("rapids", "boats"):
+                b["season"] = "thaw"
     else:
         raise RuntimeError("3 turda da tarih hatasi kaldi")
     d["fact_check"] = log
