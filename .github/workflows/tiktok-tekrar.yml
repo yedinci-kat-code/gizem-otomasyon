@@ -1,0 +1,37 @@
+name: TikTok - hazir videoyu yukle
+
+# Daha once uretilmis bir videoyu (o run'in "video-*" ciktisindan) TikTok'a hemen yukler.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Videoyu ureten run'in ID'si (Actions sayfasindaki URL'deki sayi)"
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  yukle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: video-*
+          merge-multiple: true
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: TikTok'a yukle
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ secrets.UPLOAD_POST_USER }}
+          PUBLISH_SLOTS: "now"
+        run: |
+          ls -la output
+          python scripts/upload_tiktok.py
