@@ -128,6 +128,24 @@ def main():
             b["shot"] = "genis"
     for i, b in enumerate(beats):
         b["f1"] = beats[i + 1]["f0"] if i + 1 < len(beats) else total
+    # vurgu kutusu: ifadenin ilk kelimesi soylendigi kare
+    def _n(t):
+        t = t.lower()
+        for x, y in (("ı", "i"), ("ğ", "g"), ("ü", "u"), ("ş", "s"), ("ö", "o"), ("ç", "c"), ("i̇", "i")):
+            t = t.replace(x, y)
+        return re.sub(r"[^a-z0-9]", "", t)
+    for b in beats:
+        v = (b.get("vurgu") or "").split()
+        if not v:
+            continue
+        first = _n(v[0])
+        for j in range(b["w0"], b["w1"] + 1):
+            wj = _n(words[j]["w"])
+            if first and wj and (wj.startswith(first[:5]) or first.startswith(wj[:5])):
+                b["vurgu_f"] = max(b["f0"], int(round(words[j]["s"] * FPS)))
+                break
+        else:
+            b.pop("vurgu", None)
     # Uzun vuruslarda ara kesmeler: SABIT SURE YOK, kesme seslendirmedeki
     # duraklara (virgul/nokta) ya da kelime baslarina oturur. Her parca >= 1.5 sn.
     # Kanal verisi: izleme yuzdesi %35-66; tempo artsin diye bir kadraj en fazla ~2.7 sn kalir
@@ -162,6 +180,9 @@ def main():
     sfx = [{"t": 0.05, "kind": "whoosh", "gain_db": -8}]
     if os.path.exists(os.path.join(PROJ, "work", "hook.png")):  # acilis karesi: carpici an + darbe sesi
         sfx.append({"t": 0.12, "kind": "impact", "gain_db": -7})
+    for b in beats:  # vurgu kutusu patlarken kisa "pop"
+        if b.get("vurgu_f"):
+            sfx.append({"t": b["vurgu_f"] / FPS, "kind": "pop", "gain_db": -10})
     prev_loc = beats[0].get("loc")
     for i, b in enumerate(beats):
         t = b["f0"] / FPS

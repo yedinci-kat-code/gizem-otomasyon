@@ -12,7 +12,7 @@ const R = {};          // çekim içinde oynatılan objeler
 
 // ---------------------------------------------------------------- ışık
 const LIGHT = {
-  zifiri: { sun: "#9fb4ff", sunI: 0.72, az: 205, el: 38, sky: "#1c2550", ground: "#161630", hemiI: 0.72, amb: 0.21, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.52 },
+  zifiri: { sun: "#9fb4ff", sunI: 0.85, az: 205, el: 38, sky: "#1c2550", ground: "#1c1c3a", hemiI: 0.85, amb: 0.26, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.52 },
   icgece: { sun: "#ffd9a8", sunI: 1.0, az: -40, el: 55, sky: "#4a3a40", ground: "#3a2a20", hemiI: 0.95, amb: 0.32, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f4dcc4", sat: 1.08, warm: 0.05, con: 1.1, vig: 0.5 },
   ozel: { sun: "#b8c6ff", sunI: 0.7, az: 205, el: 40, sky: "#2c3566", ground: "#2a2a3a", hemiI: 0.8, amb: 0.22, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 40, fogFar: 160, card: "#e4e2f4", sat: 1.06, warm: 0.0, con: 1.1, vig: 0.42 },
   gece: "night", dramatik: "dramatic", altin: "golden", gunduz: "day", ic: "interior",
@@ -373,6 +373,32 @@ const hookTitle = (text, a, s) => (g, w, h) => {
   });
   g.restore();
 };
+// vurgu kutusu: can alıcı ifade söylendiği an ortanın üstünde renkli kutuda patlar
+const PILL = [["#2fae5a", "#fff"], ["#2f7be0", "#fff"], ["#e0433a", "#fff"], ["#f2b71e", "#14102a"]];
+const pillCard = (text, ci, sc, a) => (g, w, h) => {
+  if (a <= 0.01 || sc <= 0.01) return;
+  const k = w / 1080, T = text.toLocaleUpperCase("tr-TR"); g.save();
+  g.font = `900 ${64 * k}px CizgiFont, Nunito, sans-serif`;
+  const tw = Math.min(g.measureText(T).width, 860 * k), pw = tw + 70 * k, ph = 104 * k, [bg, fg] = PILL[ci % PILL.length];
+  g.globalAlpha = a; g.translate(w / 2, 0.37 * h); g.rotate(-0.045); g.scale(sc, sc);
+  g.fillStyle = "rgba(0,0,0,.35)"; g.beginPath(); g.roundRect(-pw / 2 + 6 * k, -ph / 2 + 8 * k, pw, ph, 52 * k); g.fill();
+  g.fillStyle = bg; g.beginPath(); g.roundRect(-pw / 2, -ph / 2, pw, ph, 52 * k); g.fill();
+  g.lineWidth = 6 * k; g.strokeStyle = "#0b0d1e"; g.stroke();
+  g.fillStyle = fg; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(T, 0, 4 * k, 860 * k); g.restore();
+};
+// konuşma balonu: karakterin başının üstünde (ekran konumu kameradan izdüşümle)
+const bubbleCard = (text, sx, sy, sc) => (g, w, h) => {
+  if (sc <= 0.01) return;
+  const k = w / 1080; g.save(); g.font = `800 ${46 * k}px CizgiFont, Nunito, sans-serif`;
+  const tw = g.measureText(text).width, bw = tw + 64 * k, bh = 96 * k;
+  const ty = Math.min(Math.max(sy, 720 * k), 0.62 * h), bx = Math.min(Math.max(sx - bw / 2, 40 * k), w - bw - 40 * k), by = ty - bh - 34 * k;
+  const ax = Math.min(Math.max(sx, bx + 50 * k), bx + bw - 50 * k);
+  g.translate(ax, ty); g.scale(sc, sc); g.translate(-ax, -ty);
+  g.fillStyle = "#fff"; g.strokeStyle = "#0b0d1e"; g.lineWidth = 6 * k; g.lineJoin = "round";
+  g.beginPath(); g.roundRect(bx, by, bw, bh, 40 * k); g.moveTo(ax - 22 * k, by + bh - 2 * k); g.lineTo(ax + 4 * k, ty); g.lineTo(ax + 22 * k, by + bh - 2 * k);
+  g.fill(); g.stroke(); g.fillStyle = "#fff"; g.fillRect(ax - 19 * k, by + bh - 9 * k, 38 * k, 10 * k);
+  g.fillStyle = "#14102a"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(text, bx + bw / 2, by + bh / 2 + 2 * k); g.restore();
+};
 const both = (a, b) => (a && b ? (g, w, h) => { a(g, w, h); b(g, w, h); } : a || b);
 
 const ctaCard = (text, k0) => (g, w, h) => {
@@ -556,6 +582,20 @@ export function frame(f, E) {
     overlay = ctaCard(P.cta || "Sıradaki efsane için takip et", X.back(X.span(f, p0 + 6, p0 + 18)));
   }
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "", t);
+  // vurgu kutusu (söylendiği an, ~1,3 sn)
+  P.beats.forEach((b, bi) => {
+    if (!b.vurgu || b.vurgu_f == null || f < b.vurgu_f || f >= b.vurgu_f + 40 || f < (P.hook_end || 0)) return;
+    const d = f - b.vurgu_f;
+    overlay = both(overlay, pillCard(b.vurgu, bi, X.back(X.span(f, b.vurgu_f, b.vurgu_f + 8)), d > 34 ? (40 - d) / 6 : 1));
+  });
+  // konuşma balonu: replikli vuruşun ilk parçasında, karakter kadrajdayken
+  const spk = sh.replik && sh.part === 0 && who[0] && A.find((a) => a.id === who[0]);
+  if (spk && cam && t >= 6 && t < Math.min(len - 4, 78)) {
+    const T3 = E.THREE, pc = new T3.PerspectiveCamera(cam.fov || 40, 9 / 16, 0.1, 2000);
+    pc.position.set(...cam.pos); pc.lookAt(new T3.Vector3(...cam.look)); pc.updateMatrixWorld();
+    const v = new T3.Vector3(spk.pos[0], 2.25, spk.pos[2]).project(pc);
+    if (v.z < 1) overlay = both(overlay, (g, w, h) => bubbleCard(sh.replik, ((v.x + 1) / 2) * w, ((1 - v.y) / 2) * h, X.back(X.span(f, sh.f0 + 6, sh.f0 + 14)))(g, w, h));
+  }
   // kare 0 boş açılış olmasın; son kare yumuşak
   // konuya özel arka plan: kameranın önünde ekranı dolduran katman (hafif paralaks)
   if (R.bd) {

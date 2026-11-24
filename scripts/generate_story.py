@@ -150,6 +150,10 @@ birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Ala
 - prop (istege bagli, who[0] elinde tutar): fener, mektup, anahtar, altin, para, parsomen, kitap, buyutec.
 - label: SADECE shot=obje icin, 1-3 kelimelik BUYUK HARF yazi (orn. "FERMAN", "1453", "KAYIP").
   Her videoda EN AZ 1 obje beat'i olsun. Arka arkaya iki beat'te ayni shot tipini kullanma.
+- vurgu (istege bagli, videoda 3-4 beat'te): o beat'in text'inde AYNEN gecen 1-3 kelimelik can alici ifade
+  (orn. "TASA DONDU", "KIRK YIL", "LANETLENDI"). Kelime soylendigi an ekranda renkli kutuda patlar.
+- replik (istege bagli, karakterli 2-3 beat'te): who[0] karakterinin AGZINDAN kisa replik, 2-5 kelime, ! ya da ?
+  ile (orn. "Kim var orada?!", "Bu tas yuruyor!"). Seslendirilmez, cizgi roman balonunda gorunur. Anlatimi tekrar etme.
 - card (istege bagli, ilk efsane beat'inde 1 kez): {"title": "Yer/Olay adi", "sub": "Rivayete gore · Sehir"}.
 - light (istege bagli): zifiri, gece, dramatik, altin, gunduz, ic. Varsayilani mekan belirler.
 
@@ -227,6 +231,19 @@ def normalize_plan(data):
     beats[-1]["loc"] = beats[0]["loc"]          # loop: son kare = ilk kare
     if not any(b["shot"] == "gercek" for b in beats):
         beats[-2]["shot"] = "gercek"
+    # vurgu: metinde gecmeli, en fazla 4; replik: sadece karakterli hikaye cekimlerinde, en fazla 3
+    nv = nr = 0
+    for b in beats:
+        v = str(b.get("vurgu") or "").strip()
+        if v and nv < 4 and _norm(v) and _norm(v) in _norm(b["text"]) and len(v) <= 24:
+            b["vurgu"] = v; nv += 1
+        else:
+            b.pop("vurgu", None)
+        r = " ".join(str(b.get("replik") or "").split())
+        if r and nr < 3 and b["who"] and b["shot"] in ("karakter", "yakin", "ikili", "genis", "kovalamaca", "kalabalik") and len(r) <= 30:
+            b["replik"] = r; nr += 1
+        else:
+            b.pop("replik", None)
     if not any(isinstance(b.get("card"), dict) for b in beats):  # bilgi karti (harita ile) her videoda bir kez
         tgt = next((b for b in beats[1:-1] if b["shot"] not in ("bekci", "gercek", "obje")), beats[1])
         tgt["card"] = {"title": str(data.get("topic") or "")[:28], "sub": "Rivayete göre · " + str(data.get("place") or "Anadolu")[:22]}
