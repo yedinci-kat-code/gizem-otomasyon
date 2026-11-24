@@ -220,8 +220,8 @@ def load_history():
         return []
 
 
-def save_history(history, new_title: str, category: str, topic: str = "", hook: str = ""):
-    history.append({"title": new_title, "category": category, "topic": topic, "hook": hook})
+def save_history(history, new_title: str, category: str, topic: str = "", hook: str = "", episode: int = 0):
+    history.append({"title": new_title, "category": category, "topic": topic, "hook": hook, "episode": episode})
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
@@ -351,7 +351,14 @@ def generate_story():
             "Kimse Konuşmuyor", "Efsane mi, Gerçek mi",
         ])
 
-    save_history(history, data["title"], category["key"], data.get("topic", ""), data.get("thumb_hook", ""))
+    # Seri kimligi: "Zifiri Dosya #N". Cizgi donemi 7 videoyla basladi (Amasya #1 ... Van Golu #7).
+    # Sayac sadece YouTube'a yuklenen videolarla ilerler (gecmis yalnizca basarili yuklemede kaydedilir).
+    data["episode"] = max([h.get("episode", 0) for h in history] + [7]) + 1
+    # Konusan abone cagrisi: bekci kapanista izleyiciye seslenir
+    cta_line = random.choice(["Sıradaki dosyayı kaçırma, takip et.", "Yeni dosyalar için takip etmeyi unutma.", "Bir sonraki dosya daha karanlık, takip et."])
+    data["beats"][-1]["text"] = data["beats"][-1]["text"].rstrip() + " " + cta_line
+    data["story"] = " ".join(b["text"] for b in data["beats"])
+    save_history(history, data["title"], category["key"], data.get("topic", ""), data.get("thumb_hook", ""), data["episode"])
     return data
 
 

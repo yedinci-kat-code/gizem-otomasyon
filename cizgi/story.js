@@ -314,6 +314,13 @@ const hookTitle = (text, a, s) => (g, w, h) => {
   const lh = size * 1.08, y0 = 0.21 * h - (lines.length * lh) / 2;
   g.save(); g.globalAlpha = a; g.translate(w / 2, y0 + (lines.length * lh) / 2); g.scale(s, s); g.translate(-w / 2, -(y0 + (lines.length * lh) / 2));
   g.textAlign = "center"; g.textBaseline = "top"; g.lineJoin = "round";
+  if (P.episode) {  // seri rozeti: başlığın üstünde "ZİFİRİ DOSYA #N"
+    const bt = `ZİFİRİ DOSYA #${P.episode}`; g.font = `900 ${40 * k}px CizgiFont, Nunito, sans-serif`;
+    const bw = g.measureText(bt).width + 48 * k, bh = 62 * k, bx = w / 2 - bw / 2, by = y0 - bh - 22 * k;
+    g.fillStyle = "#ffcf3a"; g.beginPath(); g.roundRect(bx, by, bw, bh, 31 * k); g.fill();
+    g.fillStyle = "#14102a"; g.textBaseline = "middle"; g.fillText(bt, w / 2, by + bh / 2 + 2 * k); g.textBaseline = "top";
+    g.font = `900 ${size}px CizgiFont, Nunito, sans-serif`;
+  }
   lines.forEach((ln, i) => {
     const y = y0 + i * lh;
     g.lineWidth = 18 * k; g.strokeStyle = "#0b0d1e"; g.strokeText(ln, w / 2, y);

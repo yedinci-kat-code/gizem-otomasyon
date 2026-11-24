@@ -42,7 +42,8 @@ def upload_video(youtube, video_path: str, story: dict):
         "'efsane mi, gercek mi' anlatimi. Anlatilanlar rivayet/efsane niteligindedir."
     )
     cta = story.get("_cta", "Sence efsane mi, gerçek mi? Yorumla")
-    description = f"{desc_summary}\n\n👉 {cta} | Sıradaki efsane için kanala abone ol.\n\n{footer}\n\n{hashtags}\n\n#shorts"
+    ep = f"🕯️ Zifiri Dosya #{story['episode']}\n\n" if story.get("episode") else ""
+    description = f"{ep}{desc_summary}\n\n👉 {cta} | Sıradaki dosya için kanala abone ol.\n\n{footer}\n\n{hashtags}\n\n#shorts"
 
     privacy = (os.environ.get("YOUTUBE_PRIVACY") or "public").strip().lower()
     if privacy not in ("public", "unlisted", "private"):

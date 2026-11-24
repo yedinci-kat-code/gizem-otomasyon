@@ -152,7 +152,8 @@ def main():
             last = pick
     plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total,
             "cta": story.get("_cta_screen") or "Sıradaki efsane için takip et",
-            "hook": (story.get("thumb_hook") or "").strip(), "hook_end": hook_end(words)}
+            "hook": (story.get("thumb_hook") or "").strip(), "hook_end": hook_end(words),
+            "episode": story.get("episode")}
     json.dump(plan, open(os.path.join(PROJ, "work", "plan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     for b in beats:
         print(f"  {b['f0']:5d}-{b['f1']:5d} kes{b['cuts']!s:12s} {b['shot']:13s} {b.get('loc',''):9s} {b['text'][:60]}")
