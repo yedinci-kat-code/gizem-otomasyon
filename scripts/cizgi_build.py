@@ -130,10 +130,11 @@ def main():
         b["f1"] = beats[i + 1]["f0"] if i + 1 < len(beats) else total
     # Uzun vuruslarda ara kesmeler: SABIT SURE YOK, kesme seslendirmedeki
     # duraklara (virgul/nokta) ya da kelime baslarina oturur. Her parca >= 1.5 sn.
-    MIN_PART, MAX_PART = 45, 120
+    # Kanal verisi: izleme yuzdesi %35-66; tempo artsin diye bir kadraj en fazla ~2.7 sn kalir
+    MIN_PART, MAX_PART = 36, 80
     for b in beats:
         b["cuts"] = []
-        if b["shot"] == "obje" or b["f1"] - b["f0"] <= MAX_PART:
+        if b["f1"] - b["f0"] <= MAX_PART:
             continue
         cand = []  # (kare, oncelik): duraktan sonra gelen kelime = 0, diger kelime basi = 1
         for j in range(b["w0"] + 1, b["w1"] + 1):
@@ -146,7 +147,7 @@ def main():
             if not ok:
                 break
             pause = [c for c in ok if c[1] == 0]
-            pick = (max(pause) if pause else min(ok, key=lambda c: abs((c[0] - last) - 80)))[0]
+            pick = (max(pause) if pause else min(ok, key=lambda c: abs((c[0] - last) - 60)))[0]
             b["cuts"].append(pick)
             last = pick
     plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total,
