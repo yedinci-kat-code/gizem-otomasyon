@@ -52,6 +52,16 @@ CATEGORIES = [
      "hint": "Anadolu'da nesilden nesile anlatilan bir halk efsanesi (bir dag, gol, magara, "
              "tas, agac) + efsanenin muhtemel gercek kokeni.",
      "bg": "anadolu_efsanesi"},
+    {"key": "turk_mitolojisi",
+     "hint": "Turk/Anadolu mitolojisinden bir YARATIK ya da varlik (Alkarisi, Albasti, Karakoncolos, "
+             "Sahmaran, Tepegoz, Ejderha, Hizir, Umay, Erlik, Su iyesi, Orman iyesi, Cin padisahi gibi) - "
+             "bir yerde/koyde onunla karsilasma rivayeti + inancin muhtemel gercek kokeni.",
+     "bg": "anadolu_efsanesi"},
+    {"key": "batil_inanc",
+     "hint": "Turkiye'de herkesin bildigi bir BATIL INANC / gelenegin arkasindaki efsane (neden bicak elden ele "
+             "verilmez, gece neden ayna bakilmaz, kapi esiginde neden oturulmaz, gece islik neden calinmaz gibi) - "
+             "inancin dogdugu rivayet + gercek tarihsel/kulturel sebebi. Baslik/kanca 'Neden...?' sorusu olsun.",
+     "bg": "lanetli_mekan"},
     {"key": "karanlik_olay",
      "hint": "tarihte gercekten yasanmis, az bilinen, tuyler urpertici bir olay/gizem - "
              "abartisiz, 'efsanelesmis' yani + bilinen gercek cerceve.",
@@ -82,14 +92,16 @@ gece bekcisi) anlatir: videoyu o acar, arada izleyiciye doner, gercegi o aciklar
 Hikayedeki kisiler cizgi karakter olarak canlandirilir. Toplam 30-38 saniye: 60-75 kelime (anlatici yavas ve duygulu okur, 75 kelimeyi ASLA gecme).
 
 YAPI (cok onemli - izleyiciyi sona kadar tutar):
-- ILK CUMLE (kanca): girissiz, gercek gibi soylenen bir paradoks/sahne. Klise giris YASAK
-  ("Bugun size anlatacagim", "Yillardir"). Ornek: "Bir baba, kizini bir yilandan korumak icin
-  denizin ortasina kule yaptirdi."
+- ILK CUMLE (kanca): girissiz, gercek gibi soylenen bir paradoks/sahne. ICINDE MUTLAKA SEHIR/YER ADI ve
+  OLAGANUSTU IDDIA olsun (o sehirden olan paylasir). Klise giris YASAK ("Bugun size anlatacagim", "Yillardir").
+  Ornekler: "Diyarbakir'da bir cami duvarinda tasa donmus bir yilan duruyor." / "Tarsus'un altinda yilanlarin
+  kralicesi yasiyormus." (Batil inanc konularinda yer sart degil, kanca "Neden...?" sorusu olabilir.)
 - Ilk saniyelerde MERAK ACIGI + "sonunda gercegi goreceksin" vaadi. Cevabi HEMEN verme.
 - GOVDE: efsaneyi/rivayeti kur (gerilim, 2-4 buyuk ve GOSTERILEBILIR vurus), ortada izleyiciye
   donen kisa bir bekci cumlesi ("Peki gercekten boyle mi oldu?").
 - GERCEK: muhtemel gercek/tarihsel aciklama ("Kayitlara gore..." / "Tarihciler...").
-- KAPANIS: son cumle acilis goruntusune GERI DONSUN (loop) ve kisa bir soru/CTA ile bitsin.
+- KAPANIS: son cumle acilis goruntusune GERI DONSUN (loop). Soru/takip cagrisi YAZMA: sistem sona
+  "Senin memleketinde..." sorusunu kendisi ekler.
 - Cumleler KISA (6-14 kelime), seslendirmeye uygun. Rakamlari YAZIYLA yaz ("on sekiz", "bin
   dort yuz elli uc"). Izleyicinin zaten gordugunu tarif etme.
 
@@ -104,7 +116,8 @@ KIRMIZI CIZGILER (ihlal = guven/telif riski):
 BASLIK (45-70 karakter, merak acigi, cevabi vermeyen): "...nin kimsenin bilmedigi gercek yuzu",
 "Bu kosk neden 100 yildir bos?", "Bir kasaba tek gecede nasil bosaldi?" gibi formuller.
 thumb_hook: videonun ILK 3-4 SANIYESINDE ekranin ortasinda BUYUK yazilacak vurucu baslik. 3-6 kelime, tek basina
-gramer olarak tam, merak uyandiran, cevabi vermeyen (orn. "Kizini Kurtarmak Icin Denize Kule Yapti"). Emoji yok.
+gramer olarak tam, merak uyandiran, cevabi vermeyen; MUMKUNSE SEHIR ADI gecsin (orn. "Diyarbakir'da Tasa Donen Yilan",
+"Mersin'de Denize Kule Yapti"). Emoji yok.
 description: 2-3 cumle ozet, gercegi vermesin, soru ile bitsin. hashtags: 10-12 temaya ozel etiket.
 
 CEKIM PLANI (beats) - her cumle (ya da kisa cumle cifti) bir "beat"tir. beats[].text'lerin
@@ -121,7 +134,12 @@ birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Ala
   en fazla 3 beat. Hikayenin ana nesnesini en iyi GOSTEREN mekani sec: cesme/fiskiye/kuyu -> avlu,
   kule/deniz -> sahil, kopru -> kopru, sur/hisar -> kale, saray odasi -> saray, belge/kayit -> arsiv.
   Ilk ve son beat AYNI mekan:
-  kosk_ic, kosk_dis, mezarlik, koy, kopru, kale, saray, magara, carsi, orman, sahil, avlu, arsiv.
+  ozel, kosk_ic, kosk_dis, mezarlik, koy, kopru, kale, saray, magara, carsi, orman, sahil, avlu, arsiv.
+  "ozel" = hikayenin GERCEK mekani (orn. Nemrut Dagi'nin dev tas baslari, Peri Bacalari, Sumela Manastiri,
+  Kiz Kulesi). Bu mekan, landmark.backdrop tarifinden ozel olarak CIZILIR. ILK ve SON beat HER ZAMAN "ozel"
+  olsun ve hikayede en az 1 beat daha "ozel" gecsin. Diger beat'ler icin listedeki genel mekanlari kullan.
+- obje beat'inde "obj": "ozel" yazarsan, ekranda parsomen yerine landmark.detail tarifinden cizilen YAKIN
+  PLAN gorsel gosterilir (orn. dev tas kafanin yuzu, lanetli ayna). Her videoda 1 obje beat'i "ozel" olsun.
 - who: bu beat'te gorunen hikaye karakterlerinin cast anahtarlari (orn. ["A"] ya da ["A","B"]).
   bekci_hook/bekci/bekci_kapanis/obje icin bos birak.
 - mood: korku, saskin, merak, sinsi, uzgun, mutlu, kizgin, dusunceli, anlatan, urkek, kararli,
@@ -137,11 +155,18 @@ birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Ala
 
 CAST: en fazla 3 karakter, anahtarlar A, B, C. preset su listeden: koylu_erkek, koylu_kadin,
 yasli_kadin, yasli_adam, cocuk, pasa, padisah, yeniceri, muhafiz, tuccar, mimar, hanim, balikci,
-asker, gezgin, hayalet. color: istege bagli kiyafet rengi (#hex). Tarihi kisiler temsili karakterdir.
+asker, gezgin, hayalet, yaratik (karanlik, golgemsi efsane varligi: Alkarisi, cin, iye vb.). color: istege bagli kiyafet rengi (#hex). Tarihi kisiler temsili karakterdir.
 
 Cikti SADECE su JSON olsun, baska metin yok:
 {
-  "topic": "Efsanenin/olayin KISA kanonik adi (orn. Kiz Kulesi, Yerebatan Medusa)", "place": "Sehir/yer",
+  "topic": "Efsanenin/olayin KISA kanonik adi (orn. Kiz Kulesi, Yerebatan Medusa)", "place": "Sehir adi (orn. Diyarbakir)",
+  "geo": {"lat": 37.91, "lon": 40.24},
+  "landmark": {
+    "backdrop": "ENGLISH, 1-2 sentences: the REAL place as it really looks, wide eye-level view from the ground, the famous landmark clearly recognizable in the middle/upper part, open empty ground in the lower third (characters will stand there). No people.",
+    "detail": "ENGLISH, 1 sentence: close-up of the story's key object or the landmark's most iconic detail. No people.",
+    "hook": "ENGLISH, 1-2 sentences: the single most dramatic SUPERNATURAL moment of the legend as one picture (the creature, the curse, the miracle happening), e.g. 'a giant glowing serpent bursting out of an old mosque's stone wall at night while a frightened villager drops his lantern'. Cute-scary, no gore.",
+    "ground": "#hex color of the ground in the lower third (for blending)"
+  },
   "title": "...", "thumb_hook": "...", "description": "...",
   "hashtags": ["#...", "... 10-12 arasi"],
   "cast": {"A": {"preset": "padisah"}, "B": {"preset": "hanim", "color": "#8a3a6a"}},
@@ -149,7 +174,7 @@ Cikti SADECE su JSON olsun, baska metin yok:
     {"text": "Ilk cumle (kanca).", "shot": "bekci_hook", "loc": "sahil"},
     {"text": "...", "shot": "genis", "loc": "saray", "who": ["A"], "mood": "merak", "card": {"title": "...", "sub": "Rivayete gore · ..."}},
     {"text": "...", "shot": "gercek", "loc": "sahil"},
-    {"text": "... son cumle (loop) + soru", "shot": "bekci_kapanis", "loc": "sahil"}
+    {"text": "... son cumle (loop)", "shot": "bekci_kapanis", "loc": "sahil"}
   ]
 }"""
 
@@ -159,9 +184,10 @@ LOC_HINT = {
     "kayip_yerlesim": ["koy", "orman", "arsiv"], "yapinin_sirri": ["kopru", "kale", "avlu", "magara"],
     "saray_golgesi": ["saray", "avlu", "arsiv"], "anadolu_efsanesi": ["koy", "magara", "orman", "sahil"],
     "karanlik_olay": ["carsi", "kale", "sahil", "koy"],
+    "turk_mitolojisi": ["koy", "orman", "magara", "mezarlik"], "batil_inanc": ["koy", "kosk_ic", "carsi", "mezarlik"],
 }
 VALID_SHOTS = {"bekci_hook", "bekci", "genis", "karakter", "yakin", "ikili", "kovalamaca", "kalabalik", "obje", "gercek", "bekci_kapanis"}
-VALID_LOCS = {"kosk_ic", "kosk_dis", "mezarlik", "koy", "kopru", "kale", "saray", "magara", "carsi", "orman", "sahil", "avlu", "arsiv"}
+VALID_LOCS = {"ozel", "kosk_ic", "kosk_dis", "mezarlik", "koy", "kopru", "kale", "saray", "magara", "carsi", "orman", "sahil", "avlu", "arsiv"}
 
 
 def normalize_plan(data):
@@ -190,9 +216,28 @@ def normalize_plan(data):
             b["shot"] = alt if (b["who"] or alt == "genis") else "genis"
     beats[0]["shot"] = "bekci_hook"
     beats[-1]["shot"] = "bekci_kapanis"
+    lm = data.get("landmark") or {}
+    if isinstance(lm, dict) and str(lm.get("backdrop", "")).strip():
+        beats[0]["loc"] = "ozel"                 # acilis: konunun gercek mekani
+    else:
+        data["landmark"] = {}
+        for b in beats:
+            if b["loc"] == "ozel":
+                b["loc"] = "kosk_dis"
     beats[-1]["loc"] = beats[0]["loc"]          # loop: son kare = ilk kare
     if not any(b["shot"] == "gercek" for b in beats):
         beats[-2]["shot"] = "gercek"
+    if not any(isinstance(b.get("card"), dict) for b in beats):  # bilgi karti (harita ile) her videoda bir kez
+        tgt = next((b for b in beats[1:-1] if b["shot"] not in ("bekci", "gercek", "obje")), beats[1])
+        tgt["card"] = {"title": str(data.get("topic") or "")[:28], "sub": "Rivayete göre · " + str(data.get("place") or "Anadolu")[:22]}
+    g = data.get("geo") or {}
+    try:
+        lat, lon = float(g.get("lat")), float(g.get("lon"))
+        data["geo"] = {"lat": lat, "lon": lon} if (35.7 <= lat <= 42.3 and 25.6 <= lon <= 45.0) else None
+        if _norm(data.get("place")) in ("anadolu", "turkiye", "osmanli", "") or data.get("_generic_place"):
+            data["geo"] = None  # genel yer: haritada yaniltici pin koyma
+    except (TypeError, ValueError):
+        data["geo"] = None
     data["beats"], data["cast"] = beats, cast
     data["story"] = " ".join(b["text"] for b in beats)
     n = len(data["story"].split())
@@ -201,6 +246,17 @@ def normalize_plan(data):
     if len({b["loc"] for b in beats}) < 2:
         raise ValueError("Tek mekanli plan: en az 2 farkli mekan gerekli")
     return data
+
+
+def check_hook(data, category_key):
+    """Ilk cumlede sehir/yer adi gecmeli (batil inanc haric)."""
+    if category_key == "batil_inanc":
+        return
+    place = _norm(data.get("place"))
+    first = _norm(data["beats"][0]["text"])
+    keys = [w[:4] for w in place.split() if len(w) > 2]
+    if keys and not any(k in first for k in keys):
+        raise ValueError(f"Ilk cumlede sehir/yer adi ('{data.get('place')}') yok; kancaya sehir adini koy")
 
 
 def load_history():
@@ -263,7 +319,9 @@ def pick_category(history):
         candidates = CATEGORIES
     # Kanal verisi (Kasim 2026): halk efsanesi / mucize / yaratik / lanet konulari 10-100 kat daha cok izlendi,
     # "issiz koy" ve "yapinin sirri" konulari en zayiflar. Secim agirlikli.
-    w = {"anadolu_efsanesi": 5, "karanlik_olay": 4, "perili_kosk": 3, "saray_golgesi": 3, "lanetli_mekan": 3,
+    # Rakip analizi (Kasim 2026, IG/TikTok TR): mitolojik yaratik (Sahmaran, Alkarisi) ve "Neden...?" batil
+    # inanc videolari normalin 50-140 kati izlendi.
+    w = {"turk_mitolojisi": 5, "batil_inanc": 3, "anadolu_efsanesi": 5, "karanlik_olay": 4, "perili_kosk": 3, "saray_golgesi": 3, "lanetli_mekan": 3,
          "yapinin_sirri": 1, "kayip_yerlesim": 1}
     return random.choices(candidates, weights=[w.get(c["key"], 2) for c in candidates], k=1)[0]
 
@@ -333,6 +391,8 @@ def generate_story():
                     text = text[4:]
             data = normalize_plan(json.loads(text.strip()))
             check_duplicate(data, history)
+            if attempt <= 3:
+                check_hook(data, category["key"])
             break
         except Exception as e:  # bozuk JSON / eksik plan -> tekrar dene
             last_err = e
@@ -343,7 +403,8 @@ def generate_story():
     data["_category"] = category["key"]
     data["_cta"] = random.choice(CTA_PHRASES)
     data["_cta_screen"] = random.choice(["Sıradaki efsane için takip et", "Yeni dosyalar için takip et", "Efsaneyi sevdiysen takip et"])
-    data["hashtags"] = merge_seo_keywords(data.get("hashtags", []))
+    loc_tags = ["#" + "".join(str(x).split()) for x in (data.get("place"), data.get("topic")) if x]
+    data["hashtags"] = merge_seo_keywords(loc_tags + data.get("hashtags", []))
 
     if not data.get("thumb_hook"):
         data["thumb_hook"] = random.choice([
@@ -355,7 +416,14 @@ def generate_story():
     # Sayac sadece YouTube'a yuklenen videolarla ilerler (gecmis yalnizca basarili yuklemede kaydedilir).
     data["episode"] = max([h.get("episode", 0) for h in history] + [7]) + 1
     # Konusan abone cagrisi: bekci kapanista izleyiciye seslenir
-    cta_line = random.choice(["Sıradaki dosyayı kaçırma, takip et.", "Yeni dosyalar için takip etmeyi unutma.", "Bir sonraki dosya daha karanlık, takip et."])
+    cta_line = random.choice([
+        "Senin memleketinde böyle bir efsane var mı? Yorumlara yaz, takip etmeyi unutma.",
+        "Sence efsane mi, gerçek mi? Yorumlara yaz, sıradaki dosya için takip et.",
+        "Bunu daha önce duymuş muydun? Yorumlara yaz, takip et.",
+    ] if data["_category"] != "batil_inanc" else [
+        "Sizin evde bu inanç var mı? Yorumlara yaz, takip etmeyi unutma.",
+        "Sen bu inanca uyuyor musun? Yorumlara yaz, takip et.",
+    ])
     data["beats"][-1]["text"] = data["beats"][-1]["text"].rstrip() + " " + cta_line
     data["story"] = " ".join(b["text"] for b in data["beats"])
     save_history(history, data["title"], category["key"], data.get("topic", ""), data.get("thumb_hook", ""), data["episode"])

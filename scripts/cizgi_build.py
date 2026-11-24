@@ -153,13 +153,15 @@ def main():
     plan = {"title": story.get("title", ""), "cast": story.get("cast", {}), "beats": beats, "frames": total,
             "cta": story.get("_cta_screen") or "Sıradaki efsane için takip et",
             "hook": (story.get("thumb_hook") or "").strip(), "hook_end": hook_end(words),
-            "episode": story.get("episode")}
+            "episode": story.get("episode"), "geo": story.get("geo"), "place": story.get("place", "")}
     json.dump(plan, open(os.path.join(PROJ, "work", "plan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     for b in beats:
         print(f"  {b['f0']:5d}-{b['f1']:5d} kes{b['cuts']!s:12s} {b['shot']:13s} {b.get('loc',''):9s} {b['text'][:60]}")
 
     # 3) ses tasarimi: tek, kesintisiz gizem muzigi + olaya bagli efektler
     sfx = [{"t": 0.05, "kind": "whoosh", "gain_db": -8}]
+    if os.path.exists(os.path.join(PROJ, "work", "hook.png")):  # acilis karesi: carpici an + darbe sesi
+        sfx.append({"t": 0.12, "kind": "impact", "gain_db": -7})
     prev_loc = beats[0].get("loc")
     for i, b in enumerate(beats):
         t = b["f0"] / FPS

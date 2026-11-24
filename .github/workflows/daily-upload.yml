@@ -47,6 +47,11 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/generate_story.py
 
+      - name: 1b) Konuya ozel gorseller (gercek mekan arka plani + obje yakin plani)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gen_backdrops.py
+
       - name: 2) Seslendirme (Wiro ElevenLabs v3 - Callum; yedek edge-tts)
         env:
           WIRO_API_KEY: ${{ secrets.WIRO_API_KEY }}

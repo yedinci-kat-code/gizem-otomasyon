@@ -12,8 +12,9 @@ const R = {};          // çekim içinde oynatılan objeler
 
 // ---------------------------------------------------------------- ışık
 const LIGHT = {
-  zifiri: { sun: "#9fb4ff", sunI: 0.6, az: 205, el: 38, sky: "#1c2550", ground: "#161630", hemiI: 0.62, amb: 0.17, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.52 },
-  icgece: { sun: "#ffd9a8", sunI: 0.75, az: -40, el: 55, sky: "#3a2a30", ground: "#2a1a14", hemiI: 0.7, amb: 0.2, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f4dcc4", sat: 1.08, warm: 0.05, con: 1.1, vig: 0.5 },
+  zifiri: { sun: "#9fb4ff", sunI: 0.72, az: 205, el: 38, sky: "#1c2550", ground: "#161630", hemiI: 0.72, amb: 0.21, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.52 },
+  icgece: { sun: "#ffd9a8", sunI: 1.0, az: -40, el: 55, sky: "#4a3a40", ground: "#3a2a20", hemiI: 0.95, amb: 0.32, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f4dcc4", sat: 1.08, warm: 0.05, con: 1.1, vig: 0.5 },
+  ozel: { sun: "#b8c6ff", sunI: 0.7, az: 205, el: 40, sky: "#2c3566", ground: "#2a2a3a", hemiI: 0.8, amb: 0.22, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 40, fogFar: 160, card: "#e4e2f4", sat: 1.06, warm: 0.0, con: 1.1, vig: 0.42 },
   gece: "night", dramatik: "dramatic", altin: "golden", gunduz: "day", ic: "interior",
 };
 const L = (n) => LIGHT[n] || n;
@@ -37,6 +38,7 @@ const PRESET = {
   asker: { shirt: "#5d6b3a", pants: "#4a4f35", belt: "#3a2a20", hat: "fez", hatCol: "#7a2a2a", moustache: "#3a2a20", skin: "#e9c3a0" },
   gezgin: { shirt: "#8c6a3a", jacket: "#4a3a2a", hat: "fedora", hatCol: "#3a2a20", beard: "#5a4030", skin: "#f0d0b0" },
   hayalet: { dress: "#eef2fa", shirt: "#eef2fa", skin: "#eef2fa", hair: "long", hairCol: "#c8d0e0" },
+  yaratik: { dress: "#1c1834", shirt: "#1c1834", skin: "#5a4a8a", hair: "long", hairCol: "#0c0a18", build: "stout" },
 };
 const MOOD = {
   korku: { face: "scared", arms: "up", sweat: true }, saskin: { face: "shock", arms: "up" }, merak: { face: "think", arms: "chin" },
@@ -73,7 +75,7 @@ const BUILD = {
     S.frame(-2.6, 2.6, -4.45, { w: 1.2, h: 1.5, kind: "portrait" }); S.frame(3.4, 2.5, -4.45, { w: 1.4, h: 1.0, kind: "landscape" });
     S.rug(0, -1.2, 4.6, 3.2, "#6a2a3a"); S.chair(-3.2, -2.6, { col: "#5a2a2a", rot: 0.4 });
     const t = S.table(3.0, -2.4, { w: 1.4, d: 0.8, col: "#5a3420" }); candle(E, 3.0, 0.95, -2.4); candle(E, 3.25, 0.95, -2.25);
-    S.shelf(-4.6, -3.9, { seed: 5 }); S.hangLamp(0, 4.6, -1.4, { col: "#3a2a20", i: 3.5 });
+    S.shelf(-4.6, -3.9, { seed: 5 }); S.hangLamp(0, 4.6, -1.4, { col: "#3a2a20", i: 6 }); S.lamp(-3.8, -3.4, { on: true });
     const p = new E.THREE.PointLight(0xffb060, 3, 7, 2); p.position.set(3.0, 1.6, -2.2); E.scene.add(p);
     return { light: "icgece", obj: [0, 1.25, -3.2] };
   },
@@ -196,6 +198,14 @@ const BUILD = {
     return { light: "icgece", obj: [0.2, 1.3, -1.9] };
   },
 };
+// konuya özel mekân: arka plan Gemini görseli (gen_backdrops.py), kamera önünde ekranı dolduran katman;
+// zemin görünmez ama gölge alır, karakterler resmin zeminindeymiş gibi durur.
+BUILD.ozel = function (E) {
+  const sm = new E.THREE.ShadowMaterial({ opacity: 0.32 });
+  const g = new E.THREE.Mesh(new E.THREE.PlaneGeometry(40, 40), sm); g.rotation.x = -Math.PI / 2; g.receiveShadow = true; g.userData.noink = true; E.scene.add(g);
+  return { light: "ozel", obj: [0, 1.4, -2.2] };
+};
+
 const ALIAS = { kosk: "kosk_dis", kosk_disi: "kosk_dis", konak: "kosk_dis", konak_ic: "kosk_ic", oda: "kosk_ic", kabristan: "mezarlik", kasaba: "koy", koy_meydani: "koy", koprusu: "kopru", kule: "kale", hisar: "kale", sur: "kale", sarayi: "saray", saray_ic: "saray", magarasi: "magara", obruk: "magara", zindan: "magara", pazar: "carsi", han: "carsi", sokak: "carsi", kiyi: "sahil", liman: "sahil", deniz: "sahil", gol: "sahil", cesme: "avlu", kuyu: "avlu", cami_avlusu: "avlu", medrese: "avlu", kutuphane: "arsiv", belge: "arsiv" };
 const locName = (n) => { n = (n || "").toLowerCase(); return BUILD[n] ? n : ALIAS[n] || "kosk_dis"; };
 
@@ -267,6 +277,18 @@ export async function build(E) {
   try { const r = await fetch("../work/plan.json?v=" + Date.now()); P = await r.json(); } catch (e) { console.error("plan.json yok", e); P = { beats: [] }; }
   const T = E.T;
   // mekânlar: plandaki sırayla, sadece kullanılanlar
+  const TL = new E.THREE.TextureLoader();
+  const loadTex = async (u) => { try { const t = await TL.loadAsync(u + "?v=" + Date.now()); t.colorSpace = E.THREE.SRGBColorSpace; return t; } catch (e) { return null; } };
+  R.bgTex = await loadTex("../work/bg_ozel.png"); R.detTex = await loadTex("../work/detail.png"); R.hkTex = await loadTex("../work/hook.png");
+  if (R.hkTex) {  // açılış karesi: efsanenin çarpıcı anı, kameranın hemen önünde tam ekran
+    R.hk = new E.THREE.Mesh(new E.THREE.PlaneGeometry(1, 1), new E.THREE.MeshBasicMaterial({ map: R.hkTex, fog: false, depthTest: false, depthWrite: false, toneMapped: false }));
+    R.hk.userData.noink = true; R.hk.frustumCulled = false; R.hk.renderOrder = 999; R.hk.castShadow = false; R.hk.visible = false; E.scene.add(R.hk);
+  }
+  if (!R.bgTex) for (const b of P.beats) if (b.loc === "ozel") b.loc = "kosk_dis";
+  if (R.bgTex) {
+    R.bd = new E.THREE.Mesh(new E.THREE.PlaneGeometry(1, 1), new E.THREE.MeshBasicMaterial({ map: R.bgTex, fog: false, depthWrite: false, toneMapped: false }));
+    R.bd.userData.noink = true; R.bd.frustumCulled = false; R.bd.renderOrder = -0.5; R.bd.visible = false; E.scene.add(R.bd);
+  }
   const used = []; for (const b of P.beats) { const n = locName(b.loc); b.loc = n; if (!used.includes(n)) used.push(n); }
   used.forEach((n, i) => buildLoc(E, n, i));
   // oyuncular
@@ -279,7 +301,15 @@ export async function build(E) {
   const crowdCols = ["#8a5a3a", "#5a6b3a", "#6a3a4a", "#3a5a6a", "#7a6a3a", "#4a4a6a"];
   for (let i = 0; i < 6; i++) E.actor("k" + i, { ...(i % 3 === 1 ? PRESET.koylu_kadin : PRESET.koylu_erkek), shirt: crowdCols[i], dress: i % 3 === 1 ? crowdCols[i] : undefined, seed: 70 + i * 9 });
   // insert kartları
-  P.beats.forEach((b, i) => { if (b.shot === "obje") R["ins" + i] = insertCard(E, b.label || "", b.obj === "gazete" ? "gazete" : "parsomen"); });
+  P.beats.forEach((b, i) => {
+    if (b.shot !== "obje") return;
+    if (b.obj === "ozel" && R.detTex) {  // konunun asıl objesi: çerçeveli yakın çizim
+      const g = E.group(null, [0, 0, 0]);
+      E.box(1.42, 1.42, 0.06, E.mat("#6b4428", { map: E.T.wood("#6b4428") }), [0, -0.71, -0.04], { parent: g });
+      E.plane(1.3, 1.3, E.flat("#ffffff", { map: R.detTex }), [0, 0, 0], { parent: g, noShadow: true, center: true });
+      g.visible = false; R["ins" + i] = g;
+    } else R["ins" + i] = insertCard(E, b.label || "", b.obj === "gazete" ? "gazete" : "parsomen");
+  });
   R.amb = buildAmbient(E);
   // fener ışığı (bekçi)
   R.lamp = new E.THREE.PointLight(0xffc870, 0, 5, 2); E.scene.add(R.lamp);
@@ -294,11 +324,26 @@ export async function build(E) {
 }
 
 // ---------------------------------------------------------------- kare
-const nameCard = (title, sub) => (g, w, h) => {
-  // sol üst: altyazının ve alt arayüzün üstünde
-  const k = w / 1080, x = 56 * k, y = 190 * k, pw = Math.max(420, 60 + Math.max(title.length * 30, sub.length * 19)) * k;
-  g.save(); g.fillStyle = "rgba(10,12,28,.86)"; g.beginPath(); g.roundRect(x, y, pw, 112 * k, 22 * k); g.fill();
-  g.fillStyle = "#ffcf6a"; g.fillRect(x, y, 10 * k, 112 * k);
+// Türkiye ana hatları (lon, lat; sadeleştirilmiş) — bilgi kartındaki mini harita için
+const TR_ANA = [[29.05,41.1],[30.3,41.2],[31.4,41.3],[32.2,41.7],[33.3,42.0],[34.9,42.05],[35.5,41.7],[36.4,41.3],[37.5,41.05],[38.4,40.95],[39.5,41.05],[40.4,41.0],[41.5,41.5],[42.5,41.45],[43.4,41.1],[43.7,40.75],[43.6,40.1],[44.4,39.9],[44.8,39.7],[44.4,39.0],[44.2,38.4],[44.4,37.9],[44.8,37.2],[44.2,37.2],[43.0,37.35],[42.3,37.25],[41.2,37.1],[40.2,37.1],[39.0,36.7],[38.0,36.85],[37.0,36.65],[36.6,36.85],[36.4,36.2],[35.9,35.9],[36.15,36.6],[35.6,36.6],[34.6,36.8],[33.6,36.15],[32.6,36.1],[32.0,36.6],[30.6,36.85],[30.4,36.25],[29.6,36.15],[28.8,36.7],[27.6,36.7],[28.0,37.1],[27.3,37.4],[27.0,38.0],[26.3,38.3],[26.8,38.7],[26.7,39.4],[26.15,39.45],[26.2,40.0],[26.7,40.4],[27.5,40.35],[28.9,40.4],[29.9,40.75],[29.3,40.85]];
+const TR_TRAKYA = [[26.05,40.75],[26.6,41.35],[26.2,41.75],[27.0,42.05],[28.0,41.95],[29.05,41.2],[28.6,40.98],[27.5,40.97],[26.95,40.6],[26.2,40.3],[26.6,40.65]];
+const miniMap = (g, x, y, mw, mh, k, geo, tt) => {
+  const px = (lon, lat) => [x + ((lon - 25.6) / 19.6) * mw, y + ((42.4 - lat) / 6.8) * mh];
+  g.save(); g.lineJoin = "round"; g.lineWidth = 3 * k; g.strokeStyle = "#ffcf6a"; g.fillStyle = "#2c3566";
+  for (const poly of [TR_ANA, TR_TRAKYA]) { g.beginPath(); poly.forEach(([lo, la], i) => { const [a, b] = px(lo, la); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.closePath(); g.fill(); g.stroke(); }
+  const [cx, cy] = px(geo.lon, geo.lat), pulse = (tt % 30) / 30;
+  g.strokeStyle = `rgba(255,80,70,${1 - pulse})`; g.lineWidth = 4 * k; g.beginPath(); g.arc(cx, cy, (10 + 26 * pulse) * k, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = "#ff4a3d"; g.beginPath(); g.arc(cx, cy, 10 * k, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#fff"; g.beginPath(); g.arc(cx, cy, 4 * k, 0, Math.PI * 2); g.fill(); g.restore();
+};
+const nameCard = (title, sub, tt = 0) => (g, w, h) => {
+  // sol üst: altyazının ve alt arayüzün üstünde; konum biliniyorsa altında mini Türkiye haritası
+  const k = w / 1080, x = 56 * k, y = 190 * k, geo = P.geo;
+  const pw = Math.max(geo ? 440 : 420, 60 + Math.max(title.length * 30, sub.length * 19)) * k;
+  const mw = pw - 48 * k, mh = mw * 0.44, ph = (geo ? 112 + 20 : 112) * k + (geo ? mh : 0);
+  g.save(); g.fillStyle = "rgba(10,12,28,.86)"; g.beginPath(); g.roundRect(x, y, pw, ph, 22 * k); g.fill();
+  g.fillStyle = "#ffcf6a"; g.fillRect(x, y, 10 * k, ph);
+  if (geo) miniMap(g, x + 30 * k, y + 116 * k, mw - 6 * k, mh, k, geo, tt);
   g.font = `900 ${44 * k}px CizgiFont, Nunito, sans-serif`; g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(title, x + 34 * k, y + 40 * k);
   g.font = `700 ${29 * k}px CizgiFont, Nunito, sans-serif`; g.fillStyle = "#ffcf6a"; g.fillText(sub, x + 34 * k, y + 82 * k); g.restore();
 };
@@ -373,15 +418,27 @@ export function frame(f, E) {
     else if (act === "uyu") { legs = "sit"; s = { ...s, face: "sleep", arms: "cross" }; }
     else if (act === "el_kaldir") { s = { ...s, arms: "cheer" }; }
     else if (act === "konus") { s = { ...s, face: "talk", talk: E.talk(f) }; }
-    const tint = (P.cast?.[id]?.preset === "hayalet") ? "#c6d4ff" : undefined;
+    const pr = P.cast?.[id]?.preset, tint = pr === "hayalet" ? "#c6d4ff" : pr === "yaratik" ? "#9a86ff" : undefined;
     return { id, pos: W(x, 0, z), st: st(seed, { ...s, legs, phase, ...(id === who[0] && prop ? { prop, arms: s.arms === "up" ? "holdR" : (s.arms || "holdR") } : {}), ...extra }), ...(tint ? { tint } : {}), ...(dir ? { flip: dir > 0 } : {}) };
   };
-  const bekci = (x, z, o = {}) => {
-    const s = st(3, { face: o.face || "talk", arms: o.arms || "holdR", talk: E.talk(f, sh.f0, sh.f1), look: o.look ?? -0.3, prop: o.prop || { kind: "lantern", hand: "r" } });
+  const bekci = (x0, z, o = {}) => {
+    let x = x0;
+    // canlılık: anlatırken jestleri ~1,1 sn'de bir değişir, gövde hafifçe salınır, ara ara bir adım atar
+    const G = ["holdR", "present", "holdR", "point", "chin", "holdR"], gi = Math.floor((t + sh.i * 13) / 34) % G.length;
+    const arms = o.fixArms ? (o.arms || "holdR") : (o.arms && o.arms !== "holdR" ? o.arms : G[gi]);
+    const step = Math.sin((t + sh.i * 20) / 45) * 0.12;
+    const s = st(3, { face: o.face || "talk", arms, talk: E.talk(f, sh.f0, sh.f1), look: (o.look ?? -0.3) + Math.sin(t / 23) * 0.25, lean: Math.sin(t / 31) * 4, prop: o.prop || { kind: "lantern", hand: "r" } });
+    x += step;
     A.push({ id: "bekci", pos: W(x, 0, z), st: s });
     if ((o.prop || { kind: "lantern" }).kind === "lantern") { const lp = W(x + 0.42, 1.1, z + 0.35); R.lamp.position.set(...lp); R.lamp.intensity = 4; }
   };
-  const ck = (a, b, fov = 40, fov2 = fov - 2) => E.camAt(f, [{ f: sh.f0, pos: W(...a[0]), look: W(...a[1]), fov }, { f: sh.f1, pos: W(...b[0]), look: W(...b[1]), fov: fov2 }]);
+  const ck = (a, b, fov = 40, fov2 = fov - 2) => {
+    const c = E.camAt(f, [{ f: sh.f0, pos: W(...a[0]), look: W(...a[1]), fov }, { f: sh.f1, pos: W(...b[0]), look: W(...b[1]), fov: fov2 - 2 }]);
+    // el kamerası hissi: çok hafif, sürekli salınım (sabit durmasın)
+    c.pos = [c.pos[0] + Math.sin(f / 41) * 0.07, c.pos[1] + Math.sin(f / 57) * 0.045, c.pos[2] + Math.sin(f / 67) * 0.05];
+    c.look = [c.look[0] + Math.sin(f / 49) * 0.05, c.look[1] + Math.sin(f / 61) * 0.03, c.look[2]];
+    return c;
+  };
 
   ambient(E, f, ox, sh.loc, sh.shot);
   let shot = sh.shot;
@@ -498,9 +555,42 @@ export function frame(f, E) {
     const p0 = SH.find((x) => x.i === sh.i).f0;
     overlay = ctaCard(P.cta || "Sıradaki efsane için takip et", X.back(X.span(f, p0 + 6, p0 + 18)));
   }
-  if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "");
+  if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "", t);
   // kare 0 boş açılış olmasın; son kare yumuşak
+  // konuya özel arka plan: kameranın önünde ekranı dolduran katman (hafif paralaks)
+  if (R.bd) {
+    R.bd.visible = sh.loc === "ozel" && !!cam;
+    if (R.bd.visible) {
+      const T3 = E.THREE, p = new T3.Vector3(...cam.pos), l = new T3.Vector3(...cam.look), d = l.clone().sub(p).normalize();
+      const D = 380, hgt = 2 * D * Math.tan(((cam.fov || 40) * Math.PI) / 360) * 1.06, asp = 9 / 16;
+      R.bd.position.copy(p).addScaledVector(d, D);
+      R.bd.lookAt(p);
+      const kb = sh.part % 2 ? 1.16 - 0.1 * u : 1.06 + 0.1 * u;  // Ken Burns: her parçada yavaş yakınlaş/uzaklaş
+      R.bd.scale.set(hgt * asp * kb, hgt * kb, 1);
+      const upv = new E.THREE.Vector3(0, 1, 0);
+      R.bd.position.addScaledVector(upv, (sh.i % 3 - 1) * hgt * 0.03 * u);
+      const right = new T3.Vector3().crossVectors(d, new T3.Vector3(0, 1, 0)).normalize();
+      R.bd.position.addScaledVector(right, -(cam.pos[0] - ox) * 2.2 + (sh.i % 2 ? 1 : -1) * hgt * 0.04 * u);  // kamera kaydıkça arka plan çok az kayar
+      const warm = shot === "gercek" ? X.smooth(X.span(f, sh.f0, sh.f0 + 24)) : shot === "gercek2" ? 1 : 0;
+      R.bd.material.color.set("#ffffff").lerp(new T3.Color("#ffd49a"), warm * 0.6);
+      if (dof && typeof dof.amount === "number") dof = { ...dof, amount: Math.min(dof.amount, 2) };  // landmark net kalsın
+    }
+  }
   const hE = P.hook_end || 105;
+  // açılış: ilk cümle boyunca efsanenin çarpıcı anı tam ekran (yavaş yakınlaşma + ilk kare sarsıntı/flaş)
+  const hookPhase = !!R.hk && sh.i === 0 && f < hE && !!cam;
+  if (R.hk) R.hk.visible = hookPhase;
+  if (hookPhase) {
+    A.length = 0; FX.length = 0; R.lamp.intensity = 0; if (R.bd) R.bd.visible = false;
+    const T3 = E.THREE, p = new T3.Vector3(...cam.pos), l = new T3.Vector3(...cam.look), d = l.clone().sub(p).normalize();
+    const D = 2, hgt = 2 * D * Math.tan(((cam.fov || 40) * Math.PI) / 360), uh = Math.min(1, f / hE);
+    const kb = 1.04 + 0.14 * X.smooth(uh);
+    R.hk.position.copy(p).addScaledVector(d, D); R.hk.lookAt(p);
+    const shk = f < 12 ? Math.sin(f * 2.3) * (12 - f) / 12 * 0.02 * hgt : 0;
+    R.hk.position.addScaledVector(new T3.Vector3(0, 1, 0), -0.02 * hgt * uh + shk);
+    R.hk.scale.set(hgt * (9 / 16) * kb * 1.02, hgt * kb * 1.02, 1);
+    dof = { focus: 4, amount: 0 };
+  }
   if (NOCAP) overlay = P.hook ? hookTitle(P.hook, 1, 1) : null;  // kapak: sadece vurucu başlık, altyazı/kart yok
   else if (P.hook && f < hE) overlay = both(hookTitle(P.hook, f < hE - 8 ? 1 : (hE - f) / 8, 1), overlay);
   return { cam, light: Array.isArray(light) ? light : L(light), dof, actors: A, fx: FX, flash, overlay, focusPt, ...(NOCAP ? { caption: false } : {}) };
