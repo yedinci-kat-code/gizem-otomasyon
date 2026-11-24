@@ -6,6 +6,9 @@ import sys
 import urllib.request
 import uuid
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from publish_time import next_publish_at
+
 KEY = os.environ.get("UPLOAD_POST_API_KEY", "").strip()
 USER = os.environ.get("UPLOAD_POST_USER", "zifiri").strip()
 VIDEO = "output/final.mp4"
@@ -44,6 +47,11 @@ def main():
     fields = [("user", USER), ("platform[]", "tiktok"), ("title", caption(story)),
               ("privacy_level", "PUBLIC_TO_EVERYONE"), ("is_aigc", "true"),
               ("cover_timestamp", "1300"), ("async_upload", "true")]
+    pa = next_publish_at()
+    if pa:  # YouTube ile ayni saatte yayina girsin
+        fields.append(("scheduled_date", pa.strftime("%Y-%m-%dT%H:%M:%SZ")))
+        fields = [f for f in fields if f[0] != "async_upload"]
+        print("TikTok planlandi (UTC):", pa.isoformat())
     boundary, body = multipart(fields, "video", VIDEO)
     req = urllib.request.Request("https://api.upload-post.com/api/upload", data=body, method="POST", headers={
         "Authorization": f"Apikey {KEY}", "Content-Type": f"multipart/form-data; boundary={boundary}",

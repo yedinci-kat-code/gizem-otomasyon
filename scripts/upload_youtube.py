@@ -9,6 +9,9 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from publish_time import next_publish_at
+
 CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
 REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
@@ -62,6 +65,14 @@ def upload_video(youtube, video_path: str, story: dict):
             "containsSyntheticMedia": True,  # YouTube'un YZ icerik beyani
         },
     }
+
+    publish_at = next_publish_at() if privacy == "public" else None
+    if publish_at:  # run erken basladi: video hazir, hedef saatte kendiliginden yayina girer
+        body["status"]["privacyStatus"] = "private"
+        body["status"]["publishAt"] = publish_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+        print("Planlandi, yayin zamani (UTC):", body["status"]["publishAt"])
+    else:
+        print("Hemen yayinlaniyor")
 
     media = MediaFileUpload(video_path, chunksize=-1, resumable=True, mimetype="video/mp4")
 
