@@ -575,18 +575,14 @@ export function frame(f, E) {
     A.push({ id: "k4", pos: W(-1.6 + dx * 0.25, 0, -6.0), st: st(44, { legs: "walk", phase: walk, face: "talk", talk: 0.3 * Math.abs(Math.sin(f / 5)) }), flip: true });
     A.push({ id: "k5", pos: W(1.9, 0, -6.8), st: st(45, { face: "think", arms: "cross" }) });
   }
-  // CTA: kapanışta takip çağrısı (sol üst, altyazının üstünde); son 0,8 sn temiz kalır ki loop bozulmasın
-  const lastF = SH.length ? SH[SH.length - 1].f1 : 0;
-  if (sh.shot === "bekci_kapanis" && f < lastF - 24) {
-    const p0 = SH.find((x) => x.i === sh.i).f0;
-    overlay = ctaCard(P.cta || "Sıradaki efsane için takip et", X.back(X.span(f, p0 + 6, p0 + 18)));
-  }
+  // Takip çağrısı artık sadece sesli (Bekçi söylüyor); sol üstteki kırmızı kutu klişe durduğu için kaldırıldı.
   if (sh.card && sh.part === 0 && t < 80) overlay = nameCard(sh.card.title || "", sh.card.sub || "", t);
   // vurgu kutusu (söylendiği an, ~1,3 sn)
   P.beats.forEach((b, bi) => {
     if (!b.vurgu || b.vurgu_f == null || f < b.vurgu_f || f >= b.vurgu_f + 40 || f < (P.hook_end || 0)) return;
     const d = f - b.vurgu_f;
-    overlay = both(overlay, pillCard(b.vurgu, bi, X.back(X.span(f, b.vurgu_f, b.vurgu_f + 8)), d > 34 ? (40 - d) / 6 : 1));
+    // zıplama yok: yumuşak büyüyüp belirir, yumuşak söner (klişe "pop-up" hissi vermesin)
+    overlay = both(overlay, pillCard(b.vurgu, bi, 0.88 + 0.12 * X.smooth(X.span(f, b.vurgu_f, b.vurgu_f + 10)), Math.min(1, d / 5, d > 34 ? (40 - d) / 6 : 1)));
   });
   // konuşma balonu: replikli vuruşun ilk parçasında, karakter kadrajdayken
   const spk = sh.replik && sh.part === 0 && who[0] && A.find((a) => a.id === who[0]);

@@ -8,6 +8,7 @@ formulleri, kaynak-uydurmama kirmizi cizgisi.
 """
 import os
 import json
+import re
 import random
 import sys
 import google.generativeai as genai
@@ -362,6 +363,108 @@ def merge_seo_keywords(hashtags):
     return result
 
 
+DIAG = {}  # test ciktisinda gormek icin (story.json -> _diag)
+YT_CHANNEL_ID = os.environ.get("YT_CHANNEL_ID", "UC2-Nt7k59URUzBnmKyOSNcw")
+
+
+def _yt_get(params):
+    """YouTube Data API (herkese acik yorumlar): once kanal OAuth'u, olmazsa API anahtari denenir."""
+    import urllib.parse
+    import urllib.request
+    url = "https://www.googleapis.com/youtube/v3/commentThreads?"
+    cid, csec, rt = (os.environ.get(k) for k in ("YOUTUBE_CLIENT_ID", "YOUTUBE_CLIENT_SECRET", "YOUTUBE_REFRESH_TOKEN"))
+    errs = []
+    if cid and csec and rt:
+        try:
+            body = urllib.parse.urlencode({"client_id": cid, "client_secret": csec, "refresh_token": rt,
+                                           "grant_type": "refresh_token"}).encode()
+            tok = json.load(urllib.request.urlopen("https://oauth2.googleapis.com/token", body, timeout=20))["access_token"]
+            req = urllib.request.Request(url + urllib.parse.urlencode(params), headers={"Authorization": "Bearer " + tok})
+            return json.load(urllib.request.urlopen(req, timeout=20))
+        except Exception as e:
+            errs.append(f"oauth: {str(e)[:80]}")
+    try:
+        return json.load(urllib.request.urlopen(url + urllib.parse.urlencode({**params, "key": GEMINI_API_KEY}), timeout=20))
+    except Exception as e:
+        errs.append(f"anahtar: {str(e)[:80]}")
+    raise RuntimeError("; ".join(errs))
+
+
+def fetch_viewer_requests(done_topics):
+    """Kanal yorumlarinda izleyicilerin anlatilmasini istedigi efsaneleri cikarir (islenmemis olanlar)."""
+    try:
+        js = _yt_get({"part": "snippet", "allThreadsRelatedToChannelId": YT_CHANNEL_ID, "maxResults": 100,
+                      "order": "time", "textFormat": "plainText"})
+        texts = [it["snippet"]["topLevelComment"]["snippet"]["textDisplay"][:300] for it in js.get("items", [])]
+    except Exception as e:
+        print("Yorumlar okunamadi, izleyici istegi atlandi:", e)
+        DIAG["yorumlar"] = f"okunamadi: {str(e)[:160]}"
+        return []
+    if not texts:
+        print("Yorum yok, izleyici istegi atlandi")
+        return []
+    try:
+        m = genai.GenerativeModel("gemini-3.5-flash", generation_config={"response_mime_type": "application/json", "temperature": 0.2})
+        out = json.loads(m.generate_content(
+            "Asagida bir Turkce efsane/gizem kanalinin yorumlari var. Izleyicilerin ANLATILMASINI ISTEDIGI ya da "
+            "'bizim orada da var' dedigi somut efsane/yaratik/olay/yer adlarini cikar. Kufur, spam, genel ovgu yok sayilir. "
+            'Sadece JSON: {"istekler": ["kisa ad", ...]} (en fazla 8, yoksa bos liste).\n\n' + "\n".join("- " + t for t in texts)
+        ).text)
+        reqs = [str(x).strip() for x in out.get("istekler", []) if str(x).strip()]
+    except Exception as e:
+        print("Yorum istekleri cikarilamadi:", e)
+        return []
+    done = [_norm(t) for t in done_topics]
+    reqs = [r for r in reqs if not any(_norm(r) in d or d in _norm(r) for d in done if d)]
+    print(f"Yorumlar: {len(texts)} | izleyici istekleri: {reqs}")
+    DIAG["yorumlar"] = f"{len(texts)} yorum okundu; istekler: {reqs}"
+    return reqs
+
+
+def pick_best_hook(data, category_key):
+    """Insan dokunusu yerine: 5 alternatif kanca + 5 kapak basligi yazdirip puanlatir, mevcuttan iyiyse degistirir."""
+    first, second = data["beats"][0]["text"], (data["beats"][1]["text"] if len(data["beats"]) > 1 else "")
+    ask = f"""Turkce bir efsane Shorts'unun ILK CUMLESI (kanca) ve kapak basligi icin editorsun.
+Konu: {data.get('topic')} | Yer: {data.get('place')} | Tur: {category_key}
+Hikaye: {data.get('story')}
+Mevcut kanca: {first}
+Ikinci cumle (kanca buna dogal baglanmali): {second}
+Mevcut kapak basligi: {data.get('thumb_hook')}
+
+Kurallar (milyon izlenen Turkce efsane videolarindan): ilk cumlede somut bir sahne + olaganustu iddia/paradoks;
+{"sehir/yer adi MUTLAKA gecsin" if category_key != "batil_inanc" else "'Neden...?' sorusu ya da herkesin bildigi inanc"};
+en fazla 14 kelime; gunluk konusma Turkcesi, ceviri kokmasin; 'Bugun size', 'Hic dusundunuz mu', 'Yillardir' gibi
+klise girisler YASAK; cevabi ele verme. Kapak basligi 3-5 kelime, merak birakan, gramer olarak tam.
+5 yeni kanca ve 5 yeni kapak basligi yaz; mevcutlar dahil HER BIRINI 1-10 puanla (izleyiciyi ilk 2 saniyede durdurma gucu).
+Sadece JSON: {{"kancalar": [{{"metin": "...", "puan": 8}}], "basliklar": [{{"metin": "...", "puan": 7}}],
+"mevcut_kanca_puani": 6, "mevcut_baslik_puani": 6}}"""
+    try:
+        m = genai.GenerativeModel("gemini-3.5-flash", generation_config={"response_mime_type": "application/json", "temperature": 0.8})
+        out = json.loads(m.generate_content(ask).text)
+    except Exception as e:
+        print("Kanca secici atlandi:", e)
+        return
+    keys = [w[:4] for w in _norm(data.get("place")).split() if len(w) > 2]
+
+    def ok_hook(t):
+        t = " ".join(str(t).split())
+        if not t or len(t.split()) > 16 or not re.search(r"[.!?…]$", t):
+            return False
+        return category_key == "batil_inanc" or not keys or any(k in _norm(t) for k in keys)
+
+    hooks = sorted([h for h in out.get("kancalar", []) if ok_hook(h.get("metin"))], key=lambda h: -float(h.get("puan", 0)))
+    if hooks and float(hooks[0].get("puan", 0)) > float(out.get("mevcut_kanca_puani", 10)):
+        print(f"Kanca degisti ({out.get('mevcut_kanca_puani')} -> {hooks[0]['puan']}): {first} => {hooks[0]['metin']}")
+        DIAG["kanca"] = f"{first} ({out.get('mevcut_kanca_puani')}) => {hooks[0]['metin']} ({hooks[0]['puan']})"
+        data["beats"][0]["text"] = " ".join(hooks[0]["metin"].split())
+    titles = sorted([t for t in out.get("basliklar", []) if 2 <= len(str(t.get("metin", "")).split()) <= 6],
+                    key=lambda t: -float(t.get("puan", 0)))
+    if titles and float(titles[0].get("puan", 0)) > float(out.get("mevcut_baslik_puani", 10)):
+        print(f"Kapak basligi degisti: {data.get('thumb_hook')} => {titles[0]['metin']}")
+        data["thumb_hook"] = " ".join(str(titles[0]["metin"]).split())
+    data["story"] = " ".join(b["text"] for b in data["beats"])
+
+
 def generate_story():
     history = load_history()
     category = pick_category(history)
@@ -378,10 +481,16 @@ def generate_story():
     if done_topics:
         avoid_text += "\n\nBU EFSANELER ISLENDI, ASLA TEKRAR SECME: " + ", ".join(done_topics)
     if recent_titles:
-        avoid_text = (
+        avoid_text += (
             "\n\nDaha once islenen basliklar (bunlarla ayni/benzer konuyu TEKRARLAMA):\n"
             + "\n".join(f"- {t}" for t in recent_titles)
         )
+
+    reqs = fetch_viewer_requests(done_topics)
+    if reqs:
+        avoid_text += ("\n\nIZLEYICI ISTEKLERI (kanal yorumlarindan): " + ", ".join(reqs) +
+                       ". Bunlardan biri kategoriye uyuyor, islenmemis ve gercekten bilinen bir efsaneyse ONCELIKLE onu sec "
+                       've JSON\'a "izleyici_istegi": true ekle.')
 
     prompt = (
         f"Kategori: {category['hint']}\n\n"
@@ -416,6 +525,8 @@ def generate_story():
             print(f"Plan denemesi {attempt}/5 basarisiz: {e}")
     else:
         raise RuntimeError(f"Gemini gecerli cekim plani uretemedi: {last_err}")
+    pick_best_hook(data, category["key"])
+    data["_diag"] = DIAG
     data["_theme"] = category["bg"]
     data["_category"] = category["key"]
     data["_cta"] = random.choice(CTA_PHRASES)
