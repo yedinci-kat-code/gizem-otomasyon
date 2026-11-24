@@ -261,7 +261,11 @@ def pick_category(history):
     candidates = [c for c in CATEGORIES if c["key"] not in recent]
     if not candidates:
         candidates = CATEGORIES
-    return random.choice(candidates)
+    # Kanal verisi (Kasim 2026): halk efsanesi / mucize / yaratik / lanet konulari 10-100 kat daha cok izlendi,
+    # "issiz koy" ve "yapinin sirri" konulari en zayiflar. Secim agirlikli.
+    w = {"anadolu_efsanesi": 5, "karanlik_olay": 4, "perili_kosk": 3, "saray_golgesi": 3, "lanetli_mekan": 3,
+         "yapinin_sirri": 1, "kayip_yerlesim": 1}
+    return random.choices(candidates, weights=[w.get(c["key"], 2) for c in candidates], k=1)[0]
 
 
 def merge_seo_keywords(hashtags):
@@ -308,6 +312,8 @@ def generate_story():
         f"Kategori: {category['hint']}\n\n"
         f"Bu kategoriye uygun, YAYGIN BILINEN bir Turk/Osmanli/Anadolu efsanesi ya da "
         f"karanlik tarihi olayi sec ve 'efsane -> gercek' yapisinda ozgun bir anlatim uret. "
+        f"Efsanede MUTLAKA canli ve gosterilebilir bir olaganustu unsur olsun (yaratik, mucize, lanet, kehanet, "
+        f"hayalet, kayip hazine); sadece 'issiz bir yer' ya da 'eski bir yapi' anlatan konulardan kacin. "
         f"Efsane kismini rivayet olarak cerceve, gercek/tarihsel aciklamayi sona sakla ve "
         f"son cumleyi acilis goruntusune baglayarak (loop) bitir. Uydurma tarih/isim/belge KULLANMA.\n"
         f"Bu kategori icin uygun mekanlar: {', '.join(LOC_HINT.get(category['key'], ['kosk_dis']))} "
