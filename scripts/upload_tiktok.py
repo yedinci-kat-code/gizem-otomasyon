@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from publish_time import next_publish_at
 
 KEY = os.environ.get("UPLOAD_POST_API_KEY", "").strip()
-USER = os.environ.get("UPLOAD_POST_USER", "zifiri").strip()
+USER = os.environ.get("UPLOAD_POST_USER", "") or "default".strip()
 VIDEO = "output/final.mp4"
 
 
