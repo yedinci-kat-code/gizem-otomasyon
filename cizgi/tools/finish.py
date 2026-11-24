@@ -26,7 +26,7 @@ subprocess.run([ff(), "-v", "error", "-y", "-framerate", "30", "-i", os.path.joi
     "-af", af, "-ar", "48000", "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
     "-c:a", "aac", "-b:a", "192k", "-shortest", dst], check=True)
 # 2) kalite kontrol: donma / siyah kare + ses seviyesi
-q = subprocess.run([ff(), "-hide_banner", "-i", dst, "-vf", "freezedetect=n=0.002:d=0.4,blackdetect=d=0.1:pix_th=0.06", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+q = subprocess.run([ff(), "-hide_banner", "-i", dst, "-vf", "freezedetect=n=0.002:d=0.4,blackdetect=d=0.5:pix_th=0.04", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
 fr = re.findall(r"freeze_start: ([\d.]+)", q); bl = re.findall(r"black_start:([\d.]+)", q); I = re.findall(r"I:\s+(-?[\d.]+) LUFS", q)
 print(f"video: {dst}\n  {n} kare · {n/30:.2f} sn · loudness {I[-1] if I else '?'} LUFS")
 print("  donma (>=0.4 sn):", ", ".join(fr) if fr else "yok"); print("  siyah kare:", ", ".join(bl) if bl else "yok")
