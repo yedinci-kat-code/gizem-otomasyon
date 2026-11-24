@@ -1,0 +1,79 @@
+[tur 1] beat 9: Season mismatch: September with falling yellow leaves precedes the winter snows, but the tag is set to winter.
+  eski: (resim)
+  yeni: mevsim winter->thaw
+
+[tur 1] beat 39: Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes the spring ice breakup on Lake Bennett where boats are readying to launch.
+  eski: (resim)
+  yeni: mekan river->boats
+
+[tur 1] beat 47: Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes open water boat traffic at the canyon entrance.
+  eski: (resim)
+  yeni: mekan river->rapids
+
+[tur 1] beat 48: Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes boats traversing the open rapids.
+  eski: (resim)
+  yeni: mekan river->rapids
+
+[tur 1] beat 52: Location mismatch: 'river' visual tag represents a frozen body of water, but the scene describes exiting the whitewater canyon into open calm water.
+  eski: (resim)
+  yeni: mekan river->boats
+
+[tur 1] beat 61: Location mismatch: 'river' visual tag represents a frozen body of water, but the narration describes summer mining claims along creek beds.
+  eski: (resim)
+  yeni: mekan river->frontier
+
+[tur 1] beat 62: Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes working land claims.
+  eski: (resim)
+  yeni: mekan river->frontier
+
+[tur 1] beat 65: Location mismatch: 'river' visual tag represents a frozen body of water, but the text describes laborers digging ditches on land.
+  eski: (resim)
+  yeni: mekan river->frontier
+
+[tur 1] beat 10: Chronological error: Superintendent Sam Steele was not in command at the Chilkoot summit in autumn 1897; he arrived to take charge of the pass posts in February 1898.
+  eski: At the summit stood the North-West Mounted Police, led by a strict, quiet officer named Superintendent Sam Steele.
+  yeni: At the summit stood the North-West Mounted Police, establishing a strict post that would later be commanded by Superintendent Sam Steele.
+
+[tur 1] beat 67: Wrong date: News of the gold strike in Nome reached Dawson City in August 1899, not August 1898.
+  eski: In August eighteen ninety-eight, news arrived that gold was discovered on the sandy beaches of Nome, Alaska.
+  yeni: In August eighteen ninety-nine, news arrived that gold was discovered on the sandy beaches of Nome, Alaska.
+
+[tur 2] beat 10: In September 1897, there was no Mounted Police post at the summit of Chilkoot Pass. Superintendent Sam Steele arrived and established the summit customs posts in February 1898.
+  eski: At the summit stood the North-West Mounted Police, establishing a strict post that would later be commanded by Superintendent Sam Steele.
+  yeni: Later that winter, the North-West Mounted Police established a strict post at the summit, commanded by Superintendent Sam Steele.
+
+[tur 2] beat 49: Jack London piloted boats through the rapids in October 1897, not June 1898. By June 1898 he had developed scurvy and was leaving the Klondike.
+  eski: A young, skilled pilot named Jack London charged twenty-five dollars per trip to steer boats through the rapids.
+  yeni: Experienced local pilots charged twenty-five dollars per trip to steer heavy boats safely through the roaring rapids.
+
+[tur 3] beat 32: The narration describes the icy shore of Lake Bennett in May before the thaw, but the image tag is set to thaw instead of winter.
+  eski: (resim)
+  yeni: mevsim thaw->winter
+
+[tur 3] beat 33: The narration describes Lake Bennett as frozen while stampeders wait for spring, but the image tag is set to thaw instead of winter.
+  eski: (resim)
+  yeni: mevsim thaw->winter
+
+[tur 3] beat 48: Superintendent Steele's order strictly prohibited women and children from riding in boats through the canyon rapids (requiring them to walk around on foot); they were not allowed to man the boats.
+  eski: No boat was allowed through unless guided by an experienced river pilot, or manned by women and children who walked around.
+  yeni: No boat was allowed through unless guided by an experienced river pilot, while women and children were required to walk around the canyon on foot.
+
+[tur 4] beat 16: Internal contradiction: beat 14 states forty trips and beat 15 defines each shuttle as five miles up and five miles back (ten miles round trip), which totals four hundred miles, contradicting the claim of over one thousand miles.
+  eski: By the time you moved your whole outfit across the border, you had walked over one thousand miles on the same short trail.
+  yeni: By the time you moved your whole outfit across the border, you had walked over four hundred miles on the same short trail.
+
+[tur 4] beat 50: Historical contradiction and internal contradiction with beat 48: Superintendent Steele strictly enforced that no boat was allowed to enter Miles Canyon without a licensed pilot, and Mounties stationed at the entrance prevented unpiloted boats from proceeding.
+  eski: Frank and I could not afford a pilot. We gripped our heavy oak oars, gripped our teeth, and steered into the gorge ourselves.
+  yeni: Frank and I managed to hire a licensed pilot with our remaining cash. We gripped the wooden gunwales, clenched our teeth, and plunged into the roaring gorge.
+
+[tur 4] beat 55: Chronology error: one year earlier (June 1897), Dawson was already a busy boomtown of thousands following the 1896 gold strike, not a quiet fishing camp. It was a fishing camp two years earlier, before August 1896.
+  eski: A year earlier, Dawson had been a quiet fishing camp. Now it was a bursting boomtown of forty thousand souls.
+  yeni: Two years earlier, Dawson had been a quiet fishing camp. Now it was a bursting boomtown of forty thousand souls.
+
+[tur 5] beat 44: Miles Canyon is approximately one hundred and fifty feet wide (fifty yards), not fifty feet wide.
+  eski: The canyon was fifty feet wide, framed by towering basalt cliffs that squeezed the wild Yukon River.
+  yeni: The canyon was one hundred and fifty feet wide, framed by towering basalt cliffs that squeezed the wild Yukon River.
+
+[tur el] beat -1: Claude el kontrolu: mesafe/sayi/fiyat duzeltmeleri (beat 9,13,21,31,32,33,44,46,53,55,57,58,61,63,65,68)
+  eski: 
+  yeni: 
