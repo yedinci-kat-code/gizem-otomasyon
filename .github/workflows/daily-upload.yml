@@ -150,6 +150,14 @@ jobs:
           YOUTUBE_PRIVACY: ${{ secrets.YOUTUBE_PRIVACY }}
         run: python scripts/upload_youtube.py
 
+      - name: 5b) TikTok'a da yukle (Upload-Post; anahtar yoksa atlar)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload != 'false' }}
+        continue-on-error: true
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ secrets.UPLOAD_POST_USER }}
+        run: python scripts/upload_tiktok.py
+
       - name: 6) Hikaye gecmisini kaydet
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload != 'false' }}
         run: |
