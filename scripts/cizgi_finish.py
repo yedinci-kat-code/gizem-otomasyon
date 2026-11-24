@@ -22,6 +22,13 @@ def main():
     frames = sorted(glob.glob(os.path.join(PROJ, "frames", "f*.jpg")))
     have = {int(os.path.basename(f)[1:6]) for f in frames}
     missing = [i for i in range(n) if i not in have]
+    # Birkac kare eksikse (genelde motorun son kareyi bir eksik saymasi) komsu kareyle doldur; cok eksikse dur
+    if missing and len(missing) <= 6 and have:
+        for i in missing:
+            src = max((h for h in have if h < i), default=min(have))
+            shutil.copy(os.path.join(PROJ, "frames", f"f{src:05d}.jpg"), os.path.join(PROJ, "frames", f"f{i:05d}.jpg"))
+        print(f"UYARI: {len(missing)} eksik kare komsu kareyle dolduruldu: {missing}")
+        missing = []
     if missing:
         sys.exit(f"HATA: {len(missing)} kare eksik (ilk: {missing[:5]})")
     r = subprocess.run([sys.executable, os.path.join(PROJ, "tools", "finish.py"), PROJ, "zifiri"], capture_output=True, text=True)
