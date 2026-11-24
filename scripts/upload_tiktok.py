@@ -59,9 +59,11 @@ def main():
     try:
         res = json.load(urllib.request.urlopen(req, timeout=300))
         print("TikTok yanit:", json.dumps(res, ensure_ascii=False)[:500])
+        print("::notice title=TikTok::" + json.dumps(res, ensure_ascii=False)[:300])
     except Exception as e:
         msg = getattr(e, "read", lambda: b"")().decode(errors="ignore")[:400]
         print(f"UYARI: TikTok yuklemesi basarisiz: {e} {msg}")
+        print(f"::warning title=TikTok::yukleme basarisiz: {e} {msg[:200]}")
 
 
 if __name__ == "__main__":
