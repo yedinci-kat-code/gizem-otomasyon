@@ -32,7 +32,7 @@ concurrency:
 env:
   SHARDS: "4"
   # Yayin saatleri (Istanbul). cron-job.org run'i bundan 1-2 saat once baslatir; video hazir olunca bu saate planlanir.
-  PUBLISH_SLOTS: "12:30,19:30"
+  PUBLISH_SLOTS: "12:30,18:30"
 
 jobs:
   hazirla:
