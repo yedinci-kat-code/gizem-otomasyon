@@ -72,6 +72,9 @@ def upload_video(youtube, video_path: str, story: dict):
         body["status"]["privacyStatus"] = "private"
         body["status"]["publishAt"] = publish_at.strftime("%Y-%m-%dT%H:%M:%SZ")
         print("Planlandi, yayin zamani (UTC):", body["status"]["publishAt"])
+        if os.environ.get("GITHUB_ENV"):
+            with open(os.environ["GITHUB_ENV"], "a") as f:
+                f.write(f"PUBLISH_AT_UTC={publish_at.isoformat()}\n")
     else:
         print("Hemen yayinlaniyor")
 
@@ -137,6 +140,8 @@ if __name__ == "__main__":
     youtube = get_authenticated_service()
     video_id = upload_video(youtube, "output/final.mp4", story)
     print(f"::notice title=YouTube::video_id={video_id}")
+    with open("output/video_id.txt", "w") as f:
+        f.write(video_id)
 
     try:
         set_thumbnail(youtube, video_id, "output/thumbnail.jpg")

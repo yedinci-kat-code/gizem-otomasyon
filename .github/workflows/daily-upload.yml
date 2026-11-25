@@ -125,7 +125,7 @@ jobs:
   bitir:
     needs: render
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 280
     outputs:
       uploaded: ${{ steps.yt.outcome == 'success' }}
     steps:
@@ -175,6 +175,16 @@ jobs:
           git add data/history.json data/music_history.json
           git diff --staged --quiet || git commit -m "Hikaye gecmisi guncellendi [otomatik]"
           git pull --rebase && git push
+
+      - name: 5c) Yayin sonrasi ozel kapagi tekrar ata
+        if: ${{ steps.yt.outcome == 'success' }}
+        continue-on-error: true
+        timeout-minutes: 240
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python scripts/kapak_sonra.py
 
       - name: Test ciktisini dala yaz (sadece cizgi-test)
         if: ${{ github.event_name == 'push' }}
