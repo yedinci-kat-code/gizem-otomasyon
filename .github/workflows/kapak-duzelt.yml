@@ -1,0 +1,46 @@
+name: YouTube - kapagi yeniden ata
+
+# Bir run'in urettigi kapagi (video-* ciktisindan) verilen YouTube videosuna atar.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Videoyu ureten run'in ID'si"
+        required: true
+      video_id:
+        description: "YouTube video ID'si"
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  kapak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt pillow
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: video-*
+          merge-multiple: true
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Kapagi ata
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_ID: ${{ github.event.inputs.video_id }}
+        run: |
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, "scripts")
+          import upload_youtube as u
+          u.set_thumbnail(u.get_authenticated_service(), os.environ["VIDEO_ID"], "output/thumbnail.jpg")
+          PY

@@ -3,6 +3,7 @@ Zifiri Saatler - YouTube Otomatik Yukleme
 Refresh token kullanarak, insan onayi gerekmeden video yukler.
 """
 import os
+import time
 import json
 import sys
 from google.oauth2.credentials import Credentials
@@ -93,15 +94,40 @@ def upload_video(youtube, video_path: str, story: dict):
     return video_id
 
 
+def _small_jpeg(path: str) -> str:
+    """YouTube kapak siniri 2 MB: gerekirse 720x1280'e kucultup kaliteyi dusurur."""
+    if os.path.getsize(path) < 1_900_000:
+        return path
+    from PIL import Image
+    im = Image.open(path).convert("RGB")
+    im.thumbnail((720, 1280))
+    out = os.path.splitext(path)[0] + "_yt.jpg"
+    for q in (88, 80, 70, 60):
+        im.save(out, quality=q, optimize=True)
+        if os.path.getsize(out) < 1_900_000:
+            break
+    return out
+
+
 def set_thumbnail(youtube, video_id: str, thumbnail_path: str):
     if not os.path.exists(thumbnail_path):
-        print("Kapak dosyasi bulunamadi, atlaniyor.")
+        print("::warning title=Kapak::Kapak dosyasi bulunamadi, atlandi.")
         return
-    youtube.thumbnails().set(
-        videoId=video_id,
-        media_body=MediaFileUpload(thumbnail_path, mimetype="image/jpeg"),
-    ).execute()
-    print("Ozel kapak atandi.")
+    path = _small_jpeg(thumbnail_path)
+    last = None
+    for attempt in range(1, 5):  # yeni yuklenen video bazen henuz islenirken kapak reddedilir: bekleyip tekrar dene
+        try:
+            youtube.thumbnails().set(
+                videoId=video_id,
+                media_body=MediaFileUpload(path, mimetype="image/jpeg"),
+            ).execute()
+            print(f"::notice title=Kapak::Ozel kapak atandi ({video_id}, deneme {attempt})")
+            return
+        except Exception as e:
+            last = e
+            print(f"Kapak denemesi {attempt} basarisiz: {e}")
+            time.sleep(30 * attempt)
+    raise last
 
 
 if __name__ == "__main__":
@@ -110,9 +136,10 @@ if __name__ == "__main__":
 
     youtube = get_authenticated_service()
     video_id = upload_video(youtube, "output/final.mp4", story)
+    print(f"::notice title=YouTube::video_id={video_id}")
 
     try:
         set_thumbnail(youtube, video_id, "output/thumbnail.jpg")
     except Exception as e:
-        print(f"Kapak atanamadi (video yine de yuklendi): {e}")
+        print(f"::warning title=Kapak::Kapak atanamadi (video yine de yuklendi): {str(e)[:300]}")
         print("IPUCU: Ozel kapak icin YouTube hesabin DOGRULANMIS olmali -> youtube.com/verify")
