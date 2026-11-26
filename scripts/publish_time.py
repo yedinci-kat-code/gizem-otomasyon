@@ -18,16 +18,21 @@ def next_publish_at(now=None):
         for s in raw.split(","):
             h, m = (int(x) for x in s.strip().split(":"))
             cands.append((now + timedelta(days=day)).replace(hour=h, minute=m, second=0, microsecond=0))
-    for slot in sorted(cands):
-        if slot - timedelta(hours=3) <= now < slot - timedelta(minutes=10):
-            return slot.astimezone(timezone.utc)   # hedef saate planla
-        if slot - timedelta(minutes=10) <= now <= slot + timedelta(hours=3):
-            return None                            # hedef saat geldi/gecti: hemen yayinla
+    cands.sort()
+    # 0) bir yayin saati az once (45 dk icinde) gectiyse ya da 10 dk'dan az kaldiysa: o videonun yerine hemen yayinla
+    for slot in cands:
+        if slot - timedelta(minutes=10) <= now <= slot + timedelta(minutes=45):
+            return None
+    # 1) onumuzdeki 3 saat icinde (en az 10 dk sonra) bir yayin saati varsa ona planla
+    for slot in cands:
+        if now + timedelta(minutes=10) <= slot <= now + timedelta(hours=3):
+            return slot.astimezone(timezone.utc)
+    # 2) yakinda yayin saati yok (elle calistirma vb.): hemen yayinla
     return None
 
 
 if __name__ == "__main__":
-    for t in ("10:25", "17:25", "19:45", "20:05", "12:25", "03:00"):
+    for t in ("10:25", "16:25", "19:25", "18:40", "21:45", "12:25", "03:00"):
         h, m = map(int, t.split(":"))
         n = datetime(2026, 11, 25, h, m, tzinfo=TZ)
         r = next_publish_at(n)
