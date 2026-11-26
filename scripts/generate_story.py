@@ -339,7 +339,7 @@ def pick_category(history):
     # "issiz koy" ve "yapinin sirri" konulari en zayiflar. Secim agirlikli.
     # Rakip analizi (Kasim 2026, IG/TikTok TR): mitolojik yaratik (Sahmaran, Alkarisi) ve "Neden...?" batil
     # inanc videolari normalin 50-140 kati izlendi.
-    w = {"turk_mitolojisi": 5, "batil_inanc": 3, "anadolu_efsanesi": 5, "karanlik_olay": 4, "perili_kosk": 3, "saray_golgesi": 3, "lanetli_mekan": 3,
+    w = {"turk_mitolojisi": 7, "batil_inanc": 6, "anadolu_efsanesi": 5, "karanlik_olay": 4, "perili_kosk": 3, "saray_golgesi": 3, "lanetli_mekan": 3,
          "yapinin_sirri": 1, "kayip_yerlesim": 1}
     return random.choices(candidates, weights=[w.get(c["key"], 2) for c in candidates], k=1)[0]
 
