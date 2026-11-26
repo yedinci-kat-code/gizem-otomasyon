@@ -1,0 +1,33 @@
+name: YouTube - eski videolara yeni kapak
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Sadece bu video ID'leri (virgulle), bos = listedeki hepsi"
+        required: false
+        default: ""
+
+jobs:
+  kapak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt pillow requests
+      - name: Kapaklari uret ve ata
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          ONLY: ${{ github.event.inputs.only }}
+        run: python scripts/eski_kapaklar.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eski-kapaklar
+          path: output/eski/*.jpg
