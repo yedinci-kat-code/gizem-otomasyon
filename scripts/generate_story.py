@@ -433,7 +433,7 @@ Mevcut kapak basligi: {data.get('thumb_hook')}
 
 Kurallar (milyon izlenen Turkce efsane videolarindan): ilk cumlede somut bir sahne + olaganustu iddia/paradoks;
 {"sehir/yer adi MUTLAKA gecsin" if category_key != "batil_inanc" else "'Neden...?' sorusu ya da herkesin bildigi inanc"};
-en fazla 14 kelime; gunluk konusma Turkcesi, ceviri kokmasin; 'Bugun size', 'Hic dusundunuz mu', 'Yillardir' gibi
+en fazla 12 kelime; EN CARPICI IDDIA ILK 4-5 KELIMEDE soylensin (izleyici 1. saniyede karar veriyor, girizgah yok: 'Bu havuzdan kan akiyordu.' gibi); gunluk konusma Turkcesi, ceviri kokmasin; 'Bugun size', 'Hic dusundunuz mu', 'Yillardir' gibi
 klise girisler YASAK; cevabi ele verme. Kapak basligi 3-5 kelime, merak birakan, gramer olarak tam.
 5 yeni kanca ve 5 yeni kapak basligi yaz; mevcutlar dahil HER BIRINI 1-10 puanla (izleyiciyi ilk 2 saniyede durdurma gucu).
 Sadece JSON: {{"kancalar": [{{"metin": "...", "puan": 8}}], "basliklar": [{{"metin": "...", "puan": 7}}],
@@ -448,7 +448,7 @@ Sadece JSON: {{"kancalar": [{{"metin": "...", "puan": 8}}], "basliklar": [{{"met
 
     def ok_hook(t):
         t = " ".join(str(t).split())
-        if not t or len(t.split()) > 16 or not re.search(r"[.!?…]$", t):
+        if not t or len(t.split()) > 14 or not re.search(r"[.!?…]$", t):
             return False
         return category_key == "batil_inanc" or not keys or any(k in _norm(t) for k in keys)
 

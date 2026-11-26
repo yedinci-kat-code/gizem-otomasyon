@@ -620,9 +620,11 @@ export function frame(f, E) {
     A.length = 0; FX.length = 0; R.lamp.intensity = 0; if (R.bd) R.bd.visible = false;
     const T3 = E.THREE, p = new T3.Vector3(...cam.pos), l = new T3.Vector3(...cam.look), d = l.clone().sub(p).normalize();
     const D = 2, hgt = 2 * D * Math.tan(((cam.fov || 40) * Math.PI) / 360), uh = Math.min(1, f / hE);
-    const kb = 1.04 + 0.14 * X.smooth(uh);
+    // ilk 0,3 sn: yakından "yumruk" gibi açılış (1.38 -> 1.04), sonra yavaş yakınlaşma devam eder
+    const punch = f < 9 ? 0.34 * (1 - X.smooth(f / 9)) : 0;
+    const kb = 1.04 + punch + 0.14 * X.smooth(uh);
     R.hk.position.copy(p).addScaledVector(d, D); R.hk.lookAt(p);
-    const shk = f < 12 ? Math.sin(f * 2.3) * (12 - f) / 12 * 0.02 * hgt : 0;
+    const shk = f < 14 ? Math.sin(f * 2.3) * (14 - f) / 14 * 0.035 * hgt : 0;
     R.hk.position.addScaledVector(new T3.Vector3(0, 1, 0), -0.02 * hgt * uh + shk);
     R.hk.scale.set(hgt * (9 / 16) * kb * 1.02, hgt * kb * 1.02, 1);
     dof = { focus: 4, amount: 0 };

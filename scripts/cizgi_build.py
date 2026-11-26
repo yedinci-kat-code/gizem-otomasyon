@@ -179,7 +179,7 @@ def main():
     # 3) ses tasarimi: tek, kesintisiz gizem muzigi + olaya bagli efektler
     sfx = [{"t": 0.05, "kind": "whoosh", "gain_db": -8}]
     if os.path.exists(os.path.join(PROJ, "work", "hook.png")):  # acilis karesi: carpici an + darbe sesi
-        sfx.append({"t": 0.12, "kind": "impact", "gain_db": -7})
+        sfx.append({"t": 0.0, "kind": "impact", "gain_db": -3})  # ilk karede sert darbe: kaydiran durur
     for b in beats:  # vurgu kutusu patlarken kisa "pop"
         if b.get("vurgu_f"):
             sfx.append({"t": b["vurgu_f"] / FPS, "kind": "pop", "gain_db": -10})
