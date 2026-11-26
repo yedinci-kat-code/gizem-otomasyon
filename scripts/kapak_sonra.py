@@ -1,5 +1,5 @@
 """Planli videolarda YouTube, yayin aninda Shorts kapagini videodan bir kareyle eziyor.
-Yayin saatinden birkac dakika sonra ozel kapagi tekrar atar."""
+Yayin saatinden 1 dakika sonra ozel kapagi tekrar atar."""
 import os
 import sys
 import time
@@ -14,7 +14,7 @@ if not os.path.exists("output/video_id.txt"):
 vid = open("output/video_id.txt").read().strip()
 pa = os.environ.get("PUBLISH_AT_UTC")
 if pa:
-    wait = (datetime.fromisoformat(pa) - datetime.now(timezone.utc)).total_seconds() + 240
+    wait = (datetime.fromisoformat(pa) - datetime.now(timezone.utc)).total_seconds() + 60
     if 0 < wait < 4 * 3600:
         print(f"Yayin saatine kadar {int(wait)} sn bekleniyor")
         time.sleep(wait)
