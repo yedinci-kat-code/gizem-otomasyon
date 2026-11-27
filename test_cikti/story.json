@@ -1,0 +1,149 @@
+{
+  "topic": "Trabzon Karakoncolos Efsanesi",
+  "place": "Trabzon",
+  "geo": {
+    "lat": 41.0027,
+    "lon": 39.7168
+  },
+  "landmark": {
+    "backdrop": "Snow-covered Black Sea village in Trabzon under a dark winter night sky, traditional wooden Ottoman-style Black Sea mountain houses with glowing yellow windows, steep pine trees covered in heavy snow, open snowy clearing in the lower third.",
+    "detail": "A eerie close-up of a dark furry mythical creature mask with glowing icy blue eyes peering from behind a snow-covered pine tree branch in a blizzard.",
+    "hook": "A dark hairy creature with glowing eyes standing on a snowy mountain ridge under full moon calling out into the freezing blizzard while a terrified villager looks back.",
+    "ground": "#dce6ef"
+  },
+  "title": "Trabzon Dağlarındaki Karakoncolos'un Gerçek Yüzü",
+  "thumb_hook": "Trabzon'da Gece Adını Çağıran Ses",
+  "description": "Trabzon karlı dağlarında kışın insanları tanıdık seslerle dışarı çağıran Karakoncolos yaratığı gerçek miydi? Dehşet saçan bu efsanenin arkasındaki gerçek kış sırrı neydi?",
+  "hashtags": [
+    "#Trabzon",
+    "#TrabzonKarakoncolosEfsanesi",
+    "#karakoncolos",
+    "#trabzon",
+    "#turkmitolojisi",
+    "#efsanemigercekmi",
+    "#zifirisaatler",
+    "#anadoluefsaneleri",
+    "#karanliktarih",
+    "#zemheri",
+    "#gizeminpeşinde",
+    "#tarihigercekler",
+    "#gerçekolay",
+    "#tüylerürpertici",
+    "#karanlıktarih",
+    "#osmanlıgizemi",
+    "#gizemliolaylar",
+    "#efsanemigerçekmi",
+    "#şehirefsanesi",
+    "#tarihigizem",
+    "#unutulmuştarih",
+    "#bilinmeyentarih",
+    "#tarihisır",
+    "#lanetli",
+    "#shorts",
+    "#tarih",
+    "#efsane",
+    "#keşfet"
+  ],
+  "arama_terimleri": [
+    "trabzon karakoncolos efsanesi",
+    "karakoncolos nedir",
+    "karakoncolos gerçek mi",
+    "karakoncolos hikayesi",
+    "trabzon dağları efsaneleri",
+    "karakoncolos yaratığı",
+    "zemheri yaratığı efsanesi"
+  ],
+  "cast": {
+    "A": {
+      "preset": "koylu_erkek",
+      "color": "#4a3b32"
+    },
+    "B": {
+      "preset": "yaratik",
+      "color": "#1f262a"
+    }
+  },
+  "beats": [
+    {
+      "text": "Trabzon'da fırtınada annesinin sesini duyan köylü ölüme yürüdü.",
+      "shot": "bekci_hook",
+      "loc": "ozel",
+      "vurgu": "KARAKONCOLOS",
+      "who": []
+    },
+    {
+      "text": "Köylüler kışın kapıdan gelen fısıltılardan dehşetle kaçardı.",
+      "shot": "genis",
+      "loc": "koy",
+      "who": [
+        "A"
+      ],
+      "mood": "urkek",
+      "card": {
+        "title": "Karakoncolos Efsanesi",
+        "sub": "Rivayete göre · Trabzon"
+      }
+    },
+    {
+      "text": "Gece adın çağrılır, dışarı çıkan köylü tipi içinde kaybolurdu.",
+      "shot": "karakter",
+      "loc": "koy",
+      "who": [
+        "A"
+      ],
+      "mood": "korku",
+      "action": "bak",
+      "fx": "unlem",
+      "replik": "Kim var orada?!"
+    },
+    {
+      "text": "Yaratığın insanları donmaya sürüklediğine inanılırdı.",
+      "shot": "kovalamaca",
+      "loc": "orman",
+      "who": [
+        "A",
+        "B"
+      ],
+      "mood": "korku",
+      "mood2": "sinsi",
+      "action": "kac"
+    },
+    {
+      "text": "Peki gerçekten karanlık bir canavar mı vardı?",
+      "shot": "bekci",
+      "loc": "koy",
+      "who": []
+    },
+    {
+      "text": "Hekimlere göre soğukta beyin sanrı üretir, rüzgar fısıltıya dönüşür.",
+      "shot": "obje",
+      "loc": "orman",
+      "obj": "ozel",
+      "label": "ZEMHERİ",
+      "light": "gece",
+      "who": []
+    },
+    {
+      "text": "Donma riski yaşayanlar karlı ormana kendisi yürürdü.",
+      "shot": "gercek",
+      "loc": "koy",
+      "who": []
+    },
+    {
+      "text": "İşte Karakoncolos kışın insanları tanıdık seslerle ormana çağırır. Sence efsane mi, gerçek mi? Yorumlara yaz, sıradaki dosya için takip et.",
+      "shot": "bekci_kapanis",
+      "loc": "ozel",
+      "who": []
+    }
+  ],
+  "story": "Trabzon'da fırtınada annesinin sesini duyan köylü ölüme yürüdü. Köylüler kışın kapıdan gelen fısıltılardan dehşetle kaçardı. Gece adın çağrılır, dışarı çıkan köylü tipi içinde kaybolurdu. Yaratığın insanları donmaya sürüklediğine inanılırdı. Peki gerçekten karanlık bir canavar mı vardı? Hekimlere göre soğukta beyin sanrı üretir, rüzgar fısıltıya dönüşür. Donma riski yaşayanlar karlı ormana kendisi yürürdü. İşte Karakoncolos kışın insanları tanıdık seslerle ormana çağırır. Sence efsane mi, gerçek mi? Yorumlara yaz, sıradaki dosya için takip et.",
+  "_diag": {
+    "yorumlar": "okunamadi: oauth: HTTP Error 403: Forbidden; anahtar: HTTP Error 401: Unauthorized",
+    "kanca": "Trabzon dağlarında insanları tanıdık seslerle ormana çağıran Karakoncolos anlatılır. (4) => Trabzon'da fırtınada annesinin sesini duyan köylü ölüme yürüdü. (9)"
+  },
+  "_theme": "anadolu_efsanesi",
+  "_category": "turk_mitolojisi",
+  "_cta": "Sen olsan girer miydin? Yaz",
+  "_cta_screen": "Yeni dosyalar için takip et",
+  "episode": 18
+}
