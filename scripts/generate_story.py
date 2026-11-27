@@ -120,6 +120,9 @@ thumb_hook: videonun ILK 3-4 SANIYESINDE ekranin ortasinda BUYUK yazilacak vuruc
 gramer olarak tam, merak uyandiran, cevabi vermeyen; MUMKUNSE SEHIR ADI gecsin (orn. "Diyarbakir'da Tasa Donen Yilan",
 "Mersin'de Denize Kule Yapti"). Emoji yok.
 description: 2-3 cumle ozet, gercegi vermesin, soru ile bitsin. hashtags: 10-12 temaya ozel etiket.
+arama_terimleri: 6-8 adet, insanlarin YouTube aramasina AYNEN yazacagi kucuk harfli kisa ifadeler (2-5 kelime, bosluklu, hashtag degil):
+yer + konu + "efsanesi/hikayesi/gercek mi/nedir" kaliplari ve FARKLI YAZIMLAR (orn. "alkarisi" ve "al karisi", "balikligol" ve "balikli gol").
+Ornek: ["alanya kalesi tas atma", "adam atacagi efsanesi", "alanya kalesi hikayesi", "alanya kalesi gercek mi"].
 
 CEKIM PLANI (beats) - her cumle (ya da kisa cumle cifti) bir "beat"tir. beats[].text'lerin
 birlesimi okunacak metnin TAMAMIDIR (ayri bir story alani yazma). 7-10 beat. Alanlar:
@@ -174,6 +177,7 @@ Cikti SADECE su JSON olsun, baska metin yok:
   },
   "title": "...", "thumb_hook": "...", "description": "...",
   "hashtags": ["#...", "... 10-12 arasi"],
+  "arama_terimleri": ["yer konu efsanesi", "..."],
   "cast": {"A": {"preset": "padisah"}, "B": {"preset": "hanim", "color": "#8a3a6a"}},
   "beats": [
     {"text": "Ilk cumle (kanca).", "shot": "bekci_hook", "loc": "sahil"},

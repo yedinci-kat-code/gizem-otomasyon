@@ -22,6 +22,22 @@ if not all([CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN]):
     sys.exit(1)
 
 
+def build_tags(story):
+    """Once arama ifadeleri (bosluklu cumle etiketleri), sonra hashtag'ler; YouTube 500 karakter siniri."""
+    out, seen, total = [], set(), 0
+    items = [str(t).strip().lower() for t in story.get("arama_terimleri", []) or []]
+    items += [t.strip("#") for t in story.get("hashtags", [])]
+    for t in items:
+        t = t.replace("<", "").replace(">", "").replace(",", " ").strip()
+        if not t or t.lower() in seen:
+            continue
+        cost = len(t) + (2 if " " in t else 0) + 1
+        if total + cost > 480:
+            continue
+        seen.add(t.lower()); out.append(t); total += cost
+    return out
+
+
 def get_authenticated_service():
     creds = Credentials(
         token=None,
@@ -57,7 +73,7 @@ def upload_video(youtube, video_path: str, story: dict):
         "snippet": {
             "title": title,
             "description": description,
-            "tags": [t.strip("#") for t in story.get("hashtags", [])],
+            "tags": build_tags(story),
             "categoryId": "27",
         },
         "status": {
