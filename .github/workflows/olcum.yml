@@ -1,0 +1,47 @@
+name: Olcum - videolari referansa gore olc
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "Olculecek videolari ureten run ID'leri (virgulle) - ad:id seklinde"
+        required: true
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  olc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install opencv-python-headless numpy faster-whisper
+      - name: Videolari indir
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNS: ${{ github.event.inputs.run_ids }}
+        run: |
+          mkdir -p vids
+          IFS=',' read -ra ARR <<< "$RUNS"
+          for pair in "${ARR[@]}"; do
+            name="${pair%%:*}"; id="${pair##*:}"
+            gh run download "$id" -R "$GITHUB_REPOSITORY" -p 'video-*' -D "tmp_$name" || { echo "::warning::$name indirilemedi"; continue; }
+            f=$(find "tmp_$name" -name '*.mp4' | head -1)
+            [ -n "$f" ] && mv "$f" "vids/$name.mp4"
+          done
+          ls -la vids
+      - name: Olc
+        run: python scripts/olcum.py vids/*.mp4 --out data/olcum/sonuc.json
+      - name: Sonucu kaydet
+        run: |
+          git config user.name "olcum-bot"; git config user.email "olcum-bot@users.noreply.github.com"
+          git add data/olcum/sonuc.json
+          git commit -m "Olcum sonuclari" || exit 0
+          git pull --rebase && git push

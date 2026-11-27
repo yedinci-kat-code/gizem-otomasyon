@@ -1,0 +1,30 @@
+{
+ "REFERANS_is-odasi": {
+  "sn": 38.8,
+  "sabit_pct": 1.8,
+  "itme_pct": 78.5,
+  "cekme_pct": 15.6,
+  "kaydirma_pct": 83.7,
+  "itme_hizi_pct_kare": 0.32,
+  "kaydirma_p90_px": 67.4,
+  "kesme_sayisi": 7,
+  "ilk5sn_goruntu": 2,
+  "ort_plan_sn": 4.85,
+  "parlaklik_p50": 0.302,
+  "parlaklik_p5": 0.118,
+  "kontrast": 0.671,
+  "karanlik_px_pct": 0.05,
+  "parlak_pct": 2.47,
+  "sicak_pct": 9.1,
+  "soguk_pct": 53.8,
+  "ikili_pct": 74.0,
+  "doygunluk_p50": 0.463,
+  "kelime": 98,
+  "ilk_kelime_sn": 0.0,
+  "kelime_sn": 2.57,
+  "ilk5sn_kelime_sn": 2.8,
+  "bosluk_pct": 8.4,
+  "uzun_bosluk_sayisi": 0,
+  "ilk_cumle": "Mimar Sinan, koca bir camiyi temiz tutmak için bütün dumanı tek bir odaya hapsetti."
+ }
+}
