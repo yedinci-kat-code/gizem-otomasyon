@@ -334,6 +334,22 @@ def check_duplicate(data, history):
             raise ValueError("Acilis basligi eskisine cok benziyor, farkli yaz")
 
 
+def pick_priority(history):
+    """data/oncelikli_konular.json: aranan/istenen konular sirayla islenir. 'anahtar' gecmiste varsa atlanir."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "oncelikli_konular.json")
+    try:
+        items = json.load(open(path, encoding="utf-8"))
+    except Exception:
+        return None
+    done = " ".join(f"{h.get('title','')} {h.get('topic','')} {h.get('place','')}" for h in history).lower()
+    for it in items:
+        if str(it.get("anahtar", "")).lower() and str(it["anahtar"]).lower() not in done:
+            cat = next((c for c in CATEGORIES if c["key"] == it.get("kategori")), None)
+            if cat:
+                return it, cat
+    return None
+
+
 def pick_category(history):
     recent = [h.get("category") for h in history[-AVOID_SAME_CATEGORY_LAST_N:] if h.get("category")]
     candidates = [c for c in CATEGORIES if c["key"] not in recent]
@@ -471,7 +487,8 @@ Sadece JSON: {{"kancalar": [{{"metin": "...", "puan": 8}}], "basliklar": [{{"met
 
 def generate_story():
     history = load_history()
-    category = pick_category(history)
+    prio = pick_priority(history)
+    category = prio[1] if prio else pick_category(history)
     recent_titles = [h["title"] for h in history[-MAX_HISTORY_IN_PROMPT:] if h.get("title")]
 
     model = genai.GenerativeModel(
@@ -496,6 +513,11 @@ def generate_story():
                        ". Bunlardan biri kategoriye uyuyor, islenmemis ve gercekten bilinen bir efsaneyse ONCELIKLE onu sec "
                        've JSON\'a "izleyici_istegi": true ekle.')
 
+    if prio:
+        print("Oncelikli konu:", prio[0]["konu"])
+        DIAG["oncelikli_konu"] = prio[0]["konu"]
+        avoid_text += ("\n\nBU VIDEONUN KONUSU KESINDIR (izleyiciler YouTube'da bunu ariyor): " + prio[0]["konu"] +
+                       ". Baska konu SECME; baslik ve thumb_hook'ta yer adini kullan.")
     prompt = (
         f"Kategori: {category['hint']}\n\n"
         f"Bu kategoriye uygun, YAYGIN BILINEN bir Turk/Osmanli/Anadolu efsanesi ya da "

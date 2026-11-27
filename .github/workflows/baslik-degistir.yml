@@ -1,0 +1,47 @@
+name: YouTube - video basligini degistir
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: "YouTube video ID'si"
+        required: true
+      title:
+        description: "Yeni baslik (en fazla 100 karakter)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  baslik:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Basligi guncelle
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_ID: ${{ github.event.inputs.video_id }}
+          NEW_TITLE: ${{ github.event.inputs.title }}
+        run: |
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, "scripts")
+          import upload_youtube as u
+          yt = u.get_authenticated_service()
+          vid, new = os.environ["VIDEO_ID"], os.environ["NEW_TITLE"].strip()[:100]
+          item = yt.videos().list(part="snippet", id=vid).execute()["items"][0]
+          sn = item["snippet"]
+          old = sn["title"]
+          body = {"id": vid, "snippet": {k: sn[k] for k in ("title", "description", "tags", "categoryId", "defaultLanguage") if k in sn}}
+          body["snippet"]["title"] = new
+          yt.videos().update(part="snippet", body=body).execute()
+          print(f"::notice title=Baslik degisti::{old} -> {new}")
+          PY
