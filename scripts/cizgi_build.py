@@ -75,7 +75,8 @@ def hook_end(words):
             end = w["e"]
             break
     end = end if end is not None else 3.5
-    return int(round(min(4.5, max(3.0, end + 0.2)) * FPS))
+    # olcum: viral videolarin 9/10'unda ilk 5 sn'de >= 3 ayri goruntu var -> acilis karesi en fazla 3.2 sn
+    return int(round(min(3.2, max(2.0, end + 0.15)) * FPS))
 
 
 def words_from_edge(sw, boundaries):
@@ -152,7 +153,10 @@ def main():
     MIN_PART, MAX_PART = 36, 80
     for b in beats:
         b["cuts"] = []
-        if b["f1"] - b["f0"] <= MAX_PART:
+        # ilk 5 saniye: acilistan sonraki vurusta en az bir ara kesme olsun (>= 3 goruntu kurali)
+        early = b["f0"] < 5 * FPS and b is not beats[0]
+        min_p, max_p = (24, 48) if early else (MIN_PART, MAX_PART)
+        if b["f1"] - b["f0"] <= max_p:
             continue
         cand = []  # (kare, oncelik): duraktan sonra gelen kelime = 0, diger kelime basi = 1
         for j in range(b["w0"] + 1, b["w1"] + 1):
@@ -160,8 +164,8 @@ def main():
             pri = 0 if re.search(r"[,.;:!?…]$", words[j - 1]["w"]) else 1
             cand.append((f, pri))
         last = b["f0"]
-        while b["f1"] - last > MAX_PART:
-            ok = [(f, p) for f, p in cand if f - last >= MIN_PART and b["f1"] - f >= MIN_PART and f - last <= MAX_PART]
+        while b["f1"] - last > max_p:
+            ok = [(f, p) for f, p in cand if f - last >= min_p and b["f1"] - f >= min_p and f - last <= max_p]
             if not ok:
                 break
             pause = [c for c in ok if c[1] == 0]

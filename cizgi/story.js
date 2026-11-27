@@ -12,9 +12,9 @@ const R = {};          // çekim içinde oynatılan objeler
 
 // ---------------------------------------------------------------- ışık
 const LIGHT = {
-  zifiri: { sun: "#9fb4ff", sunI: 0.85, az: 205, el: 38, sky: "#1c2550", ground: "#1c1c3a", hemiI: 0.85, amb: 0.26, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.52 },
-  icgece: { sun: "#ffd9a8", sunI: 1.0, az: -40, el: 55, sky: "#4a3a40", ground: "#3a2a20", hemiI: 0.95, amb: 0.32, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f4dcc4", sat: 1.08, warm: 0.05, con: 1.1, vig: 0.5 },
-  ozel: { sun: "#b8c6ff", sunI: 0.7, az: 205, el: 40, sky: "#2c3566", ground: "#2a2a3a", hemiI: 0.8, amb: 0.22, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 40, fogFar: 160, card: "#e4e2f4", sat: 1.06, warm: 0.0, con: 1.1, vig: 0.42 },
+  zifiri: { sun: "#9fb4ff", sunI: 0.85, az: 205, el: 38, sky: "#1c2550", ground: "#1c1c3a", hemiI: 0.85, amb: 0.26, top: "#0b1434", bot: "#2a3874", fog: "#18234a", fogNear: 24, fogFar: 115, card: "#cfd5f2", sat: 1.06, warm: -0.03, con: 1.12, vig: 0.40, lift: 0.075 },
+  icgece: { sun: "#ffd9a8", sunI: 1.0, az: -40, el: 55, sky: "#4a3a40", ground: "#3a2a20", hemiI: 0.95, amb: 0.32, top: "#2a1c22", bot: "#5a3a2a", fog: "#2a1c1c", fogNear: 18, fogFar: 80, card: "#f4dcc4", sat: 1.08, warm: 0.05, con: 1.1, vig: 0.40, lift: 0.06 },
+  ozel: { sun: "#b8c6ff", sunI: 0.7, az: 205, el: 40, sky: "#2c3566", ground: "#2a2a3a", hemiI: 0.8, amb: 0.22, top: "#050a24", bot: "#24306a", fog: "#141d40", fogNear: 40, fogFar: 160, card: "#e4e2f4", sat: 1.06, warm: 0.0, con: 1.1, vig: 0.36, lift: 0.075 },
   gece: "night", dramatik: "dramatic", altin: "golden", gunduz: "day", ic: "interior",
 };
 const L = (n) => LIGHT[n] || n;

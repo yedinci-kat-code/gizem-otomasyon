@@ -108,6 +108,41 @@ def generate_voice_wiro(text: str, output_path: str):
     return []
 
 
+def tighten_voice(path):
+    """Olcum (Kas 2026): anlatimimiz 1.6-1.7 kelime/sn, cumle arasi sessizlik %15-21, her videoda 8-9 uzun durak;
+    viral referans 2.6 kelime/sn, sessizlik %8, uzun durak yok. Duraklari kisaltir, sesi tonunu bozmadan hizlandirir."""
+    import subprocess
+    tempo = float(os.environ.get("VOICE_TEMPO", "1.25"))
+    keep = float(os.environ.get("VOICE_GAP_KEEP", "0.14"))
+    if tempo <= 1.0 and keep <= 0:
+        return False
+    tmp = path + ".tmp.mp3"
+    af = (f"silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.02:"
+          f"stop_periods=-1:stop_duration={keep + 0.04:.2f}:stop_threshold=-45dB:stop_silence={keep:.2f},"
+          f"atempo={tempo:.3f}")
+    try:
+        before = _dur(path)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-af", af, "-ar", "44100", "-b:a", "192k", tmp], check=True)
+        after = _dur(tmp)
+        if not after or after < before * 0.45:  # asiri kirpma: guvenlik icin orijinal kalsin
+            print(f"UYARI: tempo isleme supheli ({before:.1f}s -> {after}s), orijinal ses kullaniliyor")
+            os.remove(tmp)
+            return False
+        os.replace(tmp, path)
+        print(f"Tempo: {before:.1f} sn -> {after:.1f} sn (durak <= {keep}s, hiz x{tempo})")
+        return True
+    except Exception as e:
+        print("UYARI: tempo islenemedi:", e)
+        return False
+
+
+def _dur(p):
+    import subprocess
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", p],
+                         capture_output=True, text=True).stdout.strip()
+    return float(out) if out else 0.0
+
+
 if __name__ == "__main__":
     with open("output/story.json", "r", encoding="utf-8") as f:
         story = json.load(f)
@@ -129,6 +164,9 @@ if __name__ == "__main__":
             boundaries = asyncio.run(generate_voice_edge(text, "output/voice.mp3"))
     else:
         boundaries = asyncio.run(generate_voice_edge(text, "output/voice.mp3"))
+
+    if tighten_voice("output/voice.mp3"):
+        boundaries = []  # ses degisti: kelime zamanlarini whisper yeniden cikarir
 
     with open("output/word_timings.json", "w", encoding="utf-8") as f:
         json.dump(boundaries, f, ensure_ascii=False, indent=2)

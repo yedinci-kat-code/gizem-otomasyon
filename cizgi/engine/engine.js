@@ -38,8 +38,10 @@ export const LIGHTS = {
 };
 const mixLight = (a, b, t) => {
   const o = {};
-  for (const k in a) {
-    if (typeof a[k] === "number") o[k] = lerp(a[k], b[k], t);
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    if (k === "lift") { o[k] = lerp(a[k] || 0, b[k] || 0, t); continue; }
+    if (!(k in a)) continue;
+    if (typeof a[k] === "number") o[k] = lerp(a[k], b[k] === undefined ? a[k] : b[k], t);
     else o[k] = "#" + new THREE.Color(a[k]).lerp(new THREE.Color(b[k]), t).getHexString();
   }
   return o;
@@ -58,7 +60,7 @@ void main(){ vec3 n = normalize(vN); if(!gl_FrontFacing) n = -n;
 const FS_VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy,0.0,1.0); }`;
 const COMP_FRAG = `
 uniform sampler2D tColor; uniform sampler2D tND; uniform vec2 uRes; uniform float uInk; uniform vec3 uInkCol;
-uniform float uSat; uniform float uCon; uniform float uWarm; uniform float uVig; uniform float uFlash; uniform vec3 uFlashCol; uniform float uFar; uniform float uTime; uniform float uFade;
+uniform float uSat; uniform float uLift; uniform float uCon; uniform float uWarm; uniform float uVig; uniform float uFlash; uniform vec3 uFlashCol; uniform float uFar; uniform float uTime; uniform float uFade;
 varying vec2 vUv;
 vec3 toSRGB(vec3 c){ c = max(c, 0.0); return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4))-0.055, step(0.0031308, c)); }
 float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
@@ -81,6 +83,7 @@ void main(){
   col = mix(vec3(l), col, uSat);
   col = (col - 0.5) * uCon + 0.5;
   col += vec3(uWarm, uWarm*0.25, -uWarm);
+  col = uLift + max(col, 0.0) * (1.0 - uLift);  // siyah tabani kaldir (telefonda camur gorunmesin)
   col = mix(col, uInkCol, edge*0.92);
   vec2 q = vUv - 0.5; q.x *= uRes.x/uRes.y; float v = smoothstep(0.85, 0.2, length(q)*1.25); col *= mix(1.0, v, uVig);
   col += (hash(vUv*uRes + uTime) - 0.5) * 0.025;
@@ -143,7 +146,7 @@ export class Engine {
     this.fsScene = new THREE.Scene(); this.fsCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     this.compMat = new THREE.ShaderMaterial({ vertexShader: FS_VERT, fragmentShader: COMP_FRAG, uniforms: {
       tColor: { value: this.rtColor.texture }, tND: { value: this.rtND.texture }, uRes: { value: new THREE.Vector2(this.rw, this.rh) }, uInk: { value: 2.4 * this.scale * (this.H / 1920) * 1.0 },
-      uInkCol: { value: new THREE.Color(0x1d1622) }, uSat: { value: 1.1 }, uCon: { value: 1.05 }, uWarm: { value: 0 }, uVig: { value: 0.3 }, uFlash: { value: 0 }, uFlashCol: { value: new THREE.Color(1, 1, 1) }, uFar: { value: this.far }, uTime: { value: 0 }, uFade: { value: 1 } } });
+      uInkCol: { value: new THREE.Color(0x1d1622) }, uSat: { value: 1.1 }, uLift: { value: 0 }, uCon: { value: 1.05 }, uWarm: { value: 0 }, uVig: { value: 0.3 }, uFlash: { value: 0 }, uFlashCol: { value: new THREE.Color(1, 1, 1) }, uFar: { value: this.far }, uTime: { value: 0 }, uFade: { value: 1 } } });
     this.dofMat = new THREE.ShaderMaterial({ vertexShader: FS_VERT, fragmentShader: DOF_FRAG, uniforms: {
       tImg: { value: this.rtComp.texture }, tND: { value: this.rtND.texture }, uRes: { value: new THREE.Vector2(this.rw, this.rh) }, uFocus: { value: 5 }, uAmt: { value: 0 }, uFar: { value: this.far }, uRange: { value: 4 } } });
     this.fsQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.compMat); this.fsScene.add(this.fsQuad);
@@ -192,7 +195,7 @@ export class Engine {
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI; this.amb.intensity = L.amb;
     this.skyMat.uniforms.uTop.value.set(L.top); this.skyMat.uniforms.uBot.value.set(L.bot);
     this.scene.fog.color.set(L.fog); this.scene.fog.near = L.fogNear; this.scene.fog.far = L.fogFar;
-    const u = this.compMat.uniforms; u.uSat.value = L.sat; u.uWarm.value = L.warm; u.uCon.value = L.con; u.uVig.value = L.vig;
+    const u = this.compMat.uniforms; u.uSat.value = L.sat; u.uLift.value = L.lift || 0; u.uWarm.value = L.warm; u.uCon.value = L.con; u.uVig.value = L.vig;
     this.cardTint = L.card;
   }
 
