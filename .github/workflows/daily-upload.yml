@@ -32,10 +32,26 @@ concurrency:
 env:
   SHARDS: "4"
   # Yayin saatleri (Istanbul). cron-job.org run'i bundan 1-2 saat once baslatir; video hazir olunca bu saate planlanir.
-  PUBLISH_SLOTS: "12:30,18:30,21:30"
+  PUBLISH_SLOTS: "12:30,18:30"
 
 jobs:
+  # Yayin saatine yakin olmayan bir tetikleme (eski/fazla cron) kredi harcamasin ve yanlis saatte yayinlamasin
+  saat_kontrol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      ok: ${{ steps.k.outputs.ok }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: k
+        run: |
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ github.event.inputs.upload }}" = "false" ] || [ "${{ github.event.inputs.deneme }}" != "1" ]; then echo "ok=true" >> $GITHUB_OUTPUT; exit 0; fi
+          python3 scripts/publish_time.py kontrol
+          grep -q "ok=false" $GITHUB_OUTPUT && echo "::notice title=Atlandi::Yakinda yayin saati yok (PUBLISH_SLOTS=$PUBLISH_SLOTS), video uretilmedi." || true
+
   hazirla:
+    needs: saat_kontrol
+    if: ${{ needs.saat_kontrol.outputs.ok == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
